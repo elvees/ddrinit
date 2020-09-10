@@ -1,0 +1,32 @@
+---
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.5.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: mixed-line-ending
+      - id: check-byte-order-marker
+      - id: check-executables-have-shebangs
+      - id: check-merge-conflict
+      - id: debug-statements
+      - id: check-yaml
+        files: .*\.(yaml|yml)$
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.20.0
+    hooks:
+      - id: yamllint
+  - repo: https://github.com/PyCQA/doc8
+    rev: 0.8.1rc3
+    hooks:
+      - id: doc8
+        args: [--quiet, --max-line-length=100]
+  - repo: https://github.com/jorisroovers/gitlint
+    rev: v0.12.0
+    hooks:
+      - id: gitlint
+        stages: [commit-msg]
+      - id: gitlint
+        entry: gitlint
+        pass_filenames: false
+        stages: [manual]

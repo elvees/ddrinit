@@ -1,0 +1,4 @@
+.*
+!.gitignore
+Pipfile.lock
+build/

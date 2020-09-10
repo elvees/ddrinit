@@ -1,0 +1,13 @@
+[general]
+# title-must-not-contain-word/T5 bans WIP in commit message title
+# we are okay with it the word as WIP commits are frequently reviewed
+ignore = title-must-not-contain-word
+
+[title-max-length]
+line-length = 65
+
+[body-max-line-length]
+line-length = 72
+
+[title-match-regex]
+regex = ^([\.a-zA-Z0-9-_]+: )*[A-Z].*
