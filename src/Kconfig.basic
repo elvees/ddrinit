@@ -1,0 +1,227 @@
+choice
+	prompt "DRAM type select"
+
+	config DRAM_TYPE_DDR3
+		bool "DDR3"
+		help
+		  DDR3 and DDR3L DRAM types
+
+	config DRAM_TYPE_DDR4
+		bool "DDR4"
+		help
+		  DDR4 DRAM type
+
+	config DRAM_TYPE_LPDDR3
+		bool "LPDDR3"
+		depends on !PLATFORM_SOLARIS
+		help
+		  LPDDR3 DRAM type
+
+	config DRAM_TYPE_LPDDR4
+		bool "LPDDR4"
+		depends on !PLATFORM_SOLARIS
+		help
+		  LPDDR4 DRAM type
+endchoice
+
+config BURST_LEN
+	int "DRAM burst length"
+	default 8
+	help
+	  DRAM burst length
+
+config UART_BASE
+	hex
+	default 0xffffffffbcc40000 if PLATFORM_SOLARIS
+	help
+	  Base address of UART controller
+
+config UART_BAUDRATE
+	int "UART Baudrate"
+	default 115200
+	help
+	  UART baudrate
+
+config UART_BASE_FREQ
+	int "UART input frequency"
+	default 40000000 if PLATFORM_SOLARIS
+	help
+	  UART input frequency in Hz
+
+config SPD_EEPROM
+	bool "SPD EEPROM"
+	default y
+	help
+	  Get DRAM configuration from Serial Presence Detect (SPD) EEPROM
+
+choice
+	prompt "DRAM rate select"
+	depends on SPD_EEPROM
+
+	config DRAM_RATE_SPD_MAXIMUM
+		bool "Maximum DRAM rate from SPD"
+
+	config DRAM_RATE_SPD_MINIMUM
+		bool "Minimum DRAM rate from SPD"
+
+	config DRAM_RATE_CUSTOM
+		bool "Custom DRAM rate"
+endchoice
+
+choice
+	prompt "DRAM rate select"
+	depends on SPD_EEPROM && DRAM_RATE_CUSTOM || !SPD_EEPROM
+
+	config DRAM_RATE_1066
+		depends on !DRAM_TYPE_DDR4
+		bool "1066 MT/s"
+
+	config DRAM_RATE_1333
+		bool "1333 MT/s"
+
+	config DRAM_RATE_1600
+		bool "1600 MT/s"
+
+	config DRAM_RATE_1866
+		bool "1866 MT/s"
+
+	config DRAM_RATE_2133
+		bool "2133 MT/s"
+
+	config DRAM_RATE_2400
+		depends on !DRAM_TYPE_DDR3
+		bool "2400 MT/s"
+
+	config DRAM_RATE_2666
+		depends on !DRAM_TYPE_DDR3
+		bool "2666 MT/s"
+
+	config DRAM_RATE_2933
+		depends on !DRAM_TYPE_DDR3
+		bool "2933 MT/s"
+
+	config DRAM_RATE_3200
+		depends on !DRAM_TYPE_DDR3
+		bool "3200 MT/s"
+
+endchoice
+
+choice
+	prompt "DRAM CAS latency select"
+	depends on SPD_EEPROM
+
+	config DRAM_CAS_SPD_MINIMUM
+		bool "Minimum CAS latency from SPD"
+
+	config DRAM_CAS_CUSTOM
+		bool "Custom CAS latency"
+endchoice
+
+config DRAM_CAS_LATENCY
+	int "CAS latency"
+	range 5 24
+	default 7 if DRAM_TYPE_DDR3 && DRAM_RATE_1066
+	default 9 if DRAM_TYPE_DDR3 && DRAM_RATE_1333
+	default 11 if DRAM_TYPE_DDR3 && DRAM_RATE_1600
+	default 13 if DRAM_TYPE_DDR3 && DRAM_RATE_1866
+	default 14 if DRAM_TYPE_DDR3 && DRAM_RATE_2133
+	depends on SPD_EEPROM && DRAM_CAS_CUSTOM || !SPD_EEPROM
+	help
+	  DRAM CAS latency
+
+config I2C_FREQ
+	hex "I2C input frequency"
+	depends on SPD_EEPROM
+	default 40000000 if PLATFORM_SOLARIS
+	help
+	  I2C input frequency in Hz
+
+config I2C0_BASE
+	hex
+	depends on SPD_EEPROM
+	default 0xffffffffbd070000 if PLATFORM_SOLARIS
+	help
+	  Base address of I2C controller #0
+
+config I2C_GAP
+	hex
+	depends on SPD_EEPROM
+	default 0x2900000 if PLATFORM_SOLARIS
+	help
+	  Address gap between I2C0 and I2C1 controllers
+
+config DIMM0_I2C_ADDR
+	hex "DIMM0 I2C address"
+	depends on SPD_EEPROM
+	default 0x51
+	help
+	  DIMM0 I2C address
+
+config DIMM1_I2C_ADDR
+	hex "DIMM1 I2C address"
+	depends on SPD_EEPROM
+	default 0x52
+	help
+	  DIMM1 I2C address
+
+config DIMM2_I2C_ADDR
+	hex "DIMM2 I2C address"
+	depends on SPD_EEPROM
+	default 0x53
+	help
+	  DIMM2 I2C address
+
+config DIMM3_I2C_ADDR
+	hex "DIMM3 I2C address"
+	depends on SPD_EEPROM
+	default 0x54
+	help
+	  DIMM3 I2C address
+
+config DIMM4_I2C_ADDR
+	hex "DIMM4 I2C address"
+	depends on SPD_EEPROM
+	default 0x51
+	help
+	  DIMM4 I2C address
+
+config DIMM5_I2C_ADDR
+	hex "DIMM5 I2C address"
+	depends on SPD_EEPROM
+	default 0x52
+	help
+	  DIMM5 I2C address
+
+config DIMM6_I2C_ADDR
+	hex "DIMM6 I2C address"
+	depends on SPD_EEPROM
+	default 0x53
+	help
+	  DIMM6 I2C address
+
+config DIMM7_I2C_ADDR
+	hex "DIMM7 I2C address"
+	depends on SPD_EEPROM
+	default 0x54
+	help
+	  DIMM7 I2C address
+
+config DRAM_TCK
+	int
+	default 1876 if DRAM_RATE_1066
+	default 1500 if DRAM_RATE_1333
+	default 1250 if DRAM_RATE_1600
+	default 1071 if DRAM_RATE_1866
+	default 937 if DRAM_RATE_2133
+	default 833 if DRAM_RATE_2400
+	default 682 if DRAM_RATE_2933
+	default 625 if DRAM_RATE_3200
+	depends on SPD_EEPROM && DRAM_RATE_CUSTOM || !SPD_EEPROM
+
+config DRAM_RANKS
+	int "Active DRAM ranks"
+	range 1 4
+	default 1
+	depends on !SPD_EEPROM
+	help
+	  Number of active DRAM ranks

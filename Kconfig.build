@@ -1,0 +1,20 @@
+choice
+	prompt "Build type"
+
+	config BUILD_TYPE_RELEASE
+		bool "Release"
+		help
+		  Release build type
+
+	config BUILD_TYPE_DEBUG
+		bool "Debug"
+		help
+		  Debug build type
+endchoice
+
+config BOOTMODE_NOSTART
+	bool "Build for NOSTART boot mode"
+	default false if PLATFORM_SOLARIS
+	help
+	  If enabled puts CPU in endless loop after ddrinit completion since
+          there is no place to return in NOSTART boot mode.

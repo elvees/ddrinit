@@ -1,4 +1,10 @@
 .*
 !.gitignore
+!.clang-format
+*.o
+*.bin
+*.elf
+*.dis
 Pipfile.lock
-build/
+doc/build/
+include/config.h

@@ -53,4 +53,14 @@ node('linux') {
             make -C doc check
         '''
     }
+
+    stage('Build') {
+        sh '''
+            source .venv/bin/activate
+            module load cmake
+            module load toolchain/mips/codescape/img/bare/2018.09-03
+            make solarisbub_defconfig
+            make CROSS_COMPILE=mips-img-elf-
+        '''
+    }
 }

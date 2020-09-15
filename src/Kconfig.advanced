@@ -1,0 +1,164 @@
+choice
+	prompt "PHY ODT select"
+
+	config PHY_ODT_60
+		bool "60 Ohms"
+		help
+		  TBD
+
+	config PHY_ODT_240
+		bool "240 Ohms"
+		help
+		  TBD
+
+	config PHY_ODT_120
+		bool "120 Ohms"
+		help
+		  TBD
+
+	config PHY_ODT_80
+		bool "80 Ohms"
+		help
+		  TBD
+
+	config PHY_ODT_40
+		bool "40 Ohms"
+		help
+		  TBD
+
+	config PHY_ODT_HIZ
+		bool "HiZ"
+		help
+		  TBD
+endchoice
+
+choice
+	prompt "PHY TX Impedance select"
+
+	config PHY_TX_IMPEDANCE_60
+		bool "60 Ohms"
+		help
+		  TBD
+
+	config PHY_TX_IMPEDANCE_240
+		bool "240 Ohms"
+		help
+		  TBD
+
+	config PHY_TX_IMPEDANCE_120
+		bool "120 Ohms"
+		help
+		  TBD
+
+	config PHY_TX_IMPEDANCE_80
+		bool "80 Ohms"
+		help
+		  TBD
+
+	config PHY_TX_IMPEDANCE_40
+		bool "40 Ohms"
+		help
+		  TBD
+
+	config PHY_TX_IMPEDANCE_HIZ
+		bool "HiZ"
+		help
+		  TBD
+endchoice
+
+choice
+	prompt "PHY ATX impedance select"
+
+	config PHY_ATX_IMPEDANCE_20
+		bool "20 Ohms"
+		help
+		  TBD
+
+	config PHY_ATX_IMPEDANCE_120
+		bool "120 Ohms"
+		help
+		  TBD
+
+	config PHY_ATX_IMPEDANCE_60
+		bool "60 Ohms"
+		help
+		  TBD
+
+	config PHY_ATX_IMPEDANCE_40
+		bool "40 Ohms"
+		help
+		  TBD
+
+	config PHY_ATX_IMPEDANCE_24
+		bool "24 Ohms"
+		help
+		  TBD
+endchoice
+
+choice
+	prompt "External calibration resistor select"
+
+	config PHY_CALIBRATION_EXT_RESISTOR_240
+		bool "240 Ohms"
+		help
+		  TBD
+
+	config PHY_CALIBRATION_EXT_RESISTOR_120
+		bool "120 Ohms"
+		help
+		  TBD
+
+	config PHY_CALIBRATION_EXT_RESISTOR_40
+		bool "40 Ohms"
+		help
+		  TBD
+endchoice
+
+config PHY_CALIBRATION_INTERVAL
+	int "PHY calibration interval"
+	default 9
+	range 0 9
+	help
+	  TBD
+
+config PHY_TXSLEW_FALL_DQ
+	hex "TXSLEW_FALL_DQ"
+	default 0xf if PLATFORM_MCOM03
+	default 0xf if PLATFORM_SOLARIS
+	help
+	  TBD
+
+config PHY_TXSLEW_RISE_DQ
+	hex "TXSLEW_RISE_DQ"
+	default 0xf if PLATFORM_MCOM03
+	default 0xf if PLATFORM_SOLARIS
+	help
+	  TBD
+
+config PHY_TXSLEW_FALL_AC
+	hex "TXSLEW_FALL_AC"
+	default 0xf if PLATFORM_MCOM03
+	default 0xf if PLATFORM_SOLARIS
+	help
+	  TBD
+
+config PHY_TXSLEW_RISE_AC
+	hex "TXSLEW_RISE_AC"
+	default 0xf if PLATFORM_MCOM03
+	default 0xf if PLATFORM_SOLARIS
+	help
+	  TBD
+
+config PHY_D4RX_PREAMBLE_LEN
+	int "D4RX_PREAMBLE_LEN"
+	default 1 if PLATFORM_MCOM03
+	default 1 if PLATFORM_SOLARIS
+	help
+	  TBD
+
+config PHY_D4TX_PREAMBLE_LEN
+	int "D4RX_PREAMBLE_LEN"
+	default 0 if PLATFORM_MCOM03
+	default 0 if PLATFORM_SOLARIS
+	help
+	  TBD

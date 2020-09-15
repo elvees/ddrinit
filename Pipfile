@@ -8,6 +8,7 @@ pre-commit = "*"
 
 [packages]
 sphinx = ">=3.2, <3.3"
+kconfiglib = ">=14.1, <15.0"
 
 [requires]
 python_version = "3.6"

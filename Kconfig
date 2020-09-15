@@ -1,0 +1,20 @@
+mainmenu "DDR initializer"
+
+menu "Basic options"
+
+source "src/plat/Kconfig.plat"
+source "src/Kconfig.basic"
+
+endmenu
+
+menu "Advanced options"
+
+source "src/Kconfig.advanced"
+
+endmenu
+
+menu "Build options"
+
+source "Kconfig.build"
+
+endmenu

@@ -1,0 +1,167 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright 2020 RnD Center "ELVEES", JSC
+ */
+
+#include <phy.h>
+#include <regs.h>
+
+#ifdef CONFIG_DRAM_TYPE_DDR4
+#include <dram/ddr4/fw-imem-1d.h>
+#include <dram/ddr4/fw-dmem-1d.h>
+#include <dram/ddr4/fw-pie.h>
+#endif
+
+enum firmware_type {
+	FW_IMEM_1D,
+	FW_DMEM_1D,
+	FW_IMEM_2D,
+	FW_DMEM_2D,
+	FW_PIE,
+};
+
+static int firmware_load(int ctrl_id, enum firmware_type fwtype)
+{
+	uint8_t *fw;
+	unsigned long write_offset;
+	int i, fw_size, size, padding_size;
+
+	switch (fwtype) {
+	case FW_IMEM_1D:
+		fw = &fw_imem_1d[0];
+		write_offset = CONFIG_PHY_IMEM_OFFSET;
+		fw_size = fw_imem_1d_size;
+		padding_size = CONFIG_PHY_IMEM_SIZE - fw_size;
+		break;
+	case FW_DMEM_1D:
+		fw = &fw_dmem_1d[0];
+		write_offset = CONFIG_PHY_DMEM_OFFSET;
+		fw_size = fw_dmem_1d_size;
+		padding_size = 0;
+		break;
+	case FW_PIE:
+		fw = &fw_pie[0];
+		write_offset = CONFIG_PHY_PIE_OFFSET;
+		fw_size = fw_pie_size;
+		padding_size = 0;
+		break;
+	default:
+		return -EFWTYPE;
+	};
+
+	size = (fw_size % 2) ? fw_size - 1 : fw_size;
+	for (i = 0; i < size; i += 2) {
+		phy_write16(ctrl_id, write_offset, (fw[i + 1] << 8) | fw[i]);
+		write_offset += 4;
+	}
+
+	if (fw_size % 2) {
+		phy_write16(ctrl_id, write_offset, (uint16_t)fw[size]);
+		write_offset += 4;
+		size += 2;
+	}
+
+	if (padding_size != 0) {
+		for (i = size; i < fw_size + padding_size; i += 2) {
+			phy_write16(ctrl_id, write_offset, 0);
+			write_offset += 4;
+		}
+	}
+
+	return 0;
+}
+
+static inline uint32_t mail_get(int ctrl_id)
+{
+	uint32_t mail;
+
+	/*  Poll the UctWriteProtShadow, looking for 0 */
+	while ((phy_read32(ctrl_id, PHY_UCT_SHADOW_REGS) & 0x1))
+		continue;
+
+	mail = phy_read32(ctrl_id, PHY_UCT_WRITE_ONLY_SHADOW);
+
+	/* Acknowledge receipt of the message */
+	phy_write32(ctrl_id, PHY_DCT_WRITE_PROT, 0);
+
+	/*  Poll the UctWriteProtShadow, looking for 1 */
+	while (!(phy_read32(ctrl_id, PHY_UCT_SHADOW_REGS) & 0x1))
+		continue;
+
+	/* Complete the protocol */
+	phy_write32(ctrl_id, PHY_DCT_WRITE_PROT, 1);
+
+	return mail;
+}
+
+static inline void major_msg_decode(uint32_t mail)
+{
+	/* TBD */
+}
+
+static inline void streaming_msg_decode(void)
+{
+	/* TBD */
+}
+
+static int training_complete_wait(int ctrl_id)
+{
+	uint32_t mail;
+
+	while (1) {
+		mail = mail_get(ctrl_id);
+		major_msg_decode(mail);
+		if (mail == 0x08) {
+			streaming_msg_decode();
+		} else if (mail == 0x07) {
+			return 0;
+		} else if (mail == 0xff) {
+			return -ETRAINFAIL;
+		}
+	}
+}
+
+int phy_cfg(int ctrl_id, struct ddr_cfg *cfg)
+{
+	int ret;
+
+	phy_init(ctrl_id, cfg);
+
+	phy_write32(ctrl_id, PHY_MEMRESETL, 2);
+	phy_write32(ctrl_id, PHY_MICROCONT_MUXSEL, 0);
+
+	ret = firmware_load(ctrl_id, FW_IMEM_1D);
+	if (ret)
+		return ret;
+
+	ret = firmware_load(ctrl_id, FW_DMEM_1D);
+	if (ret)
+		return ret;
+
+	phy_training_params_load(ctrl_id, cfg);
+
+	/* Execute firmware */
+	phy_write32(ctrl_id, PHY_MICROCONT_MUXSEL, 0x1);
+	phy_write32(ctrl_id, PHY_MICRO_RESET, 0x9);
+	phy_write32(ctrl_id, PHY_MICRO_RESET, 0x1);
+	phy_write32(ctrl_id, PHY_MICRO_RESET, 0x0);
+
+	/* Wait for the training firmware to complete */
+	ret = training_complete_wait(ctrl_id);
+	if (ret)
+		return ret;
+
+	/* Halt the microcontroller. */
+	phy_write32(ctrl_id, PHY_MICRO_RESET, 0x1);
+
+	/* Read the Message Block results */
+	phy_write32(ctrl_id, PHY_MICROCONT_MUXSEL, 0);
+	phy_write32(ctrl_id, PHY_MICROCONT_MUXSEL, 1);
+	phy_write32(ctrl_id, PHY_MICROCONT_MUXSEL, 0);
+
+	ret = firmware_load(ctrl_id, FW_PIE);
+	if (ret)
+		return ret;
+
+	return 0;
+}

@@ -30,3 +30,7 @@ repos:
         entry: gitlint
         pass_filenames: false
         stages: [manual]
+  - repo: https://github.com/bmorcos/pre-commit-hooks-cpp
+    rev: master
+    hooks:
+      - id: cppcheck

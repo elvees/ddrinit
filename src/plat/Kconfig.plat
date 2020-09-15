@@ -1,0 +1,122 @@
+choice
+	prompt "Platform select"
+
+	config PLATFORM_MCOM03
+		bool "MCom-03"
+		help
+		  ELVEES MCom-03 SoC
+
+	config PLATFORM_SOLARIS
+		bool "Solaris"
+		help
+		  ELVEES Solaris SoC
+endchoice
+
+config DDRSUB0_BASE
+	hex
+	default 0xffffffffb9000000 if PLATFORM_SOLARIS
+	help
+	  Base address of DDR subsystem #0
+
+config DDRSUB_GAP
+	hex
+	default 0x400000 if PLATFORM_SOLARIS
+	help
+	  Gap to next DDR subsystem base address
+
+config DDRMC_MAX_NUMBER
+	int
+	default 2 if PLATFORM_MCOM03
+	default 4 if PLATFORM_SOLARIS
+	help
+	  Number of DDR controllers
+
+config DDRMC_AXI_PORTS
+	int
+	default 11 if PLATFORM_MCOM03
+	default 1 if PLATFORM_SOLARIS
+	help
+	  Number of AXI ports in each DDR controller
+
+config DDRMC_OFFSET
+	hex
+	default 0x100000 if PLATFORM_SOLARIS
+	help
+	  Offset of DDR controller's registers
+
+config PHY_OFFSET
+	hex
+	default 0x200000 if PLATFORM_SOLARIS
+	help
+	  Offset of DDR PHY's registers
+
+config PHY_DBYTE_NUM
+	int
+	default 9 if PLATFORM_SOLARIS
+	help
+	  Number of DBYTEs in DDR PHY
+
+config PHY_ANIB_NUM
+	int
+	default 12 if PLATFORM_SOLARIS
+	help
+	  Number of ANIBs in DDR PHY
+
+config PHY_ANIB_OFFSET
+	hex
+	default 0 if PLATFORM_MCOM03
+	default 0 if PLATFORM_SOLARIS
+	help
+	  Offset of ANIB registers in PHY address space
+
+config PHY_DBYTE_OFFSET
+	hex
+	default 0x20000 if PLATFORM_SOLARIS
+	help
+	  Offset of DBYTE registers in PHY address space
+
+config PHY_MASTER_OFFSET
+	hex
+	default 0x40000 if PLATFORM_SOLARIS
+	help
+	  Offset of MASTER registers in PHY address space
+
+config PHY_IMEM_OFFSET
+	hex
+	default 0xA0000 if PLATFORM_SOLARIS
+	help
+	  Offset of IMEM registers in PHY address space
+
+config PHY_IMEM_SIZE
+	int
+	default 32768
+	help
+	  DDR PHY IMEM size in bytes
+
+config PHY_DMEM_OFFSET
+	hex
+	default 0xB0000 if PLATFORM_SOLARIS
+	help
+	  Offset of DMEM registers in PHY address space
+
+config PHY_PIE_OFFSET
+	hex
+	default 0x120000 if PLATFORM_SOLARIS
+	help
+	  Offset of PIE registers in PHY address space
+
+config PHY_APBONLY_OFFSET
+	hex
+	default 0x1A0000 if PLATFORM_SOLARIS
+	help
+	  Offset of APBONLY registers in PHY address space
+
+config PHY_REG_INSTANCE_OFFSET
+	hex
+	default 0x800 if PLATFORM_SOLARIS
+	help
+	  PHY register instance offset
+
+config PHY_DFI1_EXIST
+	bool
+	default false if PLATFORM_SOLARIS
