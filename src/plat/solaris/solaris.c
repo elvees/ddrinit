@@ -240,3 +240,48 @@ void platform_i2c_cfg(void)
 {
 	/* TBD */
 }
+
+#ifndef CONFIG_SPD_EEPROM
+int platform_ddrcfg_get(int ctrl_id, struct ddr_cfg *cfg)
+{
+	strcpy(cfg->mpart, "KHX3200C16D416GX");
+
+	/* DIMM parameters */
+	cfg->ranks = 2;
+	cfg->die_size = (133 & 0xf) + 28;
+	cfg->rank_size = 1ULL << 33;
+	cfg->full_size = cfg->ranks * cfg->rank_size;
+	cfg->primary_sdram_width = 1 << (3 + (3 & 0x7)); // 64
+	cfg->ecc_sdram_width = 0;
+	cfg->full_sdram_width = cfg->primary_sdram_width + cfg->ecc_sdram_width;
+	cfg->registered_dimm = 0;
+	cfg->mirrored_dimm = 0;
+	cfg->package_3ds = 0;
+	cfg->device_width = 8;
+
+	/* SDRAM parameters */
+	cfg->row_addr_bits = 16;
+	cfg->col_addr_bits = 10;
+	cfg->bank_addr_bits = 2;
+	cfg->bank_group_bits = 2;
+
+	/* DIMM timing parameters */
+	cfg->tckmin = DRAM_TCK_2400;
+	cfg->tckmax = DRAM_TCK_1250;
+	cfg->tck = CONFIG_DRAM_TCK;
+	cfg->taa = ps2clk_jedec(13750, cfg->tck);
+	cfg->tfaw = ps2clk_jedec(21000, cfg->tck);
+	cfg->trcd = ps2clk_jedec(13750, cfg->tck);
+	cfg->trp = ps2clk_jedec(13750, cfg->tck);
+	cfg->trasmin = ps2clk_jedec(32000, cfg->tck);
+	cfg->trfc1 = ps2clk_jedec(350000, cfg->tck);
+	cfg->trfc2 = ps2clk_jedec(260000, cfg->tck);
+	cfg->trfc4 = ps2clk_jedec(160000, cfg->tck);
+	cfg->trrds = ps2clk_jedec(3300, cfg->tck);
+	cfg->trrdl = ps2clk_jedec(4900, cfg->tck);
+	cfg->tccdl = ps2clk_jedec(5000, cfg->tck);
+	cfg->trc = ps2clk_jedec(45750, cfg->tck);
+
+	return 0;
+}
+#endif

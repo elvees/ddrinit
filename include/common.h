@@ -12,6 +12,7 @@
 #include <config.h>
 #include <printf.h>
 
+#define DRAM_TCK_1250 1600
 #define DRAM_TCK_1333 1500
 #define DRAM_TCK_1600 1250
 #define DRAM_TCK_1866 1071
@@ -41,6 +42,7 @@ void delay_us(int val);
 void *memcpy(void *dest, const void *src, size_t count);
 void *memset(void *s, int c, size_t count);
 uint32_t read32(unsigned long addr);
+char *strcpy(char *dest, const char *src);
 void write32(unsigned long addr, uint32_t val);
 void write16(unsigned long addr, uint16_t val);
 
