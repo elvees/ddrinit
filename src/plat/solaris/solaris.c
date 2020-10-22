@@ -103,22 +103,17 @@ static void pll_cfg(enum ddr_ucg_id ucg_id, uint16_t fbdiv, uint32_t frac, uint8
 {
 	uint32_t val;
 
-	/* Deassert soft reset */
-	write32(UCG_UFG_REG1(ucg_id, 0), 0);
+	/* Enable Bypass */
+	write32(UCG_UFG_REG5(ucg_id, 0), UCG_UFG_REG5_BYPASS);
 
 	/* Assert power down */
 	val = read32(UCG_UFG_REG0(ucg_id, 0));
-	val |= FIELD_PREP(UCG_UFG_REG0_PLL_PD, 1) | FIELD_PREP(UCG_UFG_REG0_VCO_PD, 1) |
-	       FIELD_PREP(UCG_UFG_REG0_OP_PD, 1) | FIELD_PREP(UCG_UFG_REG0_PH_PD, 1);
+	val |= UCG_UFG_REG0_PLL_PD | UCG_UFG_REG0_VCO_PD | UCG_UFG_REG0_OP_PD |
+	       UCG_UFG_REG0_PH_PD | UCG_UFG_REG0_DOC_PD | UCG_UFG_REG0_DSM_PD;
 	write32(UCG_UFG_REG0(ucg_id, 0), val);
 
-	/* Enable Bypass */
-	write32(UCG_UFG_REG5(ucg_id, 0), FIELD_PREP(UCG_UFG_REG5_BYPASS, 1));
-
-	/* Enable fractional mode */
-	val = read32(UCG_UFG_REG0(ucg_id, 0));
-	val &= ~UCG_UFG_REG0_DOC_PD & ~UCG_UFG_REG0_DSM_PD;
-	write32(UCG_UFG_REG0(ucg_id, 0), val);
+	/* Deassert soft reset */
+	write32(UCG_UFG_REG1(ucg_id, 0), 0);
 
 	/* Set REFDIV */
 	write32(UCG_UFG_REG2(ucg_id, 0), 1);
@@ -126,7 +121,8 @@ static void pll_cfg(enum ddr_ucg_id ucg_id, uint16_t fbdiv, uint32_t frac, uint8
 	/* Set POSTDIV1 and POSTDIV2 */
 	val = read32(UCG_UFG_REG10(ucg_id, 0));
 	val &= ~UCG_UFG_REG10_POSTDIV1 & ~UCG_UFG_REG10_POSTDIV2;
-	val |= FIELD_PREP(UCG_UFG_REG10_POSTDIV1, postdiv1) | FIELD_PREP(UCG_UFG_REG10_POSTDIV2, 1);
+	val |= FIELD_PREP(UCG_UFG_REG10_POSTDIV1, postdiv1) |
+	       FIELD_PREP(UCG_UFG_REG10_POSTDIV2, 1);
 	write32(UCG_UFG_REG10(ucg_id, 0), val);
 
 	/* Set FBDIV */
@@ -139,17 +135,13 @@ static void pll_cfg(enum ddr_ucg_id ucg_id, uint16_t fbdiv, uint32_t frac, uint8
 	write32(UCG_UFG_REG4(ucg_id, 0), frac);
 
 	/* Propogate changes */
-	write32(UCG_UFG_REG6(ucg_id, 0), FIELD_PREP(UCG_UFG_REG6_UPDATE, 1));
-
-	/* Disable bypass */
-	val = read32(UCG_UFG_REG5(ucg_id, 0));
-	val &= ~UCG_UFG_REG5_BYPASS;
-	write32(UCG_UFG_REG5(ucg_id, 0), val);
+	write32(UCG_UFG_REG6(ucg_id, 0), UCG_UFG_REG6_UPDATE);
 
 	/* Deassert power down */
-	val = read32(UCG_UFG_REG0(ucg_id, 0));
-	val &= ~UCG_UFG_REG0_PLL_PD & ~UCG_UFG_REG0_OP_PD;
-	write32(UCG_UFG_REG0(ucg_id, 0), val);
+	write32(UCG_UFG_REG0(ucg_id, 0), 0);
+
+	/* Disable bypass */
+	write32(UCG_UFG_REG5(ucg_id, 0), 0);
 
 	/* Wait for locking */
 	while (!(read32(UCG_UFG_REG0(ucg_id, 0)) & UCG_UFG_REG0_LOCKSTAT))
