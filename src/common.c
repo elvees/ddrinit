@@ -5,19 +5,29 @@
 
 #include <common.h>
 
-void write32(unsigned long addr, uint32_t val)
-{
-	*((volatile uint32_t *)addr) = val;
-}
-
 void write16(unsigned long addr, uint16_t val)
 {
 	*((volatile uint16_t *)addr) = val;
 }
 
+void write32(unsigned long addr, uint32_t val)
+{
+	*((volatile uint32_t *)addr) = val;
+}
+
+void write64(unsigned long addr, uint64_t val)
+{
+	*((volatile uint64_t *)addr) = val;
+}
+
 uint32_t read32(unsigned long addr)
 {
 	return *((volatile uint32_t *)addr);
+}
+
+uint64_t read64(unsigned long addr)
+{
+	return *((volatile uint64_t *)addr);
 }
 
 void delay_us(int val)

@@ -42,8 +42,10 @@ void delay_us(int val);
 void *memcpy(void *dest, const void *src, size_t count);
 void *memset(void *s, int c, size_t count);
 uint32_t read32(unsigned long addr);
+uint64_t read64(unsigned long addr);
 char *strcpy(char *dest, const char *src);
-void write32(unsigned long addr, uint32_t val);
 void write16(unsigned long addr, uint16_t val);
+void write32(unsigned long addr, uint32_t val);
+void write64(unsigned long addr, uint64_t val);
 
 #endif

@@ -50,24 +50,24 @@ int ddr_init(int ctrl_id, struct ddr_cfg *cfg)
 	uint32_t val;
 
 	/* Step 1 */
-	ret = power_up(ctrl_id);
+	ret = platform_power_up(ctrl_id);
 	if (ret)
 		return ret;
 
-	reset_ctl(ctrl_id, PRESETN, RESET_ASSERT);
-	reset_ctl(ctrl_id, CORERESETN, RESET_ASSERT);
+	platform_reset_ctl(ctrl_id, PRESETN, RESET_ASSERT);
+	platform_reset_ctl(ctrl_id, CORERESETN, RESET_ASSERT);
 
-	ret = clocks_cfg(ctrl_id, cfg);
+	ret = platform_clk_cfg(ctrl_id, cfg);
 	if (ret)
 		return ret;
 
-	reset_ctl(ctrl_id, PRESETN, RESET_DEASSERT);
+	platform_reset_ctl(ctrl_id, PRESETN, RESET_DEASSERT);
 
 	/* Step 2 */
 	ddrmc_cfg(ctrl_id, cfg);
 
 	/* Step 3 */
-	reset_ctl(ctrl_id, CORERESETN, RESET_DEASSERT);
+	platform_reset_ctl(ctrl_id, CORERESETN, RESET_DEASSERT);
 
 	/* Step 4 */
 	val = read32(DDRMC_RFSHCTL3(ctrl_id));
@@ -191,6 +191,7 @@ int main(void)
 	cfg.sysinfo = &info;
 
 	uart_cfg();
+	platform_system_init();
 
 	for (i = 0; i < CONFIG_DDRMC_MAX_NUMBER; i++) {
 		ret = ddrcfg_get(i, &cfg);

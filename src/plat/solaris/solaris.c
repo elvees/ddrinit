@@ -65,7 +65,7 @@ static const struct pll_settings pll_settings[] = {
 	{ DRAM_TCK_3200, 119, 16770001, 6 }, /* 3200 MT/s */
 };
 
-int power_up(int ctrl_id)
+int platform_power_up(int ctrl_id)
 {
 	return 0;
 }
@@ -86,7 +86,7 @@ static void pdci_reset_deassert(enum pdci_reset_lines line, int reset_level)
 		continue;
 }
 
-void reset_ctl(int ctrl_id, enum reset_type reset, enum reset_action action)
+void platform_reset_ctl(int ctrl_id, enum reset_type reset, enum reset_action action)
 {
 	/* Support only deassert */
 	if (action == RESET_ASSERT)
@@ -156,7 +156,7 @@ static void pll_cfg(enum ddr_ucg_id ucg_id, uint16_t fbdiv, uint32_t frac, uint8
 		continue;
 }
 
-int clocks_cfg(int ctrl_id, struct ddr_cfg *cfg)
+int platform_clk_cfg(int ctrl_id, struct ddr_cfg *cfg)
 {
 	static uint8_t ucg_west_configured, ucg_east_configured;
 	int ucg_id = (ctrl_id > 1) ? DDR_UCG_ID_EAST : DDR_UCG_ID_WEST;
@@ -239,6 +239,191 @@ void platform_uart_cfg(void)
 void platform_i2c_cfg(void)
 {
 	/* TBD */
+}
+
+static void llc_enable(void)
+{
+	uint64_t val = 0;
+
+	/* Invalidate LLC tag RAM */
+	write64(NOC_AGENT_LLC_X_0_LLC_TAG_INV_CTL(0), 0xFFFFFFFFFFFFFFFF);
+	write64(NOC_AGENT_LLC_X_0_LLC_TAG_INV_CTL(1), 0xFFFFFFFFFFFFFFFF);
+
+	/* TODO: Add 4-channel DDR mode support */
+
+	/* Wait until TAG_INV_CTL regs read back 0 */
+	do {
+		val = read64(NOC_AGENT_LLC_X_0_LLC_TAG_INV_CTL(0));
+		val |= read64(NOC_AGENT_LLC_X_0_LLC_TAG_INV_CTL(1));
+	} while (val);
+
+	/* Set allocation policy to 0xFF */
+	write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_ARCACHE_EN(0), 0);
+	write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_ARCACHE_EN(1), 0);
+	write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_AWCACHE_EN(0), 0);
+	write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_AWCACHE_EN(1), 0);
+
+	/* Allocation policy */
+	write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_RD_EN(0), 0xFF);
+	write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_RD_EN(1), 0xFF);
+	write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_WR_EN(0), 0xFF);
+	write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_WR_EN(1), 0xFF);
+
+	/* Enable LLC */
+	write32(NOC_AGENT_LLC_X_0_LLC_CACHE_WAY_ENABLE(0), 0xFFFFFFFF);
+	write32(NOC_AGENT_LLC_X_0_LLC_CACHE_WAY_ENABLE(1), 0xFFFFFFFF);
+}
+
+/*
+ * Netspeed NoC in general including LLC considers secure and non-secure traffic
+ * physically separated. This is a broken security feature. So we are expected
+ * not to rely on AxPROT, and subsystems tied this off. In order to make sure that
+ * the following subsystems do not request secure traffic we need to set their
+ * memif_init registers correctly.
+ */
+static void axprot_override(void)
+{
+	int i;
+
+	write64(NOC_BRIDGE_VIDEO_IN_MEMIF_INIT_AROVRD, 0x2200);
+	write64(NOC_BRIDGE_VIDEO_IN_MEMIF_INIT_AWOVRD, 0x2200);
+	write64(NOC_BRIDGE_VIDEO_OUT_MEMIF_INIT_AROVRD, 0x2200);
+	write64(NOC_BRIDGE_VIDEO_OUT_MEMIF_INIT_AWOVRD, 0x2200);
+
+	for (i = 0; i < 2; i++) {
+		write64(NOC_BRIDGE_VXD_MEMIF_INIT_AROVRD(i), 0x2200);
+		write64(NOC_BRIDGE_VXD_MEMIF_INIT_AWOVRD(i), 0x2200);
+	}
+
+	for (i = 0; i < 3; i++) {
+		write64(NOC_BRIDGE_VXE_MEMIF_INIT_AROVRD(i), 0x2200);
+		write64(NOC_BRIDGE_VXE_MEMIF_INIT_AWOVRD(i), 0x2200);
+	}
+
+	for (i = 0; i < 2; i++) {
+		write64(NOC_BRIDGE_GPU_MEMIF_INIT_AROVRD(i), 0x2200);
+		write64(NOC_BRIDGE_GPU_MEMIF_INIT_AWOVRD(i), 0x2200);
+	}
+
+	write64(NOC_BRIDGE_ELVEES_MEMIF_INIT_AROVRD, 0x2200);
+	write64(NOC_BRIDGE_ELVEES_MEMIF_INIT_AWOVRD, 0x2200);
+	write64(NOC_BRIDGE_NPU_MEMIF_INIT_AROVRD, 0x2200);
+	write64(NOC_BRIDGE_NPU_MEMIF_INIT_AWOVRD, 0x2200);
+	write64(NOC_BRIDGE_SATA_MEMIF_INIT_AROVRD, 0x2200);
+	write64(NOC_BRIDGE_SATA_MEMIF_INIT_AWOVRD, 0x2200);
+
+	for (i = 0; i < 2; i++) {
+		write64(NOC_BRIDGE_USB_MEMIF_INIT_AROVRD(i), 0x2200);
+		write64(NOC_BRIDGE_USB_MEMIF_INIT_AWOVRD(i), 0x2200);
+	}
+
+	for (i = 0; i < 4; i++) {
+		write64(NOC_BRIDGE_PCIE_MEMIF_INIT_AROVRD(i), 0x2200);
+		write64(NOC_BRIDGE_PCIE_MEMIF_INIT_AWOVRD(i), 0x2200);
+	}
+
+	for (i = 0; i < 2; i++) {
+		write64(NOC_BRIDGE_PERIPH_MEMIF_INIT_AROVRD(i), 0x2200);
+		write64(NOC_BRIDGE_PERIPH_MEMIF_INIT_AWOVRD(i), 0x2200);
+	}
+
+	write64(NOC_BRIDGE_STARTUP_MEMIF_INIT_AROVRD, 0x2200);
+	write64(NOC_BRIDGE_STARTUP_MEMIF_INIT_AWOVRD, 0x2200);
+}
+
+static void iommu_bypass_enable(void)
+{
+	int i;
+	uint32_t val;
+	uint64_t addrs[] = { IOMMU_VIDEO_OUT_GCFG,    IOMMU_PERIPHERAL_B_GCFG,
+			     IOMMU_PERIPHERAL_A_GCFG, IOMMU_ELVEES_PERIPHERAL_GCFG,
+			     IOMMU_NPU_GCFG,	      IOMMU_SATA_GCFG,
+			     IOMMU_USB_GCFG(0),	      IOMMU_USB_GCFG(1),
+			     IOMMU_PCIE_GCFG(0),      IOMMU_PCIE_GCFG(1),
+			     IOMMU_PCIE_GCFG(2),      IOMMU_PCIE_GCFG(3),
+			     IOMMU_VELCOREQ_GCFG(0),  IOMMU_VELCOREQ_GCFG(1),
+			     IOMMU_VELCOREQ_GCFG(2),  IOMMU_VELCOREQ_GCFG(3),
+			     IOMMU_VIDEO_IN_GCFG,     IOMMU_VXD_GCFG(0),
+			     IOMMU_VXD_GCFG(1),	      IOMMU_VXE_GCFG(0),
+			     IOMMU_VXE_GCFG(1),	      IOMMU_VXE_GCFG(2) };
+
+	for (i = 0; i < ARRAY_SIZE(addrs); i++) {
+		val = read32(addrs[i]);
+		val &= ~IOMMU_GCFG_EN & ~IOMMU_GCFG_OCR;
+		write32(addrs[i], val);
+	}
+}
+
+/*
+ * Disable the UltraSoC probes in South Partition as timing is not met
+ * for the probe flops in the 800MHz NoC clock domain. See SBM88645.
+ */
+static void south_ultrasoc_disable(void)
+{
+	write32(AXI_COMM_US_CTL, 1);
+	write32(AXI_COMM_DS_CTL, 1);
+
+	while ((read32(AXI_COMM_US_BUF_STS) & 0x2) == 0)
+		continue;
+
+	write32(AXI_COMM_US_DATA, 0x1452108);
+	write32(AXI_COMM_US_DATA, 0);
+	write32(AXI_COMM_US_DATA, 0x700);
+	write32(AXI_COMM_US_DATA, 0x3452108);
+	write32(AXI_COMM_US_DATA, 0);
+	write32(AXI_COMM_US_DATA, 0x700);
+
+	write32(AXI_COMM_US_DATA, 0x1452308);
+	write32(AXI_COMM_US_DATA, 0);
+	write32(AXI_COMM_US_DATA, 0x700);
+	write32(AXI_COMM_US_DATA, 0x3452308);
+	write32(AXI_COMM_US_DATA, 0);
+	write32(AXI_COMM_US_DATA, 0x700);
+
+	write32(AXI_COMM_US_DATA, 0x1452f08);
+	write32(AXI_COMM_US_DATA, 0);
+	write32(AXI_COMM_US_DATA, 0x700);
+	write32(AXI_COMM_US_DATA, 0x3452f08);
+	write32(AXI_COMM_US_DATA, 0);
+	write32(AXI_COMM_US_DATA, 0x700);
+
+	write32(AXI_COMM_US_DATA, 0x1453308);
+	write32(AXI_COMM_US_DATA, 0);
+	write32(AXI_COMM_US_DATA, 0x700);
+	write32(AXI_COMM_US_DATA, 0x3453308);
+	write32(AXI_COMM_US_DATA, 0);
+	write32(AXI_COMM_US_DATA, 0x700);
+
+	write32(AXI_COMM_US_DATA, 0x5453308);
+	write32(AXI_COMM_US_DATA, 0);
+	write32(AXI_COMM_US_DATA, 0x700);
+	write32(AXI_COMM_US_DATA, 0x7453308);
+	write32(AXI_COMM_US_DATA, 0);
+	write32(AXI_COMM_US_DATA, 0x700);
+
+	write32(AXI_COMM_US_DATA, 0x1453508);
+	write32(AXI_COMM_US_DATA, 0);
+	write32(AXI_COMM_US_DATA, 0x700);
+	write32(AXI_COMM_US_DATA, 0x1453708);
+	write32(AXI_COMM_US_DATA, 0);
+	write32(AXI_COMM_US_DATA, 0x700);
+
+	write32(AXI_COMM_US_DATA, 0x3453708);
+	write32(AXI_COMM_US_DATA, 0);
+	write32(AXI_COMM_US_DATA, 0x700);
+	write32(AXI_COMM_US_DATA, 0x1453b08);
+	write32(AXI_COMM_US_DATA, 0);
+	write32(AXI_COMM_US_DATA, 0x700);
+}
+
+int platform_system_init(void)
+{
+	llc_enable();
+	axprot_override();
+	south_ultrasoc_disable();
+	iommu_bypass_enable();
+
+	return 0;
 }
 
 #ifndef CONFIG_SPD_EEPROM
