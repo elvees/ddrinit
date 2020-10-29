@@ -39,13 +39,14 @@
 
 * Выполнение одномерных (1D) тренингов DDR-подсистемы для оптимизации временных задержек:
 
-  * Command/Address;
-  * MREP, DWL, MRD, MWD;
-  * Read Gate;
-  * Write Leveling;
-  * Read deskew;
-  * Read 1D/Write 1D;
-  * Max read latency.
+  * Read gate,
+  * Write leveling (DQS/CK skew compensation),
+  * Read 1D,
+  * Write 1D,
+  * Read per-bit DQ deskew (aka "per-bit leveling", "DQ calibration" or "DQ-DQS deskew"),
+  * Max read latency,
+  * Command/Address (только для LPDDR),
+  * MREP, DWL, MRD, MWD (только для LRDIMM).
 
 * Для СнК Solaris:
 
@@ -231,7 +232,15 @@ TBD
 #. Загрузка прошивки инструкций для проведения одномерных тренингов в память DDR-PHY IMEM.
 #. Загрузка прошивки данных для проведения одномерных тренингов в память DDR-PHY DMEM.
 #. Загрузка конфигурационных параметров для проведения одномерных тренингов в память DDR-PHY DMEM.
-#. Запуск процедуры одномерных тренингов.
+#. Запуск одномерных тренингов для DDR4 (в порядке исполнения):
+
+   #. Read Gate,
+   #. Write Leveling,
+   #. Read 1D,
+   #. Write 1D,
+   #. Read deskew,
+   #. Max read latency.
+
 #. Получение и анализ результатов тренингов.
 
 Этап 2 (опциональный) --- двумерный трейнинг:
