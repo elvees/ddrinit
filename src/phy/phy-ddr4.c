@@ -54,6 +54,8 @@ static void odt_init(int ctrl_id, struct ddr_cfg *cfg)
 	tmp2 = 0x18;
 #elif CONFIG_PHY_ODT_40
 	tmp2 = 0x38;
+#elif CONFIG_PHY_ODT_34
+	tmp2 = 0x3a;
 #elif CONFIG_PHY_ODT_HIZ
 	tmp2 = 0;
 #endif
@@ -75,6 +77,8 @@ static void odt_init(int ctrl_id, struct ddr_cfg *cfg)
 	tmp2 = 0x18;
 #elif CONFIG_TX_IMPEDANCE_40
 	tmp2 = 0x38;
+#elif CONFIG_TX_IMPEDANCE_34
+	tmp2 = 0x3a;
 #elif CONFIG_TX_IMPEDANCE_HIZ
 	tmp2 = 0;
 #endif

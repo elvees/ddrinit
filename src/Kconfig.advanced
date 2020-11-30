@@ -26,6 +26,11 @@ choice
 		help
 		  TBD
 
+	config PHY_ODT_34
+		bool "34 Ohms"
+		help
+		  TBD
+
 	config PHY_ODT_HIZ
 		bool "HiZ"
 		help
@@ -57,6 +62,11 @@ choice
 
 	config PHY_TX_IMPEDANCE_40
 		bool "40 Ohms"
+		help
+		  TBD
+
+	config PHY_TX_IMPEDANCE_34
+		bool "34 Ohms"
 		help
 		  TBD
 
