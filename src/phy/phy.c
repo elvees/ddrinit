@@ -9,7 +9,7 @@
 #ifdef CONFIG_DRAM_TYPE_DDR4
 #include <dram/ddr4/fw-imem-1d.h>
 #include <dram/ddr4/fw-dmem-1d.h>
-#include <dram/ddr4/fw-pie.h>
+#include <dram/ddr4/pie-cfg.h>
 #endif
 
 enum firmware_type {
@@ -17,7 +17,6 @@ enum firmware_type {
 	FW_DMEM_1D,
 	FW_IMEM_2D,
 	FW_DMEM_2D,
-	FW_PIE,
 };
 
 static int firmware_load(int ctrl_id, enum firmware_type fwtype)
@@ -37,12 +36,6 @@ static int firmware_load(int ctrl_id, enum firmware_type fwtype)
 		fw = &fw_dmem_1d[0];
 		write_offset = CONFIG_PHY_DMEM_OFFSET;
 		fw_size = fw_dmem_1d_size;
-		padding_size = 0;
-		break;
-	case FW_PIE:
-		fw = &fw_pie[0];
-		write_offset = CONFIG_PHY_PIE_OFFSET;
-		fw_size = fw_pie_size;
 		padding_size = 0;
 		break;
 	default:
@@ -121,6 +114,24 @@ static int training_complete_wait(int ctrl_id)
 	}
 }
 
+static int pie_cfg_load(int ctrl_id, int tck)
+{
+	struct pie_cfg_record *r = &pie_cfg[0];
+	int i;
+
+	phy_write32(ctrl_id, PHY_SEQ0BDLY0, 500000 / 8 / tck);
+	phy_write32(ctrl_id, PHY_SEQ0BDLY1, 1000000 / 8 / tck);
+	phy_write32(ctrl_id, PHY_SEQ0BDLY2, 10000000 / 8 / tck);
+	phy_write32(ctrl_id, PHY_SEQ0BDLY3, 44);
+
+	for (i = 0; i < ARRAY_SIZE(pie_cfg); i++) {
+		phy_write32(ctrl_id, r->reg * 4, r->val);
+		r++;
+	}
+
+	return 0;
+}
+
 int phy_cfg(int ctrl_id, struct ddr_cfg *cfg)
 {
 	int ret;
@@ -159,9 +170,11 @@ int phy_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	phy_write32(ctrl_id, PHY_MICROCONT_MUXSEL, 1);
 	phy_write32(ctrl_id, PHY_MICROCONT_MUXSEL, 0);
 
-	ret = firmware_load(ctrl_id, FW_PIE);
+	ret = pie_cfg_load(ctrl_id, cfg->tck);
 	if (ret)
 		return ret;
+
+	phy_write32(ctrl_id, PHY_MICROCONT_MUXSEL, 1);
 
 	return 0;
 }
