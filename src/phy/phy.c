@@ -64,7 +64,7 @@ static int firmware_load(int ctrl_id, enum firmware_type fwtype)
 	return 0;
 }
 
-static inline uint32_t mail_get(int ctrl_id)
+static uint32_t mail_get(int ctrl_id)
 {
 	uint32_t mail;
 
@@ -87,14 +87,43 @@ static inline uint32_t mail_get(int ctrl_id)
 	return mail;
 }
 
-static inline void major_msg_decode(uint32_t mail)
+static uint32_t stream_message_get(int ctrl_id)
 {
-	/* TBD */
+	uint32_t lower, upper;
+
+	while ((phy_read32(ctrl_id, PHY_UCT_SHADOW_REGS) & 0x1))
+		continue;
+
+	lower = phy_read32(ctrl_id, PHY_UCT_WRITE_ONLY_SHADOW);
+	upper = phy_read32(ctrl_id, PHY_UCT_DAT_WRITE_ONLY_SHADOW);
+
+	/* Acknowledge receipt of the message */
+	phy_write32(ctrl_id, PHY_DCT_WRITE_PROT, 0);
+
+	/*  Poll the UctWriteProtShadow, looking for 1 */
+	while (!(phy_read32(ctrl_id, PHY_UCT_SHADOW_REGS) & 0x1))
+		continue;
+
+	/* Complete the protocol */
+	phy_write32(ctrl_id, PHY_DCT_WRITE_PROT, 1);
+
+	return (upper << 16) | lower;
 }
 
-static inline void streaming_msg_decode(void)
+static void stream_message_decode(int ctrl_id)
 {
-	/* TBD */
+	uint32_t string_index, arg;
+	int i = 0;
+
+	string_index = stream_message_get(ctrl_id);
+
+	print_dbg("stream_message_decode, index: 0x%x\n", string_index);
+
+	while (i < (string_index & 0xffff)) {
+		arg = stream_message_get(ctrl_id);
+		print_dbg("arg[%d] = 0x%x\n", i, arg);
+		i++;
+	}
 }
 
 static int training_complete_wait(int ctrl_id)
@@ -103,9 +132,8 @@ static int training_complete_wait(int ctrl_id)
 
 	while (1) {
 		mail = mail_get(ctrl_id);
-		major_msg_decode(mail);
 		if (mail == 0x08) {
-			streaming_msg_decode();
+			stream_message_decode(ctrl_id);
 		} else if (mail == 0x07) {
 			return 0;
 		} else if (mail == 0xff) {
