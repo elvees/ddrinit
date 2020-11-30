@@ -1,16 +1,8 @@
-choice
-	prompt "Build type"
-
-	config BUILD_TYPE_RELEASE
-		bool "Release"
-		help
-		  Release build type
-
-	config BUILD_TYPE_DEBUG
-		bool "Debug"
-		help
-		  Debug build type
-endchoice
+config DEBUG
+	bool "Enable debug print"
+	default false
+	help
+	  Enable debug print using print_dbg().
 
 config BOOTMODE_NOSTART
 	bool "Build for NOSTART boot mode"
