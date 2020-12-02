@@ -20,4 +20,9 @@ void platform_reset_ctl(int ctl_id, enum reset_type reset, enum reset_action act
 int platform_system_init(void);
 void platform_uart_cfg(void);
 
+/* TBD: Rename phy_* functions */
+void phy_write32(int ctrl_id, unsigned long addr, uint32_t val);
+void phy_write16(int ctrl_id, unsigned long addr, uint16_t val);
+uint32_t phy_read32(int ctrl_id, unsigned long addr);
+
 #endif /* _PLAT_H */

@@ -5,6 +5,7 @@
 
 #include <phy.h>
 #include <regs.h>
+#include <plat/plat.h>
 
 #ifdef CONFIG_DRAM_TYPE_DDR4
 #include <dram/ddr4/fw-imem-1d.h>

@@ -65,6 +65,42 @@ static const struct pll_settings pll_settings[] = {
 	{ DRAM_TCK_3200, 119, 16770001, 6 }, /* 3200 MT/s */
 };
 
+void phy_write32(int ctrl_id, unsigned long addr, uint32_t val)
+{
+	if (addr >= 0x200000) {
+		write32(DDRSUBS_REGBANK_PHY_PAGE_ADDR(ctrl_id), 1);
+		addr -= 0x200000;
+	} else {
+		write32(DDRSUBS_REGBANK_PHY_PAGE_ADDR(ctrl_id), 0);
+	}
+
+	write32(PHY_BASE(ctrl_id) + addr, val);
+}
+
+void phy_write16(int ctrl_id, unsigned long addr, uint16_t val)
+{
+	if (addr >= 0x200000) {
+		write32(DDRSUBS_REGBANK_PHY_PAGE_ADDR(ctrl_id), 1);
+		addr -= 0x200000;
+	} else {
+		write32(DDRSUBS_REGBANK_PHY_PAGE_ADDR(ctrl_id), 0);
+	}
+
+	write16(PHY_BASE(ctrl_id) + addr, val);
+}
+
+uint32_t phy_read32(int ctrl_id, unsigned long addr)
+{
+	if (addr >= 0x200000) {
+		write32(DDRSUBS_REGBANK_PHY_PAGE_ADDR(ctrl_id), 1);
+		addr -= 0x200000;
+	} else {
+		write32(DDRSUBS_REGBANK_PHY_PAGE_ADDR(ctrl_id), 0);
+	}
+
+	return read32(PHY_BASE(ctrl_id) + addr);
+}
+
 int platform_power_up(int ctrl_id)
 {
 	return 0;

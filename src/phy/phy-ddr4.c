@@ -9,6 +9,7 @@
 #include <dram/ddr4/phy-training-params-ddr4.h>
 #include <phy.h>
 #include <regs.h>
+#include <plat/plat.h>
 
 static void dll_init(int ctrl_id)
 {
