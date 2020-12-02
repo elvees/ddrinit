@@ -77,6 +77,7 @@ int ddr_init(int ctrl_id, struct ddr_cfg *cfg)
 	val = read32(DDRMC_PWRCTL(ctrl_id));
 	val &= ~DDRMC_PWRCTL_SELF_REFRESH_EN & ~DDRMC_PWRCTL_POWERDOWN_EN &
 	       ~DDRMC_PWRCTL_DFI_DRAMCLK_DIS;
+	val |= DDRMC_PWRCTL_SELFREF_SW;
 	write32(DDRMC_PWRCTL(ctrl_id), val);
 
 	/* Step 5 */

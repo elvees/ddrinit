@@ -40,7 +40,7 @@
 #define DRAM_TIMING_TXS(trfc1, tck) (ps2clk_jedec(10000, (tck)) + (trfc1))
 #define DRAM_TIMING_TXS_ABORT(trfc4, tck) (ps2clk_jedec(10000, (tck)) + (trfc4))
 #define DRAM_TIMING_TXS_FAST(trfc4, tck) (ps2clk_jedec(10000, (tck)) + (trfc4))
-#define DRAM_TIMING_TREFI(tck) (ps2clk_jedec(DRAM_TIMING_TREFI_PS, (tck)))
+#define DRAM_TIMING_TREFI(tck) (DIV_ROUND_UP(DRAM_TIMING_TREFI_PS, (tck)))
 
 static uint8_t ddr4_cwl_get(uint32_t tck)
 {
@@ -69,8 +69,10 @@ uint16_t ddr4_mr0_get(struct ddr_cfg *cfg)
 	trtp = twr / 2;
 
 	if (cfg->taa >= 9 && cfg->taa <= 16)
-		tmp = 16 - 9;
-	else if (cfg->taa >= 18 && cfg->taa <= 24)
+		tmp = cfg->taa - 9;
+	else if (cfg->taa == 17 || cfg->taa == 19 || cfg->taa == 21)
+		tmp = cfg->taa / 2 + 5;
+	else if (cfg->taa == 18 || cfg->taa == 20 || cfg->taa == 22)
 		tmp = cfg->taa / 2 - 1;
 
 	if (tmp & 1)
@@ -366,17 +368,18 @@ void ddrmc_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	val = FIELD_PREP(DDRMC_MSTR_DDR4, 1) |
 	      FIELD_PREP(DDRMC_MSTR_BURST_RDWR, CONFIG_BURST_LEN / 2) |
 	      FIELD_PREP(DDRMC_MSTR_LOG_RANKS, 0) |
-	      FIELD_PREP(DDRMC_MSTR_RANKS, (2 << cfg->ranks) - 1) |
-	      FIELD_PREP(DDRMC_MSTR_DEVCONFIG, __builtin_ffsll(cfg->device_width) - 1);
+	      FIELD_PREP(DDRMC_MSTR_RANKS, (1 << cfg->ranks) - 1) |
+	      FIELD_PREP(DDRMC_MSTR_DEVCONFIG, __builtin_ffsll(cfg->device_width) - 3);
 	write32(DDRMC_MSTR(ctrl_id), val);
 
 	tmp = cfg->trfc1 + ps2clk_jedec(10000, tck);
-	val = FIELD_PREP(DDRMC_INIT0_PRECKE, DIV_ROUND_UP(ps2clk_ru(500000000, tck), 2048)) |
-	      FIELD_PREP(DDRMC_INIT0_POSTCKE, DIV_ROUND_UP(tmp, 1024 * 2));
+	val = FIELD_PREP(DDRMC_INIT0_PRECKE, DIV_ROUND_UP(500000000, tck * 2048)) |
+	      FIELD_PREP(DDRMC_INIT0_POSTCKE, DIV_ROUND_UP(tmp, 2048)) |
+	      FIELD_PREP(DDRMC_INIT0_SKIP_DRAM_INIT, 3);
 	write32(DDRMC_INIT0(ctrl_id), val);
 
-	val = DIV_ROUND_UP(ps2clk_ru(200000000, tck), 2048);
-	write32(DDRMC_INIT1(ctrl_id), val);
+	write32(DDRMC_INIT1(ctrl_id), FIELD_PREP(DDRMC_INIT1_DRAM_RSTN,
+						 DIV_ROUND_UP(200000000, tck * 2048)));
 
 	val = FIELD_PREP(DDRMC_INIT3_MR, ddr4_mr0_get(cfg)) |
 	      FIELD_PREP(DDRMC_INIT3_EMR, ddr4_mr1_get(cfg));
@@ -403,6 +406,8 @@ void ddrmc_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	val = FIELD_PREP(DDRMC_ZQCTL0_TZQCS, DIV_ROUND_UP(DRAM_TIMING_TZQCS, 2)) |
 	      FIELD_PREP(DDRMC_ZQCTL0_TZQOPER, DIV_ROUND_UP(DRAM_TIMING_TZQOPER, 2));
 	write32(DDRMC_ZQCTL0(ctrl_id), val);
+
+	write32(DDRMC_DBICTL(ctrl_id), 0);
 
 	dram_timings_cfg(ctrl_id, cfg);
 	dfi_timings_cfg(ctrl_id, cfg);
