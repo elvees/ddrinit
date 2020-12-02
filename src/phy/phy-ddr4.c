@@ -164,7 +164,9 @@ void phy_init(int ctrl_id, struct ddr_cfg *cfg)
 	}
 
 	/* Set PllCtrl2 register */
-	if (cfg->tck <= DRAM_TCK_1333 && cfg->tck >= DRAM_TCK_1866)
+	if (cfg->tck >= DRAM_TCK_1250)
+		tmp1 = 0x6;
+	else if (cfg->tck < DRAM_TCK_1250 && cfg->tck >= DRAM_TCK_1866)
 		tmp1 = 0xb;
 	else if (cfg->tck < DRAM_TCK_1866 && cfg->tck >= DRAM_TCK_2400)
 		tmp1 = 0xa;
@@ -217,27 +219,28 @@ void phy_training_params_load(int ctrl_id, struct ddr_cfg *cfg)
 
 	memset(&mb_DDR4U_1D, 0, sizeof(mb_DDR4U_1D));
 
+	mb_DDR4U_1D.DramType = 0x2;
 	mb_DDR4U_1D.Pstate = 0;
 	mb_DDR4U_1D.SequenceCtrl = 0x31f;
 	mb_DDR4U_1D.PhyConfigOverride = 0;
-	mb_DDR4U_1D.HdtCtrl = 0xff;
+	mb_DDR4U_1D.HdtCtrl = 0xc8;
 	mb_DDR4U_1D.MsgMisc = 0;
 	mb_DDR4U_1D.DFIMRLMargin = 1;
-	mb_DDR4U_1D.PhyVref = 0x56; // !!!!! Needs to be verified
+	mb_DDR4U_1D.PhyVref = 0x56;
 
-	mb_DDR4U_1D.CsPresent = 0xf; // !!!!! All 4 CS is supposed to be connected
-	mb_DDR4U_1D.CsPresentD0 = 0xf;
+	mb_DDR4U_1D.CsPresent = BIT(CONFIG_DRAM_RANKS) - 1;
+	mb_DDR4U_1D.CsPresentD0 = BIT(CONFIG_DRAM_RANKS) - 1;
 	mb_DDR4U_1D.CsPresentD1 = 0;
-	mb_DDR4U_1D.AddrMirror = 0xa; // Typically odd CS are mirroed in DIMMs
+	mb_DDR4U_1D.AddrMirror = 0xa;
 
-	mb_DDR4U_1D.AcsmOdtCtrl0 = 0x21; // Needs to be verified
+	mb_DDR4U_1D.AcsmOdtCtrl0 = 0x21; /* Needs to be verified */
 	mb_DDR4U_1D.AcsmOdtCtrl1 = 0x12;
 
 	mb_DDR4U_1D.EnabledDQs = 64;
 	mb_DDR4U_1D.PhyCfg = 0;
 	mb_DDR4U_1D.X16Present = 0;
 	mb_DDR4U_1D.D4Misc = 1;
-	mb_DDR4U_1D.CsSetupGDDec = 1; // If Geardown is chosen, dynamically modify CS timing
+	mb_DDR4U_1D.CsSetupGDDec = 1;
 
 	mb_DDR4U_1D.MR0 = ddr4_mr0_get(cfg);
 	mb_DDR4U_1D.MR1 = ddr4_mr1_get(cfg);

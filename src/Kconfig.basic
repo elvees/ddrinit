@@ -76,6 +76,9 @@ choice
 		depends on !DRAM_TYPE_DDR4
 		bool "1066 MT/s"
 
+	config DRAM_RATE_1250
+		bool "1250 MT/s"
+
 	config DRAM_RATE_1333
 		bool "1333 MT/s"
 
@@ -209,6 +212,7 @@ config DIMM7_I2C_ADDR
 config DRAM_TCK
 	int
 	default 1876 if DRAM_RATE_1066
+	default 1600 if DRAM_RATE_1250
 	default 1500 if DRAM_RATE_1333
 	default 1250 if DRAM_RATE_1600
 	default 1071 if DRAM_RATE_1866
