@@ -128,9 +128,14 @@ void platform_reset_ctl(int ctrl_id, enum reset_type reset, enum reset_action ac
 
 	pdci_reset_deassert(ctrl_id + 4, (reset == PRESETN) ? 1 : 3);
 
-	/* Deassert soft reset */
-	if (reset == CORERESETN)
-		write32(DDRSUBS_REGBANK_SYSTEM_CTRL(ctrl_id), 0);
+	/* Deassert soft reset for DDRMC and PHY */
+	if (reset == CORERESETN) {
+		write32(DDRSUBS_REGBANK_SYSTEM_CTRL(ctrl_id), 4);
+		delay_us(1);
+		write32(DDRSUBS_REGBANK_SYSTEM_CTRL(ctrl_id), 6);
+		delay_us(1);
+		write32(DDRSUBS_REGBANK_SYSTEM_CTRL(ctrl_id), 2);
+	}
 }
 
 static void pll_cfg(enum ddr_ucg_id ucg_id, uint16_t fbdiv, uint32_t frac)
