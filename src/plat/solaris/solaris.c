@@ -413,10 +413,13 @@ int platform_system_init(void)
 #ifndef CONFIG_SPD_EEPROM
 int platform_ddrcfg_get(int ctrl_id, struct ddr_cfg *cfg)
 {
+	if (!(BIT(ctrl_id) & CONFIG_DDRMC_ACTIVE_MASK))
+		return -EDIMMCFG;
+
 	strcpy(cfg->mpart, "KHX3200C16D416GX");
 
 	/* DIMM parameters */
-	cfg->ranks = 2;
+	cfg->ranks = CONFIG_DRAM_RANKS;
 	cfg->die_size = (133 & 0xf) + 28;
 	cfg->rank_size = 1ULL << 33;
 	cfg->full_size = cfg->ranks * cfg->rank_size;
@@ -450,6 +453,9 @@ int platform_ddrcfg_get(int ctrl_id, struct ddr_cfg *cfg)
 	cfg->trrdl = ps2clk_jedec(4900, cfg->tck);
 	cfg->tccdl = ps2clk_jedec(5000, cfg->tck);
 	cfg->trc = ps2clk_jedec(45750, cfg->tck);
+
+	cfg->sysinfo->dram_size += cfg->full_size;
+	cfg->sysinfo->speed[ctrl_id] = 2000000 / CONFIG_DRAM_TCK;
 
 	return 0;
 }

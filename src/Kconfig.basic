@@ -229,3 +229,10 @@ config DRAM_RANKS
 	depends on !SPD_EEPROM
 	help
 	  Number of active DRAM ranks
+
+config DDRMC_ACTIVE_MASK
+        int "Mask of active DDRMCs"
+        default 1
+        depends on !SPD_EEPROM
+        help
+          If bit N is set DDRMC N will be initialized.
