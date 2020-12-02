@@ -9,7 +9,7 @@ ENTRY(__app_entry)
 
 SECTIONS
 {
-	.text_init 0xffffffffbff14000 :
+	.text_init 0xffffffff9ff14000 :
 	AT(0x1ff14000) {
 		*(.boot)
 		*(.text)*(.text.*)
@@ -20,11 +20,13 @@ SECTIONS
 		*(.rodata)
 		*(.rodata.*)
 		*(.data)
+		*(.data.*)
 		. = ALIGN(8);
 		_gp = ABSOLUTE(. + 0x7ff0);
 		*(.lit8)
 		*(.lit4)
 		*(.sdata)
+		*(.sdata.*)
 		. = ALIGN(8);
 	}
 
@@ -38,7 +40,7 @@ SECTIONS
 		*(.bss)
 		*(COMMON)
 	}
-
+	. = ALIGN(8);
 	_end = . ;
 
 	/DISCARD/ : {

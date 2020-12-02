@@ -23,6 +23,7 @@ LEAF(__app_entry)
     sw      a1, 4(sp)
     sw      a2, 8(sp)
     sw      s1, 12(sp)
+    dla     gp, _gp
 
     // Clear bss
 zero_bss:
