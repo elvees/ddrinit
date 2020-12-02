@@ -51,18 +51,16 @@ struct pll_settings {
 	uint16_t tck;
 	uint16_t fbdiv;
 	uint32_t frac;
-	uint8_t postdiv1;
 };
 
 static const struct pll_settings pll_settings[] = {
-	{ DRAM_TCK_1333, 41, 10480001, 5 }, /* 1333 MT/s */
-	{ DRAM_TCK_1600, 59, 16770001, 6 }, /* 1600 MT/s */
-	{ DRAM_TCK_1866, 23, 5030001, 2 }, /* 1866 MT/s */
-	{ DRAM_TCK_2133, 53, 5030001, 4 }, /* 2133 MT/s */
-	{ DRAM_TCK_2400, 104, 16770001, 7 }, /* 2400 MT/s */
-	{ DRAM_TCK_2666, 83, 4190001, 5 }, /* 2666 MT/s */
-	{ DRAM_TCK_2933, 128, 4610001, 7 }, /* 2933 MT/s */
-	{ DRAM_TCK_3200, 119, 16770001, 6 }, /* 3200 MT/s */
+//	{ DRAM_TCK_1250, 84, 12511822}, // 625 MHz
+	{ DRAM_TCK_1250, 54, 3981034},  // 400 MHz
+	{ DRAM_TCK_1333, 90, 5118472},  // 666 MHz
+	{ DRAM_TCK_1600, 108, 7962068}, // 800 MHz
+	{ DRAM_TCK_1866, 126, 6255911},
+	{ DRAM_TCK_2133, 144, 9099506},
+	{ DRAM_TCK_2400, 162, 11943102},
 };
 
 void phy_write32(int ctrl_id, unsigned long addr, uint32_t val)
@@ -135,7 +133,7 @@ void platform_reset_ctl(int ctrl_id, enum reset_type reset, enum reset_action ac
 		write32(DDRSUBS_REGBANK_SYSTEM_CTRL(ctrl_id), 0);
 }
 
-static void pll_cfg(enum ddr_ucg_id ucg_id, uint16_t fbdiv, uint32_t frac, uint8_t postdiv1)
+static void pll_cfg(enum ddr_ucg_id ucg_id, uint16_t fbdiv, uint32_t frac)
 {
 	uint32_t val;
 
@@ -157,7 +155,7 @@ static void pll_cfg(enum ddr_ucg_id ucg_id, uint16_t fbdiv, uint32_t frac, uint8
 	/* Set POSTDIV1 and POSTDIV2 */
 	val = read32(UCG_UFG_REG10(ucg_id, 0));
 	val &= ~UCG_UFG_REG10_POSTDIV1 & ~UCG_UFG_REG10_POSTDIV2;
-	val |= FIELD_PREP(UCG_UFG_REG10_POSTDIV1, postdiv1) |
+	val |= FIELD_PREP(UCG_UFG_REG10_POSTDIV1, 1) |
 	       FIELD_PREP(UCG_UFG_REG10_POSTDIV2, 1);
 	write32(UCG_UFG_REG10(ucg_id, 0), val);
 
@@ -194,7 +192,6 @@ int platform_clk_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	if ((ctrl_id > 1 && !ucg_east_configured) || (ctrl_id <= 1 && !ucg_west_configured)) {
 		uint16_t fbdiv = 0;
 		uint32_t frac = 0;
-		uint8_t postdiv1 = 0;
 		int i;
 
 		for (i = 0; i < ARRAY_SIZE(pll_settings); i++) {
@@ -202,14 +199,13 @@ int platform_clk_cfg(int ctrl_id, struct ddr_cfg *cfg)
 				continue;
 			fbdiv = pll_settings[i].fbdiv;
 			frac = pll_settings[i].frac;
-			postdiv1 = pll_settings[i].postdiv1;
 		}
 
-		if (fbdiv == 0 && frac == 0 && postdiv1 == 0)
+		if (fbdiv == 0 && frac == 0)
 			return -ECLOCKCFG;
 
 		/* Use only PLL0 for all clocks */
-		pll_cfg(ucg_id, fbdiv, frac, postdiv1);
+		pll_cfg(ucg_id, fbdiv, frac);
 
 		/* Set dividers for NOC clocks */
 		write32(UCG_FIRSTDIV(ucg_id, 0), FIELD_PREP(UCG_FIRSTDIV_NDIV, 0));
@@ -244,18 +240,13 @@ int platform_clk_cfg(int ctrl_id, struct ddr_cfg *cfg)
 /* Switch MFIO PADs to UART0 mode */
 static void uart0_pads_cfg(void)
 {
-	/* TBD: Verify PADs voltage */
-	write32(MFIO_NX_FUNCTION_CTRL(46), 0xfa);
-	write32(MFIO_CR_GPION_BIT_EN(2), 0x40000000);
+	int i;
 
-	write32(MFIO_NX_FUNCTION_CTRL(47), 0xfa);
-	write32(MFIO_CR_GPION_BIT_EN(2), 0x80000000);
+	for (i = 0; i < 4; i++)
+		write32(MFIO_NX_FUNCTION_CTRL(i + 46), 0xfa);
 
-	write32(MFIO_NX_FUNCTION_CTRL(48), 0xfa);
-	write32(MFIO_CR_GPION_BIT_EN(3), 0x10000);
-
-	write32(MFIO_NX_FUNCTION_CTRL(49), 0xfa);
-	write32(MFIO_CR_GPION_BIT_EN(3), 0x20000);
+	write32(MFIO_CR_GPION_BIT_EN(2), 0xc0000000);
+	write32(MFIO_CR_GPION_BIT_EN(3), 0x30000);
 }
 
 void platform_uart_cfg(void)
@@ -272,34 +263,26 @@ void platform_i2c_cfg(void)
 static void llc_enable(void)
 {
 	uint64_t val = 0;
+	int i;
 
 	/* Invalidate LLC tag RAM */
-	write64(NOC_AGENT_LLC_X_0_LLC_TAG_INV_CTL(0), 0xFFFFFFFFFFFFFFFF);
-	write64(NOC_AGENT_LLC_X_0_LLC_TAG_INV_CTL(1), 0xFFFFFFFFFFFFFFFF);
-
-	/* TODO: Add 4-channel DDR mode support */
+	for (i = 0; i < 2; i++)
+		write64(NOC_AGENT_LLC_X_0_LLC_TAG_INV_CTL(i), 0xFFFFFFFFFFFFFFFF);
 
 	/* Wait until TAG_INV_CTL regs read back 0 */
 	do {
-		val = read64(NOC_AGENT_LLC_X_0_LLC_TAG_INV_CTL(0));
-		val |= read64(NOC_AGENT_LLC_X_0_LLC_TAG_INV_CTL(1));
+		for (i = 0; i < 2; i++)
+			val |= read64(NOC_AGENT_LLC_X_0_LLC_TAG_INV_CTL(i));
 	} while (val);
 
-	/* Set allocation policy to 0xFF */
-	write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_ARCACHE_EN(0), 0);
-	write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_ARCACHE_EN(1), 0);
-	write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_AWCACHE_EN(0), 0);
-	write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_AWCACHE_EN(1), 0);
-
-	/* Allocation policy */
-	write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_RD_EN(0), 0xFF);
-	write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_RD_EN(1), 0xFF);
-	write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_WR_EN(0), 0xFF);
-	write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_WR_EN(1), 0xFF);
-
-	/* Enable LLC */
-	write32(NOC_AGENT_LLC_X_0_LLC_CACHE_WAY_ENABLE(0), 0xFFFFFFFF);
-	write32(NOC_AGENT_LLC_X_0_LLC_CACHE_WAY_ENABLE(1), 0xFFFFFFFF);
+	/* Set allocation policy to 0xFF and enable LLC */
+	for (i = 0; i < 2; i++) {
+		write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_ARCACHE_EN(i), 0);
+		write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_AWCACHE_EN(i), 0);
+		write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_RD_EN(i), 0xFF);
+		write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_WR_EN(i), 0xFF);
+		write32(NOC_AGENT_LLC_X_0_LLC_CACHE_WAY_ENABLE(i), 0xFFFFFFFF);
+	}
 }
 
 /*
@@ -388,68 +371,36 @@ static void iommu_bypass_enable(void)
  */
 static void south_ultrasoc_disable(void)
 {
+	int i;
+	uint32_t data0[] = { 0x1452108, 0x1452308, 0x1452f08, 0x1453308,
+			     0x5453308, 0x1453508, 0x3453708 };
+	uint32_t data1[] = { 0x3452108,  0x3452308, 0x3452f08, 0x3453308,
+			     0x7453308, 0x1453708, 0x1453b08 };
+
 	write32(AXI_COMM_US_CTL, 1);
 	write32(AXI_COMM_DS_CTL, 1);
 
 	while ((read32(AXI_COMM_US_BUF_STS) & 0x2) == 0)
 		continue;
 
-	write32(AXI_COMM_US_DATA, 0x1452108);
-	write32(AXI_COMM_US_DATA, 0);
-	write32(AXI_COMM_US_DATA, 0x700);
-	write32(AXI_COMM_US_DATA, 0x3452108);
-	write32(AXI_COMM_US_DATA, 0);
-	write32(AXI_COMM_US_DATA, 0x700);
-
-	write32(AXI_COMM_US_DATA, 0x1452308);
-	write32(AXI_COMM_US_DATA, 0);
-	write32(AXI_COMM_US_DATA, 0x700);
-	write32(AXI_COMM_US_DATA, 0x3452308);
-	write32(AXI_COMM_US_DATA, 0);
-	write32(AXI_COMM_US_DATA, 0x700);
-
-	write32(AXI_COMM_US_DATA, 0x1452f08);
-	write32(AXI_COMM_US_DATA, 0);
-	write32(AXI_COMM_US_DATA, 0x700);
-	write32(AXI_COMM_US_DATA, 0x3452f08);
-	write32(AXI_COMM_US_DATA, 0);
-	write32(AXI_COMM_US_DATA, 0x700);
-
-	write32(AXI_COMM_US_DATA, 0x1453308);
-	write32(AXI_COMM_US_DATA, 0);
-	write32(AXI_COMM_US_DATA, 0x700);
-	write32(AXI_COMM_US_DATA, 0x3453308);
-	write32(AXI_COMM_US_DATA, 0);
-	write32(AXI_COMM_US_DATA, 0x700);
-
-	write32(AXI_COMM_US_DATA, 0x5453308);
-	write32(AXI_COMM_US_DATA, 0);
-	write32(AXI_COMM_US_DATA, 0x700);
-	write32(AXI_COMM_US_DATA, 0x7453308);
-	write32(AXI_COMM_US_DATA, 0);
-	write32(AXI_COMM_US_DATA, 0x700);
-
-	write32(AXI_COMM_US_DATA, 0x1453508);
-	write32(AXI_COMM_US_DATA, 0);
-	write32(AXI_COMM_US_DATA, 0x700);
-	write32(AXI_COMM_US_DATA, 0x1453708);
-	write32(AXI_COMM_US_DATA, 0);
-	write32(AXI_COMM_US_DATA, 0x700);
-
-	write32(AXI_COMM_US_DATA, 0x3453708);
-	write32(AXI_COMM_US_DATA, 0);
-	write32(AXI_COMM_US_DATA, 0x700);
-	write32(AXI_COMM_US_DATA, 0x1453b08);
-	write32(AXI_COMM_US_DATA, 0);
-	write32(AXI_COMM_US_DATA, 0x700);
+	for (i = 0; i < ARRAY_SIZE(data0); i++) {
+		write32(AXI_COMM_US_DATA, data0[i]);
+		write32(AXI_COMM_US_DATA, 0);
+		write32(AXI_COMM_US_DATA, 0x700);
+		write32(AXI_COMM_US_DATA, data1[i]);
+		write32(AXI_COMM_US_DATA, 0);
+		write32(AXI_COMM_US_DATA, 0x700);
+	}
 }
 
 int platform_system_init(void)
 {
 	llc_enable();
 	axprot_override();
-	south_ultrasoc_disable();
 	iommu_bypass_enable();
+
+	/* TBD: UltraSoC disabling hangs */
+	/* south_ultrasoc_disable(); */
 
 	return 0;
 }
