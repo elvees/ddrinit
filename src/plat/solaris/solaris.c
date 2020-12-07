@@ -269,19 +269,20 @@ static void llc_enable(void)
 {
 	uint64_t val = 0;
 	int i;
+	int ctrl_num = __builtin_ffsll(CONFIG_DDRMC_ACTIVE_MASK + 1) - 1;
 
 	/* Invalidate LLC tag RAM */
-	for (i = 0; i < 2; i++)
+	for (i = 0; i < ctrl_num; i++)
 		write64(NOC_AGENT_LLC_X_0_LLC_TAG_INV_CTL(i), 0xFFFFFFFFFFFFFFFF);
 
 	/* Wait until TAG_INV_CTL regs read back 0 */
 	do {
-		for (i = 0; i < 2; i++)
+		for (i = 0; i < ctrl_num; i++)
 			val |= read64(NOC_AGENT_LLC_X_0_LLC_TAG_INV_CTL(i));
 	} while (val);
 
 	/* Set allocation policy to 0xFF and enable LLC */
-	for (i = 0; i < 2; i++) {
+	for (i = 0; i < ctrl_num; i++) {
 		write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_ARCACHE_EN(i), 0);
 		write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_AWCACHE_EN(i), 0);
 		write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_RD_EN(i), 0xFF);
