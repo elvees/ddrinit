@@ -192,7 +192,6 @@ int main(void)
 	cfg.sysinfo = &info;
 
 	uart_cfg();
-	platform_system_init();
 
 	for (i = 0; i < CONFIG_DDRMC_MAX_NUMBER; i++) {
 		ret = ddrcfg_get(i, &cfg);
@@ -208,6 +207,8 @@ int main(void)
 			printf("DDRMC%d: Initialized successfully, speed %d MT/s\n", i,
 			       info.speed[i]);
 	}
+
+	platform_system_init();
 
 	printf("Total DDR memory size %d MiB\n", (int)(info.dram_size / 1024 / 1024));
 	printf("Interleaving %s\n", (info.interleaving_enabled) ? "enabled" : "disabled");

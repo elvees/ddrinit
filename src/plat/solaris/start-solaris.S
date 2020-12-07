@@ -29,9 +29,7 @@ LEAF(__app_entry)
 zero_bss:
     li      s1, 0xffffffff
     dla      a1, _fbss
-    ins     a1, s1, 29, 1
     dla      a2, _end
-    ins     a2, s1, 29, 1
     beq     a1, a2, bss_done
     nop
 next_bss_word:
