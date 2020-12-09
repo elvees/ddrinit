@@ -267,7 +267,6 @@ void platform_i2c_cfg(void)
 
 static void llc_enable(void)
 {
-	uint64_t val = 0;
 	int i;
 	int ctrl_num = __builtin_ffsll(CONFIG_DDRMC_ACTIVE_MASK + 1) - 1;
 
@@ -276,10 +275,15 @@ static void llc_enable(void)
 		write64(NOC_AGENT_LLC_X_0_LLC_TAG_INV_CTL(i), 0xFFFFFFFFFFFFFFFF);
 
 	/* Wait until TAG_INV_CTL regs read back 0 */
-	do {
+	while (1) {
+		uint64_t val = 0;
+
 		for (i = 0; i < ctrl_num; i++)
 			val |= read64(NOC_AGENT_LLC_X_0_LLC_TAG_INV_CTL(i));
-	} while (val);
+
+		if (val == 0)
+			break;
+	}
 
 	/* Set allocation policy to 0xFF and enable LLC */
 	for (i = 0; i < ctrl_num; i++) {
