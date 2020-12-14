@@ -13,21 +13,11 @@ node('linux') {
     env.SPHINXFLAGS = '-W'
 
     stage('Prepare environment') {
-        sh '''
-            python3.6 -m venv .venv
-            source .venv/bin/activate
-            pip install setuptools --upgrade
-            pip install pip --upgrade
-            pip install pipenv
-            pipenv install --dev
-        '''
+        sh 'pipenv install --dev'
     }
 
     stage('Build HTML') {
-        sh '''
-            source .venv/bin/activate
-            make -C doc html
-        '''
+        sh 'pipenv run make -C doc html'
 
         publishHTML target: [
             reportName: 'ddrinit HTML documentation',
@@ -41,26 +31,19 @@ node('linux') {
     }
 
     stage('Pre-commit') {
-        sh '''
-            source .venv/bin/activate
-            pre-commit run -a --hook-stage manual
-        '''
+        sh 'pre-commit run -a --hook-stage manual'
     }
 
     stage('Check') {
-        sh '''
-            source .venv/bin/activate
-            make -C doc check
-        '''
+        sh 'pipenv run make -C doc check'
     }
 
     stage('Build') {
         sh '''
-            source .venv/bin/activate
             module load cmake
             module load toolchain/mips/codescape/img/bare/2018.09-03
-            make solarisbub_defconfig
-            make CROSS_COMPILE=mips-img-elf-
+            pipenv run make solarisbub_defconfig
+            pipenv run make CROSS_COMPILE=mips-img-elf-
         '''
     }
 }
