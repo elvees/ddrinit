@@ -18,11 +18,18 @@
 **************************************************************************************/
 LEAF(__app_entry)
     // Store return address
-    addiu   sp, sp, -16
+    addiu   sp, sp, -88
     sw      ra, 0(sp)
-    sw      a1, 4(sp)
-    sw      a2, 8(sp)
-    sw      s1, 12(sp)
+    sw      gp, 8(sp)
+    sw      s0, 16(sp)
+    sw      s1, 24(sp)
+    sw      s2, 32(sp)
+    sw      s3, 40(sp)
+    sw      s4, 48(sp)
+    sw      s5, 56(sp)
+    sw      s6, 64(sp)
+    sw      s7, 72(sp)
+    sw      s8, 80(sp)
     dla     gp, _gp
 
     // Clear bss
@@ -46,15 +53,22 @@ bss_done:
 #ifdef CONFIG_BOOTMODE_NOSTART
 loop:
     wait
-    b loop
+    bc      loop
 #endif
 
     // Jump to previously stored return address
     lw      ra, 0(sp)
-    lw      a1, 4(sp)
-    lw      a2, 8(sp)
-    lw      s1, 12(sp)
-    addiu   sp, sp, 16
-    jr      ra
+    lw      gp, 8(sp)
+    lw      s0, 16(sp)
+    lw      s1, 24(sp)
+    lw      s2, 32(sp)
+    lw      s3, 40(sp)
+    lw      s4, 48(sp)
+    lw      s5, 56(sp)
+    lw      s6, 64(sp)
+    lw      s7, 72(sp)
+    lw      s8, 80(sp)
+    addiu   sp, sp, 88
+    jrc     ra
 
 END(__app_entry)
