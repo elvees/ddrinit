@@ -28,6 +28,15 @@
 #define ps2clk_rd(t, tck) ((t) / (tck))
 #define ps2clk_ru(t, tck) DIV_ROUND_UP((t), (tck))
 
+#define DDRCFG_OVERRIDE_MAGIC 0xdeadc0de
+
+extern unsigned long ddrcfg_override_start __attribute__((section(".text")));
+
+struct ddrcfg_override {
+	uint32_t magic;
+	uint32_t xtal_freq;
+};
+
 enum ddrinit_error_code {
 	EPOWERUP = 1,
 	ECLOCKCFG,

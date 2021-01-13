@@ -48,6 +48,12 @@ config UART_BASE_FREQ
 	help
 	  UART input frequency in Hz
 
+config DDR_XTAL_FREQ
+	int "DDR XTAL frequency"
+	default 40000000 if PLATFORM_SOLARIS
+	help
+	  DDR XTAL frequency in Hz
+
 config SPD_EEPROM
 	bool "SPD EEPROM"
 	default y

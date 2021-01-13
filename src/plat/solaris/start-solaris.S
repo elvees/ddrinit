@@ -12,12 +12,24 @@
 
     .set    noreorder           // Don't allow the assembler to reorder instructions.
     .set    noat                // Don't allow the assembler to use r1(at) for synthetic instr.
+    .global ddrcfg_override_start
 
 /**************************************************************************************
    A P P L I C A T I O N    E N T R Y    P O I N T
 **************************************************************************************/
 LEAF(__app_entry)
-    // Store return address
+
+    b       store_regs
+    nop
+    nop
+    nop
+
+    // Offset 0x10 is used for overriding DDR configuration
+ddrcfg_override_start:
+    nop
+    .org 128
+
+store_regs:
     addiu   sp, sp, -88
     sw      ra, 0(sp)
     sw      gp, 8(sp)

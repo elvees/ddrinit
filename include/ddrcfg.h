@@ -67,4 +67,9 @@ static inline int ps2clk_jedec(uint32_t ps, uint32_t tck)
 	return (ps * 1000 / tck + 974) / 1000;
 }
 
+static inline uint32_t tck2freq(int tck)
+{
+	return 1000000ULL * 1000000ULL / tck;
+}
+
 #endif

@@ -47,22 +47,6 @@ enum pdci_reset_lines {
 	PDCI_LINE_MAX
 };
 
-struct pll_settings {
-	uint16_t tck;
-	uint16_t fbdiv;
-	uint32_t frac;
-};
-
-static const struct pll_settings pll_settings[] = {
-//	{ DRAM_TCK_1250, 84, 12511822}, // 625 MHz
-	{ DRAM_TCK_1250, 54, 3981034},  // 400 MHz
-	{ DRAM_TCK_1333, 90, 5118472},  // 666 MHz
-	{ DRAM_TCK_1600, 108, 7962068}, // 800 MHz
-	{ DRAM_TCK_1866, 126, 6255911},
-	{ DRAM_TCK_2133, 144, 9099506},
-	{ DRAM_TCK_2400, 162, 11943102},
-};
-
 void phy_write32(int ctrl_id, unsigned long addr, uint32_t val)
 {
 	if (addr >= 0x200000) {
@@ -138,9 +122,34 @@ void platform_reset_ctl(int ctrl_id, enum reset_type reset, enum reset_action ac
 	}
 }
 
-static void pll_cfg(enum ddr_ucg_id ucg_id, uint16_t fbdiv, uint32_t frac)
+static int pll_cfg(enum ddr_ucg_id ucg_id, int tck)
 {
-	uint32_t val;
+	uint32_t freq, xtal, frac, val, div1;
+	uint16_t fbdiv;
+	struct ddrcfg_override *cfg_o = (struct ddrcfg_override *)&ddrcfg_override_start;
+
+	if (tck <= DRAM_TCK_1250 && tck > DRAM_TCK_1600)
+		div1 = 5;
+	else if (tck <= DRAM_TCK_1600 && tck > DRAM_TCK_2133)
+		div1 = 4;
+	else if (tck <= DRAM_TCK_2133 && tck >= DRAM_TCK_2400)
+		div1 = 3;
+	else
+		return -ECLOCKCFG;
+
+	freq = tck2freq(tck) / 2 * div1;
+
+	if (cfg_o->magic == DDRCFG_OVERRIDE_MAGIC)
+		xtal = cfg_o->xtal_freq;
+	else
+		xtal = CONFIG_DDR_XTAL_FREQ;
+
+	fbdiv = freq / xtal;
+	frac = (freq % xtal) * 16777216ULL / xtal;
+
+	print_dbg("pll_cfg(): XTAL: %d, PLL VCO/2: %d, PLL FOUTPOSTDIV: %d\n", xtal, freq,
+		  freq / div1);
+	print_dbg("pll_cfg(): fbdiv: %d, frac: %d\n", fbdiv, frac);
 
 	/* Enable Bypass */
 	write32(UCG_UFG_REG5(ucg_id, 0), UCG_UFG_REG5_BYPASS);
@@ -160,7 +169,7 @@ static void pll_cfg(enum ddr_ucg_id ucg_id, uint16_t fbdiv, uint32_t frac)
 	/* Set POSTDIV1 and POSTDIV2 */
 	val = read32(UCG_UFG_REG10(ucg_id, 0));
 	val &= ~UCG_UFG_REG10_POSTDIV1 & ~UCG_UFG_REG10_POSTDIV2;
-	val |= FIELD_PREP(UCG_UFG_REG10_POSTDIV1, 1) |
+	val |= FIELD_PREP(UCG_UFG_REG10_POSTDIV1, div1) |
 	       FIELD_PREP(UCG_UFG_REG10_POSTDIV2, 1);
 	write32(UCG_UFG_REG10(ucg_id, 0), val);
 
@@ -185,6 +194,12 @@ static void pll_cfg(enum ddr_ucg_id ucg_id, uint16_t fbdiv, uint32_t frac)
 	/* Wait for locking */
 	while (!(read32(UCG_UFG_REG0(ucg_id, 0)) & UCG_UFG_REG0_LOCKSTAT))
 		continue;
+
+	print_dbg("pll_cfg(): UFG0 REGS 0, 3, 5: 0x%x, 0x%x, 0x%x\n",
+		  read32(UCG_UFG_REG0(ucg_id, 0)), read32(UCG_UFG_REG3(ucg_id, 0)),
+		  read32(UCG_UFG_REG5(ucg_id, 0)));
+
+	return 0;
 }
 
 int platform_clk_cfg(int ctrl_id, struct ddr_cfg *cfg)
@@ -195,22 +210,12 @@ int platform_clk_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	int chan;
 
 	if ((ctrl_id > 1 && !ucg_east_configured) || (ctrl_id <= 1 && !ucg_west_configured)) {
-		uint16_t fbdiv = 0;
-		uint32_t frac = 0;
-		int i;
-
-		for (i = 0; i < ARRAY_SIZE(pll_settings); i++) {
-			if (cfg->tck != pll_settings[i].tck)
-				continue;
-			fbdiv = pll_settings[i].fbdiv;
-			frac = pll_settings[i].frac;
-		}
-
-		if (fbdiv == 0 && frac == 0)
-			return -ECLOCKCFG;
+		int i, ret;
 
 		/* Use only PLL0 for all clocks */
-		pll_cfg(ucg_id, fbdiv, frac);
+		ret = pll_cfg(ucg_id, cfg->tck);
+		if (ret)
+			return ret;
 
 		/* Set dividers for NOC clocks */
 		write32(UCG_FIRSTDIV(ucg_id, 0), FIELD_PREP(UCG_FIRSTDIV_NDIV, 0));
