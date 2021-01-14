@@ -9,8 +9,7 @@ ENTRY(__app_entry)
 
 SECTIONS
 {
-	.text_init 0xffffffff9ff14000 :
-	AT(0x1ff14000) {
+	.text_init 0xffffffff9ff14000 : {
 		*(.boot)
 		*(.text)*(.text.*)
 		. = ALIGN(16);
