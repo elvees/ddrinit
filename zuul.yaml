@@ -1,0 +1,9 @@
+---
+- project:
+    check:
+      jobs:
+        - solaris-buildroot-build:
+            irrelevant-files:
+              - ^doc/.*
+              - ^.*rst
+              - Jenkinsfile
