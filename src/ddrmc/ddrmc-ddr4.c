@@ -409,6 +409,10 @@ void ddrmc_cfg(int ctrl_id, struct ddr_cfg *cfg)
 
 	write32(DDRMC_DBICTL(ctrl_id), 0);
 
+	val = FIELD_PREP(DDRMC_ODTCFG_RD_DELAY, cfg->taa - ddr4_cwl_get(tck)) |
+	      FIELD_PREP(DDRMC_ODTCFG_RD_HOLD, 6) | FIELD_PREP(DDRMC_ODTCFG_WR_HOLD, 6);
+	write32(DDRMC_ODTCFG(ctrl_id), val);
+
 	dram_timings_cfg(ctrl_id, cfg);
 	dfi_timings_cfg(ctrl_id, cfg);
 	addrmap_cfg(ctrl_id, cfg);
