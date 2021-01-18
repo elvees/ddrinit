@@ -223,6 +223,7 @@ void phy_training_params_load(int ctrl_id, struct ddr_cfg *cfg)
 
 	memset(&mb_DDR4U_1D, 0, sizeof(mb_DDR4U_1D));
 
+	mb_DDR4U_1D.Reserved00 = 0x60;
 	mb_DDR4U_1D.DramType = 0x2;
 	mb_DDR4U_1D.Pstate = 0;
 	mb_DDR4U_1D.SequenceCtrl = 0x31f;
