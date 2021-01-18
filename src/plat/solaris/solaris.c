@@ -155,10 +155,8 @@ static int pll_cfg(enum ddr_ucg_id ucg_id, int tck)
 	write32(UCG_UFG_REG5(ucg_id, 0), UCG_UFG_REG5_BYPASS);
 
 	/* Assert power down */
-	val = read32(UCG_UFG_REG0(ucg_id, 0));
-	val |= UCG_UFG_REG0_PLL_PD | UCG_UFG_REG0_VCO_PD | UCG_UFG_REG0_OP_PD |
-	       UCG_UFG_REG0_PH_PD | UCG_UFG_REG0_DOC_PD | UCG_UFG_REG0_DSM_PD;
-	write32(UCG_UFG_REG0(ucg_id, 0), val);
+	write32(UCG_UFG_REG0(ucg_id, 0), UCG_UFG_REG0_PLL_PD);
+	print_dbg("pll_cfg(): PLL PD asserted\n");
 
 	/* Deassert soft reset */
 	write32(UCG_UFG_REG1(ucg_id, 0), 0);
