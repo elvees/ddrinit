@@ -1,4 +1,4 @@
-node('linux') {
+node('linter') {
     stage('Checkout') {
         checkout scm
     }
