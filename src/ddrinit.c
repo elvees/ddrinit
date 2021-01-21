@@ -177,9 +177,16 @@ static int ddrcfg_get(int ctrl_id, struct ddr_cfg *cfg)
 
 char *errcode2str(int id)
 {
-	/* TODO: */
-
-	return 0;
+	switch (-id) {
+		case EPOWERUP: return "Failed to power up";
+		case ECLOCKCFG: return "Failed to configure clock";
+		case EI2CREAD: return "Failed to read over I2C";
+		case ESPDCHECKSUM: return "Incorrect SPD checksum";
+		case EDIMMCFG: return "Failed to configure DIMM";
+		case EFWTYPE: return "Unknown firmware type";
+		case ETRAINFAIL: return "PHY trainining error";
+		default: return "Unknown error";
+	}
 }
 
 int main(void)
@@ -201,7 +208,7 @@ int main(void)
 		}
 
 		ret = ddr_init(i, &cfg);
-		if (ret)
+		if (ret != 0)
 			printf("DDRMC%d: Failed to initialize: %s\n", i, errcode2str(ret));
 		else
 			printf("DDRMC%d: Initialized successfully, speed %d MT/s\n", i,
