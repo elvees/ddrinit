@@ -118,13 +118,14 @@ static void stream_message_decode(int ctrl_id)
 
 	string_index = stream_message_get(ctrl_id);
 
-	print_dbg("stream_message_decode, index: 0x%x\n", string_index);
+	print_dbg("stream_message: 0x%x", string_index);
 
 	while (i < (string_index & 0xffff)) {
 		arg = stream_message_get(ctrl_id);
-		print_dbg("arg[%d] = 0x%x\n", i, arg);
+		print_dbg(" 0x%x", arg);
 		i++;
 	}
+	print_dbg("\n");
 }
 
 static int training_complete_wait(int ctrl_id)

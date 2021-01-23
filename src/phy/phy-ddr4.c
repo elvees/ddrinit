@@ -228,7 +228,11 @@ void phy_training_params_load(int ctrl_id, struct ddr_cfg *cfg)
 	mb_DDR4U_1D.Pstate = 0;
 	mb_DDR4U_1D.SequenceCtrl = 0x31f;
 	mb_DDR4U_1D.PhyConfigOverride = 0;
-	mb_DDR4U_1D.HdtCtrl = 0xc8;
+#ifdef CONFIG_DEBUG
+	mb_DDR4U_1D.HdtCtrl = 0x00;
+#else
+	mb_DDR4U_1D.HdtCtrl = 0xff;
+#endif
 	mb_DDR4U_1D.MsgMisc = 0;
 	mb_DDR4U_1D.DFIMRLMargin = 1;
 	mb_DDR4U_1D.PhyVref = 0x56;
