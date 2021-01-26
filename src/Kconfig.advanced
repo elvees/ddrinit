@@ -1,23 +1,8 @@
 choice
 	prompt "PHY ODT select"
 
-	config PHY_ODT_60
-		bool "60 Ohms"
-		help
-		  TBD
-
-	config PHY_ODT_240
-		bool "240 Ohms"
-		help
-		  TBD
-
-	config PHY_ODT_120
-		bool "120 Ohms"
-		help
-		  TBD
-
-	config PHY_ODT_80
-		bool "80 Ohms"
+	config PHY_ODT_34
+		bool "34 Ohms"
 		help
 		  TBD
 
@@ -26,8 +11,23 @@ choice
 		help
 		  TBD
 
-	config PHY_ODT_34
-		bool "34 Ohms"
+	config PHY_ODT_60
+		bool "60 Ohms"
+		help
+		  TBD
+
+	config PHY_ODT_80
+		bool "80 Ohms"
+		help
+		  TBD
+
+	config PHY_ODT_120
+		bool "120 Ohms"
+		help
+		  TBD
+
+	config PHY_ODT_240
+		bool "240 Ohms"
 		help
 		  TBD
 
@@ -40,23 +40,8 @@ endchoice
 choice
 	prompt "PHY TX Impedance select"
 
-	config PHY_TX_IMPEDANCE_60
-		bool "60 Ohms"
-		help
-		  TBD
-
-	config PHY_TX_IMPEDANCE_240
-		bool "240 Ohms"
-		help
-		  TBD
-
-	config PHY_TX_IMPEDANCE_120
-		bool "120 Ohms"
-		help
-		  TBD
-
-	config PHY_TX_IMPEDANCE_80
-		bool "80 Ohms"
+	config PHY_TX_IMPEDANCE_34
+		bool "34 Ohms"
 		help
 		  TBD
 
@@ -65,8 +50,23 @@ choice
 		help
 		  TBD
 
-	config PHY_TX_IMPEDANCE_34
-		bool "34 Ohms"
+	config PHY_TX_IMPEDANCE_60
+		bool "60 Ohms"
+		help
+		  TBD
+
+	config PHY_TX_IMPEDANCE_80
+		bool "80 Ohms"
+		help
+		  TBD
+
+	config PHY_TX_IMPEDANCE_120
+		bool "120 Ohms"
+		help
+		  TBD
+
+	config PHY_TX_IMPEDANCE_240
+		bool "240 Ohms"
 		help
 		  TBD
 
@@ -84,13 +84,8 @@ choice
 		help
 		  TBD
 
-	config PHY_ATX_IMPEDANCE_120
-		bool "120 Ohms"
-		help
-		  TBD
-
-	config PHY_ATX_IMPEDANCE_60
-		bool "60 Ohms"
+	config PHY_ATX_IMPEDANCE_24
+		bool "24 Ohms"
 		help
 		  TBD
 
@@ -99,8 +94,71 @@ choice
 		help
 		  TBD
 
-	config PHY_ATX_IMPEDANCE_24
-		bool "24 Ohms"
+	config PHY_ATX_IMPEDANCE_60
+		bool "60 Ohms"
+		help
+		  TBD
+
+	config PHY_ATX_IMPEDANCE_120
+		bool "120 Ohms"
+		help
+		  TBD
+endchoice
+
+choice
+	prompt "DRAM RTT_NOM select"
+
+	config DRAM_RTT_NOM_34
+		bool "34 Ohms"
+		help
+		  TBD
+
+	config DRAM_RTT_NOM_40
+		bool "40 Ohms"
+		help
+		  TBD
+
+	config DRAM_RTT_NOM_48
+		bool "48 Ohms"
+		help
+		  TBD
+
+	config DRAM_RTT_NOM_60
+		bool "60 Ohms"
+		help
+		  TBD
+
+	config DRAM_RTT_NOM_80
+		bool "80 Ohms"
+		help
+		  TBD
+
+	config DRAM_RTT_NOM_120
+		bool "120 Ohms"
+		help
+		  TBD
+
+	config DRAM_RTT_NOM_240
+		bool "240 Ohms"
+		help
+		  TBD
+
+	config DRAM_RTT_NOM_DISABLED
+		bool "disabled"
+		help
+		  TBD
+endchoice
+
+choice
+	prompt "DRAM TX Impedance select"
+
+	config DRAM_TX_IMPEDANCE_34
+		bool "34 Ohms"
+		help
+		  TBD
+
+	config DRAM_TX_IMPEDANCE_48
+		bool "48 Ohms"
 		help
 		  TBD
 endchoice

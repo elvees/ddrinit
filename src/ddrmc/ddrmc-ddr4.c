@@ -104,23 +104,23 @@ uint16_t ddr4_mr1_get(struct ddr_cfg *cfg)
 {
 	uint16_t mr1 = 0;
 
-#ifdef CONFIG_DRAM_ODS_48
+#ifdef CONFIG_DRAM_TX_IMPEDANCE_48
 	mr1 = BIT(1);
 #endif
 
-#ifdef CONFIG_DRAM_ODT_34
+#ifdef CONFIG_DRAM_RTT_NOM_34
 	mr1 |= BIT(10) | BIT(9) | BIT(8);
-#elif CONFIG_DRAM_ODT_40
+#elif CONFIG_DRAM_RTT_NOM_40
 	mr1 |= BIT(9) | BIT(8);
-#elif CONFIG_DRAM_ODT_48
+#elif CONFIG_DRAM_RTT_NOM_48
 	mr1 |= BIT(10) | BIT(8);
-#elif CONFIG_DRAM_ODT_60
+#elif CONFIG_DRAM_RTT_NOM_60
 	mr1 |= BIT(8);
-#elif CONFIG_DRAM_ODT_80
+#elif CONFIG_DRAM_RTT_NOM_80
 	mr1 |= BIT(10) | BIT(9);
-#elif CONFIG_DRAM_ODT_120
+#elif CONFIG_DRAM_RTT_NOM_120
 	mr1 |= BIT(9);
-#elif CONFIG_DRAM_ODT_240
+#elif CONFIG_DRAM_RTT_NOM_240
 	mr1 |= BIT(10);
 #endif
 	return mr1 | 1;
