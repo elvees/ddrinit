@@ -268,33 +268,38 @@ void platform_i2c_cfg(void)
 	/* TBD */
 }
 
-static void llc_enable(void)
+static void llc_enable(int init_mask)
 {
 	int i;
-	int ctrl_num = __builtin_ffsll(CONFIG_DDRMC_ACTIVE_MASK + 1) - 1;
 
 	/* Invalidate LLC tag RAM */
-	for (i = 0; i < ctrl_num; i++)
-		write64(NOC_AGENT_LLC_X_0_LLC_TAG_INV_CTL(i), 0xFFFFFFFFFFFFFFFF);
+	for (i = 0; i < CONFIG_DDRMC_MAX_NUMBER; i++) {
+		if (BIT(i) & init_mask)
+			write64(NOC_AGENT_LLC_X_0_LLC_TAG_INV_CTL(i), 0xFFFFFFFFFFFFFFFF);
+	}
 
 	/* Wait until TAG_INV_CTL regs read back 0 */
 	while (1) {
 		uint64_t val = 0;
 
-		for (i = 0; i < ctrl_num; i++)
-			val |= read64(NOC_AGENT_LLC_X_0_LLC_TAG_INV_CTL(i));
+		for (i = 0; i < CONFIG_DDRMC_MAX_NUMBER; i++) {
+			if (BIT(i) & init_mask)
+				val |= read64(NOC_AGENT_LLC_X_0_LLC_TAG_INV_CTL(i));
+		}
 
 		if (val == 0)
 			break;
 	}
 
 	/* Set allocation policy to 0xFF and enable LLC */
-	for (i = 0; i < ctrl_num; i++) {
-		write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_ARCACHE_EN(i), 0);
-		write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_AWCACHE_EN(i), 0);
-		write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_RD_EN(i), 0xFF);
-		write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_WR_EN(i), 0xFF);
-		write32(NOC_AGENT_LLC_X_0_LLC_CACHE_WAY_ENABLE(i), 0xFFFFFFFF);
+	for (i = 0; i < CONFIG_DDRMC_MAX_NUMBER; i++) {
+		if (BIT(i) & init_mask) {
+			write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_ARCACHE_EN(i), 0);
+			write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_AWCACHE_EN(i), 0);
+			write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_RD_EN(i), 0xFF);
+			write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_WR_EN(i), 0xFF);
+			write32(NOC_AGENT_LLC_X_0_LLC_CACHE_WAY_ENABLE(i), 0xFFFFFFFF);
+		}
 	}
 }
 
@@ -406,9 +411,9 @@ static void south_ultrasoc_disable(void)
 	}
 }
 
-int platform_system_init(void)
+int platform_system_init(int init_mask)
 {
-	llc_enable();
+	llc_enable(init_mask);
 	axprot_override();
 	iommu_bypass_enable();
 
@@ -461,9 +466,6 @@ int platform_ddrcfg_get(int ctrl_id, struct ddr_cfg *cfg)
 	cfg->trrdl = ps2clk_jedec(4900, cfg->tck);
 	cfg->tccdl = ps2clk_jedec(5000, cfg->tck);
 	cfg->trc = ps2clk_jedec(45750, cfg->tck);
-
-	cfg->sysinfo->dram_size += cfg->full_size;
-	cfg->sysinfo->speed[ctrl_id] = 2000000 / CONFIG_DRAM_TCK;
 
 	return 0;
 }

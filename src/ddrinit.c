@@ -193,7 +193,7 @@ int main(void)
 {
 	struct ddr_cfg cfg;
 	struct sysinfo info;
-	int ret, i;
+	int ret, i, init_mask = 0;
 
 	memset(&info, 0, sizeof(info));
 	cfg.sysinfo = &info;
@@ -206,19 +206,26 @@ int main(void)
 			print_dbg("DDRMC%d: Failed to get configuration\n", i);
 			continue;
 		}
+		info.speed[i] = 2000000 / cfg.tck;
 
 		ret = ddr_init(i, &cfg);
-		if (ret != 0)
+		if (ret != 0) {
 			printf("DDRMC%d: Failed to initialize: %s\n", i, errcode2str(ret));
-		else
+		}
+		else {
 			printf("DDRMC%d: Initialized successfully, speed %d MT/s\n", i,
 			       info.speed[i]);
+			init_mask |= BIT(i);
+			info.dram_size += cfg.full_size;
+		}
 	}
 
-	platform_system_init();
+	if (init_mask != 0) {
+		platform_system_init(init_mask);
 
-	printf("Total DDR memory size %d MiB\n", (int)(info.dram_size / 1024 / 1024));
-	printf("Interleaving %s\n", (info.interleaving_enabled) ? "enabled" : "disabled");
+		printf("Total DDR memory size %d MiB\n", (int)(info.dram_size / 1024 / 1024));
+		printf("Interleaving %s\n", (info.interleaving_enabled) ? "enabled" : "disabled");
+	}
 
 	return 0;
 }

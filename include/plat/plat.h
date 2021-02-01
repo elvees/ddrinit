@@ -17,7 +17,7 @@ int platform_ddrcfg_get(int ctrl_id, struct ddr_cfg *cfg);
 void platform_i2c_cfg(void);
 int platform_power_up(int ctrl_id);
 void platform_reset_ctl(int ctl_id, enum reset_type reset, enum reset_action action);
-int platform_system_init(void);
+int platform_system_init(int init_mask);
 void platform_uart_cfg(void);
 
 /* TBD: Rename phy_* functions */
