@@ -21,8 +21,6 @@ void i2c_cfg(int ctrl_id)
 
 	write32(I2C_ENABLE(0), 0);
 
-	delay_us(1);
-
 	val = I2C_CON_SLAVE_DISABLE | I2C_CON_RESTART_EN | I2C_CON_SPEED_MASK_100 |
 	      I2C_CON_MASTER_MODE;
 	write32(I2C_CON(0), val);

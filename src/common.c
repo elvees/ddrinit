@@ -4,6 +4,9 @@
  */
 
 #include <common.h>
+#include <plat/plat.h>
+
+#define USECS_IN_SEC 1000000ULL
 
 void write16(unsigned long addr, uint16_t val)
 {
@@ -30,13 +33,38 @@ uint64_t read64(unsigned long addr)
 	return *((volatile uint64_t *)addr);
 }
 
-void delay_us(int val)
+static uint64_t usec_to_tick(int usec)
 {
-	/* TODO: Use timers */
-	volatile int i;
+	return (uint64_t)usec * CONFIG_TIMER_FREQ / USECS_IN_SEC;
+}
 
-	for (i = 0; i < val * 1000; i++)
-		__asm__ volatile("nop");
+static uint64_t get_ticks(void)
+{
+	static uint32_t timebase_h, timebase_l;
+	uint32_t now = platform_get_timer_count();
+
+	/* Increment tbh if tbl has rolled over */
+	if (now < timebase_l)
+		timebase_h++;
+	timebase_l = now;
+	return ((uint64_t)timebase_h << 32) | timebase_l;
+}
+
+void delay_usec(int usec)
+{
+	uint64_t tmp;
+
+	/* Get current timestamp */
+	tmp = get_ticks() + usec_to_tick(usec);
+
+	/* Loop till event */
+	while (get_ticks() < tmp + 1)
+		 /*NOP*/;
+}
+
+int timer_get_usec(void)
+{
+	return get_ticks() * USECS_IN_SEC / CONFIG_TIMER_FREQ;
 }
 
 void *memcpy(void *dest, const void *src, size_t count)

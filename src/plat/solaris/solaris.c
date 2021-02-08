@@ -115,9 +115,9 @@ void platform_reset_ctl(int ctrl_id, enum reset_type reset, enum reset_action ac
 	/* Deassert soft reset for DDRMC and PHY */
 	if (reset == CORERESETN) {
 		write32(DDRSUBS_REGBANK_SYSTEM_CTRL(ctrl_id), 4);
-		delay_us(1);
+		delay_usec(100);
 		write32(DDRSUBS_REGBANK_SYSTEM_CTRL(ctrl_id), 6);
-		delay_us(1);
+		delay_usec(100);
 		write32(DDRSUBS_REGBANK_SYSTEM_CTRL(ctrl_id), 2);
 	}
 }
@@ -472,3 +472,11 @@ int platform_ddrcfg_get(int ctrl_id, struct ddr_cfg *cfg)
 	return 0;
 }
 #endif
+
+uint32_t platform_get_timer_count()
+{
+	uint32_t res;
+	__asm__ __volatile__("mfc0 %0, $9"
+			     : "=r" (res));
+	return res;
+}

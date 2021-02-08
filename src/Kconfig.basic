@@ -243,3 +243,9 @@ config DDRMC_ACTIVE_MASK
         depends on !SPD_EEPROM
         help
           If bit N is set DDRMC N will be initialized.
+
+config TIMER_FREQ
+	int "Timer frequency"
+	default 240000000 if PLATFORM_SOLARIS
+	help
+	  Timer clock source frequency.

@@ -14,6 +14,7 @@ enum reset_action { RESET_ASSERT, RESET_DEASSERT };
 
 int platform_clk_cfg(int ctrl_id, struct ddr_cfg *cfg);
 int platform_ddrcfg_get(int ctrl_id, struct ddr_cfg *cfg);
+uint32_t platform_get_timer_count(void);
 void platform_i2c_cfg(void);
 int platform_power_up(int ctrl_id);
 void platform_reset_ctl(int ctl_id, enum reset_type reset, enum reset_action action);
