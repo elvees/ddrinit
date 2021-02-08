@@ -126,7 +126,7 @@ choice
 		bool "Custom CAS latency"
 endchoice
 
-config DRAM_CAS_LATENCY
+config DRAM_CAS_LATENCY_CUSTOM
 	int "CAS latency"
 	range 5 24
 	default 7 if DRAM_TYPE_DDR3 && DRAM_RATE_1066
@@ -134,7 +134,7 @@ config DRAM_CAS_LATENCY
 	default 11 if DRAM_TYPE_DDR3 && DRAM_RATE_1600
 	default 13 if DRAM_TYPE_DDR3 && DRAM_RATE_1866
 	default 14 if DRAM_TYPE_DDR3 && DRAM_RATE_2133
-	depends on SPD_EEPROM && DRAM_CAS_CUSTOM || !SPD_EEPROM
+	depends on SPD_EEPROM && DRAM_CAS_CUSTOM
 	help
 	  DRAM CAS latency
 

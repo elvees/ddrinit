@@ -291,7 +291,12 @@ int spd_parse(struct ddr4_spd *spd, struct ddr_cfg *cfg)
 	if (cfg->tck < cfg->tckmin || cfg->tck > cfg->tckmax)
 		return -EDIMMCFG;
 
+#if defined(CONFIG_DRAM_CAS_LATENCY_CUSTOM)
+	cfg->taa = CONFIG_DRAM_CAS_LATENCY_CUSTOM;
+#else
 	cfg->taa = ps2clk_jedec(spd2ps(spd->taa_min, spd->fine_taa_min), cfg->tck);
+#endif
+
 	cfg->trcd = ps2clk_jedec(spd2ps(spd->trcd_min, spd->fine_trcd_min), cfg->tck);
 	cfg->trp = ps2clk_jedec(spd2ps(spd->trp_min, spd->fine_trp_min), cfg->tck);
 
