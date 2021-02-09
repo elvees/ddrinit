@@ -134,6 +134,8 @@ static int pll_cfg(enum ddr_ucg_id ucg_id, int tck)
 		div1 = 4;
 	else if (tck <= DRAM_TCK_2133 && tck >= DRAM_TCK_2400)
 		div1 = 3;
+	else if (tck <= DRAM_TCK_2666 && tck >= DRAM_TCK_3200)
+		div1 = 2;
 	else
 		return -ECLOCKCFG;
 

@@ -224,6 +224,7 @@ config DRAM_TCK
 	default 1071 if DRAM_RATE_1866
 	default 937 if DRAM_RATE_2133
 	default 833 if DRAM_RATE_2400
+	default 750 if DRAM_RATE_2666
 	default 682 if DRAM_RATE_2933
 	default 625 if DRAM_RATE_3200
 	depends on SPD_EEPROM && DRAM_RATE_CUSTOM || !SPD_EEPROM
