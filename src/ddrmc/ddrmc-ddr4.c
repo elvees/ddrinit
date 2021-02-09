@@ -250,8 +250,8 @@ static void dram_timings_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	write32(DDRMC_DRAMTMG1(ctrl_id), val);
 
 	val = FIELD_PREP(DDRMC_DRAMTMG2_WR2RD,
-			 DIV_ROUND_UP(cwl + hbl + DRAM_TIMING_TWTRL(tck), 2)) |
-	      FIELD_PREP(DDRMC_DRAMTMG2_RD2WR, DIV_ROUND_UP(cl + hbl + 1 + 1 - cwl, 2)) |
+			 DIV_ROUND_UP(cwl + hbl + 2 + DRAM_TIMING_TWTRL(tck), 2)) |
+	      FIELD_PREP(DDRMC_DRAMTMG2_RD2WR, DIV_ROUND_UP(cl + 2 + hbl + 1 + 1 - cwl, 2)) |
 	      FIELD_PREP(DDRMC_DRAMTMG2_RDLAT, DIV_ROUND_UP(cl, 2)) |
 	      FIELD_PREP(DDRMC_DRAMTMG2_WRLAT, DIV_ROUND_UP(cwl, 2));
 	write32(DDRMC_DRAMTMG2(ctrl_id), val);
