@@ -175,6 +175,7 @@ int main(void)
 	struct ddr_cfg cfg;
 	struct sysinfo info;
 	int ret, i, init_mask = 0;
+	int timer_start, timer_end;
 
 	memset(&info, 0, sizeof(info));
 	cfg.sysinfo = &info;
@@ -182,6 +183,7 @@ int main(void)
 	uart_cfg();
 
 	for (i = 0; i < CONFIG_DDRMC_MAX_NUMBER; i++) {
+		timer_start = timer_get_usec();
 		ret = ddrcfg_get(i, &cfg);
 		if (ret) {
 			print_dbg("DDRMC%d: Failed to get configuration\n", i);
@@ -190,12 +192,14 @@ int main(void)
 		info.speed[i] = 2000000 / cfg.tck;
 
 		ret = ddr_init(i, &cfg);
+		timer_end = timer_get_usec();
 		if (ret != 0) {
-			printf("DDRMC%d: Failed to initialize: %s\n", i, errcode2str(ret));
+			printf("DDRMC%d: Failed to initialize, time elapsed: %d us: %s\n",
+			       i, timer_end - timer_start, errcode2str(ret));
 		}
 		else {
-			printf("DDRMC%d: Initialized successfully, speed %d MT/s\n", i,
-			       info.speed[i]);
+			printf("DDRMC%d: Initialized successfully within %d us, %d ranks, speed %d MT/s\n",
+			       i, timer_end - timer_start, cfg.ranks, info.speed[i]);
 			init_mask |= BIT(i);
 			info.dram_size += cfg.full_size;
 		}
