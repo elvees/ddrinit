@@ -156,25 +156,6 @@ int ddr_init(int ctrl_id, struct ddr_cfg *cfg)
 	return 0;
 }
 
-static int ddrcfg_get(int ctrl_id, struct ddr_cfg *cfg)
-{
-	int ret;
-#ifdef CONFIG_SPD_EEPROM
-#ifdef CONFIG_DRAM_TYPE_DDR4
-	struct ddr4_spd spd;
-#endif
-
-	ret = spd_get(ctrl_id, &spd);
-	if (ret)
-		return ret;
-
-	ret = spd_parse(&spd, cfg);
-#else
-	ret = platform_ddrcfg_get(ctrl_id, cfg);
-#endif
-	return ret;
-}
-
 char *errcode2str(int id)
 {
 	switch (-id) {

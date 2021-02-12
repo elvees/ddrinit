@@ -250,5 +250,6 @@ struct ddr4_spd {
 
 int spd_get(int ctrl_id, struct ddr4_spd *spd);
 int spd_parse(struct ddr4_spd *spd, struct ddr_cfg *cfg);
+int spd_dump(uint8_t *buf);
 
 #endif /* _DDR_SPD_H */

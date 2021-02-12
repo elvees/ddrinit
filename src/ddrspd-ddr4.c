@@ -11,24 +11,22 @@
 #include <ddrcfg.h>
 #include <ddrspd.h>
 #include <i2c.h>
+#include <plat/plat.h>
 
 int spd_get(int ctrl_id, struct ddr4_spd *spd)
 {
-	int ret, size;
-	uint8_t i2c_addr;
+	int ret, size, i2c_ctrl_id;
 
-	i2c_cfg(ctrl_id);
-
-	i2c_addr = i2c_addr_get(ctrl_id);
-	if (!i2c_addr)
-		return -EI2CREAD;
+	i2c_ctrl_id = platform_i2c_ctrl_id_get(ctrl_id);
+	i2c_cfg(i2c_ctrl_id, ctrl_id);
 
 #ifdef CONFIG_DRAM_TYPE_DDR4
 	size = sizeof(struct ddr4_spd);
 #endif
-	ret = i2c_spd_read(i2c_addr, 0, 2, (uint8_t *)spd, size);
+
+	ret = i2c_spd_read(i2c_ctrl_id, (uint8_t *)spd, size);
 	if (ret)
-		return -EI2CREAD;
+		return ret;
 
 	return 0;
 }
@@ -340,3 +338,20 @@ int spd_parse(struct ddr4_spd *spd, struct ddr_cfg *cfg)
 
 	return 0;
 }
+
+#ifdef CONFIG_SPD_DUMP
+int spd_dump(uint8_t *buf)
+{
+	uint8_t read_val;
+
+	for (int i = 0; i < 16; i++){
+		printf("\n%03x  ", 16 * i);
+		for (int j = 0; j < 16; j++){
+			read_val = *(buf)++;
+			printf("%02x ", read_val);
+		}
+	}
+	printf("\n");
+	return 0;
+}
+#endif

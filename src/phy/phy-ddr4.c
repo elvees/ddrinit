@@ -237,8 +237,8 @@ void phy_training_params_load(int ctrl_id, struct ddr_cfg *cfg)
 	mb_DDR4U_1D.DFIMRLMargin = 1;
 	mb_DDR4U_1D.PhyVref = 0x56;
 
-	mb_DDR4U_1D.CsPresent = BIT(CONFIG_DRAM_RANKS) - 1;
-	mb_DDR4U_1D.CsPresentD0 = BIT(CONFIG_DRAM_RANKS) - 1;
+	mb_DDR4U_1D.CsPresent = BIT(cfg->ranks) - 1;
+	mb_DDR4U_1D.CsPresentD0 = BIT(cfg->ranks) - 1;
 	mb_DDR4U_1D.CsPresentD1 = 0;
 	mb_DDR4U_1D.AddrMirror = 0xa;
 

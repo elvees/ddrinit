@@ -366,14 +366,22 @@
 #define I2C_CON_SLAVE_DISABLE BIT(6)
 #define I2C_CON_RESTART_EN BIT(5)
 #define I2C_CON_SPEED_MASK_100 BIT(1)
+#define I2C_CON_SPEED_MASK_FAST BIT(2)
 #define I2C_CON_MASTER_MODE BIT(0)
 
 #define I2C_TAR(i) (I2C_BASE(i) + 0x4)
+
+#define I2C_DATA_CMD(i) (I2C_BASE(i) + 0x10)
 
 #define I2C_SS_HCNT(i) (I2C_BASE(i) + 0x14)
 
 #define I2C_SS_LCNT(i) (I2C_BASE(i) + 0x18)
 
 #define I2C_ENABLE(i) (I2C_BASE(i) + 0x6C)
+
+#define I2C_STATUS(i) (I2C_BASE(i) + 0x70)
+
+#define I2C_TX_EMPTY BIT(2)
+#define I2C_RX_DATA_PRESENT BIT(3)
 
 #endif /* _REGS_H */

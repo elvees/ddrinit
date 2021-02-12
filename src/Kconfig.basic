@@ -139,11 +139,28 @@ config DRAM_CAS_LATENCY_CUSTOM
 	  DRAM CAS latency
 
 config I2C_FREQ
-	hex "I2C input frequency"
+	int "I2C input frequency"
 	depends on SPD_EEPROM
 	default 40000000 if PLATFORM_SOLARIS
 	help
 	  I2C input frequency in Hz
+
+choice
+	prompt "I2C output frequency"
+	depends on SPD_EEPROM
+
+	config I2C_SPEED_100
+		bool "100 KHz"
+
+	config I2C_SPEED_400
+		bool "400 KHz"
+endchoice
+
+config I2C_SPEED
+	int
+	depends on SPD_EEPROM
+	default 100000 if I2C_SPEED_100
+	default 400000 if I2C_SPEED_400
 
 config I2C0_BASE
 	hex
@@ -249,3 +266,12 @@ config TIMER_FREQ
 	default 240000000 if PLATFORM_SOLARIS
 	help
 	  Timer clock source frequency.
+
+config DEBUG_SPD_DUMP
+	bool "Dump SPD EEPROM to UART over I2C"
+	depends on SPD_EEPROM
+	default n
+
+config DEBUG_DDRCFG_PRINT
+	bool "Print DDR configuration"
+	default n

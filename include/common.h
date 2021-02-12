@@ -30,6 +30,26 @@
 
 #define DDRCFG_OVERRIDE_MAGIC 0xdeadc0de
 
+#define read_poll_timeout(op, addr, val, cond, sleep_us, timeout_us)	\
+({ \
+	int timeout = timer_get_usec() + timeout_us; \
+	for (;;) { \
+		(val) = op(addr); \
+		if (cond) \
+			break; \
+		if (timer_get_usec() > timeout) { \
+			(val) = op(addr); \
+			break; \
+		} \
+		if (sleep_us) \
+			delay_usec(sleep_us); \
+	} \
+	(cond) ? 0 : -ETIMEDOUT; \
+})
+
+#define read32_poll_timeout(addr, val, cond, sleep_us, timeout_us) \
+	read_poll_timeout(read32, addr, val, cond, sleep_us, timeout_us)
+
 extern unsigned long ddrcfg_override_start __attribute__((section(".text")));
 
 struct ddrcfg_override {
@@ -45,6 +65,7 @@ enum ddrinit_error_code {
 	EDIMMCFG,
 	EFWTYPE,
 	ETRAINFAIL,
+	ETIMEDOUT,
 };
 
 void delay_usec(int usec);

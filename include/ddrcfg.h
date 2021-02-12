@@ -72,4 +72,7 @@ static inline uint32_t tck2freq(int tck)
 	return 1000000ULL * 1000000ULL / tck;
 }
 
+void ddrcfg_print(struct ddr_cfg *cfg);
+int ddrcfg_get(int ctrl_id, struct ddr_cfg *cfg);
+
 #endif
