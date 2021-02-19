@@ -339,7 +339,7 @@ int spd_parse(struct ddr4_spd *spd, struct ddr_cfg *cfg)
 	return 0;
 }
 
-#ifdef CONFIG_SPD_DUMP
+#ifdef CONFIG_DEBUG_SPD_DUMP
 int spd_dump(uint8_t *buf)
 {
 	uint8_t read_val;
