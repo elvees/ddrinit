@@ -325,6 +325,72 @@ int platform_i2c_ctrl_id_get(int ctrl_id)
 	}
 }
 
+static void interleave_enable(int init_mask, struct sysinfo *info)
+{
+	uint32_t hash_func[4] = {0, 0, 0, 0};
+
+	switch(CONFIG_INTERLEAVE_BOUNDARY) {
+	case 0:
+		hash_func[2] = 0x400;
+		hash_func[0] = 0x800;
+		break;
+	case 1:
+		hash_func[2] = 0x800;
+		hash_func[0] = 0x1000;
+		break;
+	case 2:
+		hash_func[2] = 0x2000;
+		hash_func[0] = 0x1000;
+		break;
+	}
+
+	/* Enable interleave mode only if all 4 DDRMC have been initialized */
+	if ((init_mask & 0xf) != 0xf)
+		return;
+
+	uint32_t tmp = FIELD_PREP(DDRSUBS_REGBANK_SOC_INTERLEAVE_BOUNDARY, CONFIG_INTERLEAVE_BOUNDARY) |
+		       FIELD_PREP(DDRSUBS_REGBANK_SOC_INTERLEAVE_ENABLE, 1);
+
+	for (int i = 0; i < CONFIG_DDRMC_MAX_NUMBER; i++)
+		write32(DDRSUBS_REGBANK_SOC_INTERLEAVE(i), tmp);
+
+	uint64_t addrs[] = { CPU_HASH_FUNC_HASH_0(0),
+			     CPU_HASH_FUNC_HASH_0(1),
+			     CPU_HASH_FUNC_HASH_0(2),
+			     VXE_HASH_FUNC_HASH_1(0),
+			     VXE_HASH_FUNC_HASH_1(1),
+			     VXE_HASH_FUNC_HASH_1(2),
+			     VXD_HASH_FUNC_HASH_1(0),
+			     VXD_HASH_FUNC_HASH_1(1),
+			     VIDEO_IN_HASH_FUNC_HASH_1,
+			     VIDEO_OUT_HASH_FUNC_HASH_1,
+			     GPU_HASH_FUNC_HASH_1(0),
+			     GPU_HASH_FUNC_HASH_1(1),
+			     VELCORE_Q0_Q1_HASH_FUNC_HASH_1(0),
+			     VELCORE_Q0_Q1_HASH_FUNC_HASH_1(1),
+			     VELCORE_Q2_Q3_HASH_FUNC_HASH_1(0),
+			     VELCORE_Q2_Q3_HASH_FUNC_HASH_1(1),
+			     PCIE_MSTR_HASH_FUNC_HASH_1(0),
+			     PCIE_MSTR_HASH_FUNC_HASH_1(1),
+			     PCIE_MSTR_HASH_FUNC_HASH_1(2),
+			     PCIE_MSTR_HASH_FUNC_HASH_1(3),
+			     SATA_HASH_FUNC_HASH_1,
+			     NPU_HASH_FUNC_HASH_1,
+			     USB_HASH_FUNC_HASH_1(0),
+			     USB_HASH_FUNC_HASH_1(1),
+			     STARTUP_HASH_FUNC_HASH_1,
+			     PERIPH_A_HASH_FUNC_HASH_1,
+			     PERIPH_B_HASH_FUNC_HASH_1,
+			     DEBUG_HASH_FUNC_HASH_1,
+			     ELVEES_HASH_FUNC_HASH_1 };
+
+	for (int i = 0; i < ARRAY_SIZE(addrs); i++)
+		for (int j = 0; j < 4; j++)
+			write32(addrs[i] + j * 4, hash_func[j]);
+
+	info->interleaving_enabled = 1;
+}
+
 static void llc_enable(int init_mask)
 {
 	int i;
@@ -468,8 +534,9 @@ static void south_ultrasoc_disable(void)
 	}
 }
 
-int platform_system_init(int init_mask)
+int platform_system_init(int init_mask, struct sysinfo *info)
 {
+	interleave_enable(init_mask, info);
 	llc_enable(init_mask);
 	axprot_override();
 	iommu_bypass_enable();

@@ -19,7 +19,7 @@ void platform_i2c_cfg(void);
 int platform_i2c_ctrl_id_get(int ctrl_id);
 int platform_power_up(int ctrl_id);
 void platform_reset_ctl(int ctl_id, enum reset_type reset, enum reset_action action);
-int platform_system_init(int init_mask);
+int platform_system_init(int init_mask, struct sysinfo *info);
 void platform_uart_cfg(void);
 
 /* TBD: Rename phy_* functions */

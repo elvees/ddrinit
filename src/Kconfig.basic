@@ -24,6 +24,26 @@ choice
 		  LPDDR4 DRAM type
 endchoice
 
+choice
+	prompt "Interleave boundary select"
+	depends on PLATFORM_SOLARIS
+
+	config INTERLEAVE_BOUNDARY_1K
+		bool "1 KiB"
+
+	config INTERLEAVE_BOUNDARY_2K
+		bool "2 KiB"
+
+	config INTERLEAVE_BOUNDARY_4K
+		bool "4 KiB"
+endchoice
+
+config INTERLEAVE_BOUNDARY
+	int
+	default 0 if INTERLEAVE_BOUNDARY_1K
+	default 1 if INTERLEAVE_BOUNDARY_2K
+	default 2 if INTERLEAVE_BOUNDARY_4K
+
 config BURST_LEN
 	int "DRAM burst length"
 	default 8

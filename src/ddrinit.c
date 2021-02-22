@@ -208,7 +208,7 @@ int main(void)
 	}
 
 	if (init_mask != 0) {
-		platform_system_init(init_mask);
+		platform_system_init(init_mask, &info);
 
 		printf("Total DDR memory size %d MiB\n", (int)(info.dram_size / 1024 / 1024));
 		printf("Interleaving %s\n", (info.interleaving_enabled) ? "enabled" : "disabled");
