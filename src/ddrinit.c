@@ -186,7 +186,7 @@ int main(void)
 		timer_start = timer_get_usec();
 		ret = ddrcfg_get(i, &cfg);
 		if (ret) {
-			print_dbg("DDRMC%d: Failed to get configuration\n", i);
+			printf("DDRMC%d: Failed to get configuration: %s\n", i, errcode2str(ret));
 			continue;
 		}
 		info.speed[i] = 2000000 / cfg.tck;
