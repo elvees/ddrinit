@@ -263,7 +263,7 @@ config DDRMC_ACTIVE_MASK
 
 config TIMER_FREQ
 	int "Timer frequency"
-	default 240000000 if PLATFORM_SOLARIS
+	default 250000000 if PLATFORM_SOLARIS
 	help
 	  Timer clock source frequency.
 
