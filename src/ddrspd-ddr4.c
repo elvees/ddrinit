@@ -18,6 +18,8 @@ int spd_get(int ctrl_id, struct ddr4_spd *spd)
 	int ret, size, i2c_ctrl_id;
 
 	i2c_ctrl_id = platform_i2c_ctrl_id_get(ctrl_id);
+	if (i2c_ctrl_id < 0)
+		return i2c_ctrl_id;
 	i2c_cfg(i2c_ctrl_id, ctrl_id);
 
 #ifdef CONFIG_DRAM_TYPE_DDR4

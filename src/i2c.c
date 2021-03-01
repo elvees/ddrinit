@@ -66,12 +66,12 @@ static int i2c_read_reg(int i2c_ctrl_id, uint8_t reg, uint8_t *data)
 	write32(I2C_DATA_CMD(i2c_ctrl_id), 0x100);
 
 	ret = i2c_wait(i2c_ctrl_id, I2C_TX_EMPTY);
-	if (ret)
-		return ret;
+	if (ret == -ETIMEDOUT)
+		return -EI2CREAD;
 
 	ret = i2c_wait(i2c_ctrl_id, I2C_RX_DATA_PRESENT);
-	if (ret)
-		return ret;
+	if (ret == -ETIMEDOUT)
+		return -EI2CREAD;
 
 	*data = read32(I2C_DATA_CMD(i2c_ctrl_id));
 

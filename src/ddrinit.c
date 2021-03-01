@@ -166,6 +166,8 @@ char *errcode2str(int id)
 		case EDIMMCFG: return "Failed to configure DIMM";
 		case EFWTYPE: return "Unknown firmware type";
 		case ETRAINFAIL: return "PHY trainining error";
+		case EI2CCFG: return "Failed to configure I2C controller";
+		case ETIMEDOUT: return "Event timed out";
 		default: return "Unknown error";
 	}
 }

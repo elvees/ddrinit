@@ -65,6 +65,7 @@ enum ddrinit_error_code {
 	EDIMMCFG,
 	EFWTYPE,
 	ETRAINFAIL,
+	EI2CCFG,
 	ETIMEDOUT,
 };
 
