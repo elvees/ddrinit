@@ -6,8 +6,6 @@
 #include <common.h>
 #include <plat/plat.h>
 
-#define USECS_IN_SEC 1000000ULL
-
 void write16(unsigned long addr, uint16_t val)
 {
 	*((volatile uint16_t *)addr) = val;
@@ -35,7 +33,7 @@ uint64_t read64(unsigned long addr)
 
 static uint64_t usec_to_tick(int usec)
 {
-	return (uint64_t)usec * CONFIG_TIMER_FREQ / USECS_IN_SEC;
+	return (uint64_t)usec * CONFIG_TIMER_FREQ / SEC;
 }
 
 static uint64_t get_ticks(void)
@@ -64,7 +62,7 @@ void delay_usec(int usec)
 
 int timer_get_usec(void)
 {
-	return get_ticks() * USECS_IN_SEC / CONFIG_TIMER_FREQ;
+	return get_ticks() * SEC / CONFIG_TIMER_FREQ;
 }
 
 void *memcpy(void *dest, const void *src, size_t count)

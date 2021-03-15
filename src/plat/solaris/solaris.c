@@ -88,29 +88,31 @@ int platform_power_up(int ctrl_id)
 	return 0;
 }
 
-static void pdci_reset_deassert(enum pdci_reset_lines line, int reset_level)
+static int pdci_reset_deassert(enum pdci_reset_lines line, int reset_level)
 {
 	/* Bit 0 of PMU_PDCI_RESETN_REQ register is for primary reset.
 	 * Bits 1 and above represent the subsystem's reset stages.
 	 */
-	uint32_t pdci_reset_stage = reset_level + 1;
+	uint32_t pdci_reset_stage = reset_level + 1, val = 0;
 
 	/* Create mask with pdci_reset_stage number of bits set to '1' */
 	uint32_t mask = BIT(pdci_reset_stage + 1) - 1;
 
 	write32(PMU_PDCI_RESETN_REQ(line), mask);
 
-	while (read32(PMU_PDCI_RESETN_ACK(line)) != mask)
-		continue;
+	return read32_poll_timeout(val, val == mask, USEC, MSEC, PMU_PDCI_RESETN_ACK(line));
 }
 
-void platform_reset_ctl(int ctrl_id, enum reset_type reset, enum reset_action action)
+int platform_reset_ctl(int ctrl_id, enum reset_type reset, enum reset_action action)
 {
+	int ret;
 	/* Support only deassert */
 	if (action == RESET_ASSERT)
-		return;
+		return 0;
 
-	pdci_reset_deassert(ctrl_id + 4, (reset == PRESETN) ? 1 : 3);
+	ret = pdci_reset_deassert(ctrl_id + 4, (reset == PRESETN) ? 1 : 3);
+	if (ret)
+		return ret;
 
 	/* Deassert soft reset for DDRMC and PHY */
 	if (reset == CORERESETN) {
@@ -120,11 +122,14 @@ void platform_reset_ctl(int ctrl_id, enum reset_type reset, enum reset_action ac
 		delay_usec(100);
 		write32(DDRSUBS_REGBANK_SYSTEM_CTRL(ctrl_id), 2);
 	}
+
+	return 0;
 }
 
 static int pll_cfg(enum ddr_ucg_id ucg_id, int pll_id, uint32_t freq, uint32_t xtal,
 		   uint32_t div)
 {
+	int ret;
 	uint16_t fbdiv;
 	uint32_t frac, val;
 
@@ -174,8 +179,10 @@ static int pll_cfg(enum ddr_ucg_id ucg_id, int pll_id, uint32_t freq, uint32_t x
 	write32(UCG_UFG_REG5(ucg_id, pll_id), 0);
 
 	/* Wait for locking */
-	while (!(read32(UCG_UFG_REG0(ucg_id, pll_id)) & UCG_UFG_REG0_LOCKSTAT))
-		continue;
+
+	ret = read32_poll_timeout(val, val & UCG_UFG_REG0_LOCKSTAT, USEC, MSEC, UCG_UFG_REG0(ucg_id, pll_id));
+	if (ret)
+		return ret;
 
 	print_dbg("PLL%d: UFG0 REGS 0, 3, 5: 0x%x, 0x%x, 0x%x\n",
 		  pll_id, read32(UCG_UFG_REG0(ucg_id, pll_id)),
@@ -302,17 +309,31 @@ static void i2c_pads_cfg(int i2c_ctrl_id)
 	}
 }
 
-void platform_uart_cfg(void)
+int platform_uart_cfg(void)
 {
-	pdci_reset_deassert(PCDI_LINE_PERIPH_A, 2);
+	int ret;
+
+	ret = pdci_reset_deassert(PCDI_LINE_PERIPH_A, 2);
+	if (ret)
+		return -EUARTCFG;
+
 	uart0_pads_cfg();
+
+	return 0;
 }
 
-void platform_i2c_cfg(void)
+int platform_i2c_cfg(void)
 {
-	pdci_reset_deassert(PCDI_LINE_PERIPH_B, 2);
+	int ret;
+
+	ret = pdci_reset_deassert(PCDI_LINE_PERIPH_B, 2);
+	if (ret)
+		return -EI2CCFG;
+
 	i2c_pads_cfg(3);
 	i2c_pads_cfg(4);
+
+	return 0;
 }
 
 int platform_i2c_ctrl_id_get(int ctrl_id)
@@ -514,19 +535,21 @@ static void iommu_bypass_enable(void)
  * Disable the UltraSoC probes in South Partition as timing is not met
  * for the probe flops in the 800MHz NoC clock domain. See SBM88645.
  */
-static void south_ultrasoc_disable(void)
+static int south_ultrasoc_disable(void)
 {
-	int i;
+	int i, ret;
 	uint32_t data0[] = { 0x1452108, 0x1452308, 0x1452f08, 0x1453308,
 			     0x5453308, 0x1453508, 0x3453708 };
 	uint32_t data1[] = { 0x3452108,  0x3452308, 0x3452f08, 0x3453308,
 			     0x7453308, 0x1453708, 0x1453b08 };
+	uint32_t val = 0;
 
 	write32(AXI_COMM_US_CTL, 1);
 	write32(AXI_COMM_DS_CTL, 1);
 
-	while ((read32(AXI_COMM_US_BUF_STS) & 0x2) == 0)
-		continue;
+	ret = read32_poll_timeout(val, val & 0x2, USEC, 5 * MSEC, AXI_COMM_US_BUF_STS);
+	if (ret)
+		return ret;
 
 	for (i = 0; i < ARRAY_SIZE(data0); i++) {
 		write32(AXI_COMM_US_DATA, data0[i]);
@@ -536,6 +559,8 @@ static void south_ultrasoc_disable(void)
 		write32(AXI_COMM_US_DATA, 0);
 		write32(AXI_COMM_US_DATA, 0x700);
 	}
+
+	return 0;
 }
 
 static void mem_regions_set(int init_mask, struct sysinfo *info)

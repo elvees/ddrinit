@@ -13,6 +13,11 @@
 #include <dram/ddr4/pie-cfg.h>
 #endif
 
+#define PHY_TRAIN_COMPLETE 0x07
+#define PHY_MESSAGE 0x08
+#define PHY_TRAIN_FAIL 0xff
+#define PHY_TIMEOUT_MAGIC 0xffffffff
+
 enum firmware_type {
 	FW_IMEM_1D,
 	FW_DMEM_1D,
@@ -67,11 +72,13 @@ static int firmware_load(int ctrl_id, enum firmware_type fwtype)
 
 static uint32_t mail_get(int ctrl_id)
 {
-	uint32_t mail;
+	int ret;
+	uint32_t mail, val = 0;
 
 	/*  Poll the UctWriteProtShadow, looking for 0 */
-	while ((phy_read32(ctrl_id, PHY_UCT_SHADOW_REGS) & 0x1))
-		continue;
+	ret = phy_read32_poll_timeout(val, !(val & 0x1), USEC, 10 * MSEC, ctrl_id, PHY_UCT_SHADOW_REGS);
+	if (ret)
+		return PHY_TIMEOUT_MAGIC;
 
 	mail = phy_read32(ctrl_id, PHY_UCT_WRITE_ONLY_SHADOW);
 
@@ -79,8 +86,9 @@ static uint32_t mail_get(int ctrl_id)
 	phy_write32(ctrl_id, PHY_DCT_WRITE_PROT, 0);
 
 	/*  Poll the UctWriteProtShadow, looking for 1 */
-	while (!(phy_read32(ctrl_id, PHY_UCT_SHADOW_REGS) & 0x1))
-		continue;
+	ret = phy_read32_poll_timeout(val, val & 0x1, USEC, 10 * MSEC, ctrl_id, PHY_UCT_SHADOW_REGS);
+	if (ret)
+		return PHY_TIMEOUT_MAGIC;
 
 	/* Complete the protocol */
 	phy_write32(ctrl_id, PHY_DCT_WRITE_PROT, 1);
@@ -90,10 +98,12 @@ static uint32_t mail_get(int ctrl_id)
 
 static uint32_t stream_message_get(int ctrl_id)
 {
-	uint32_t lower, upper;
+	int ret;
+	uint32_t lower, upper, val = 0;
 
-	while ((phy_read32(ctrl_id, PHY_UCT_SHADOW_REGS) & 0x1))
-		continue;
+	ret = phy_read32_poll_timeout(val, !(val & 0x1), USEC, 10 * MSEC, ctrl_id, PHY_UCT_SHADOW_REGS);
+	if (ret)
+		return PHY_TIMEOUT_MAGIC;
 
 	lower = phy_read32(ctrl_id, PHY_UCT_WRITE_ONLY_SHADOW);
 	upper = phy_read32(ctrl_id, PHY_UCT_DAT_WRITE_ONLY_SHADOW);
@@ -102,8 +112,9 @@ static uint32_t stream_message_get(int ctrl_id)
 	phy_write32(ctrl_id, PHY_DCT_WRITE_PROT, 0);
 
 	/*  Poll the UctWriteProtShadow, looking for 1 */
-	while (!(phy_read32(ctrl_id, PHY_UCT_SHADOW_REGS) & 0x1))
-		continue;
+	ret = phy_read32_poll_timeout(val, val & 0x1, USEC, 10 * MSEC, ctrl_id, PHY_UCT_SHADOW_REGS);
+	if (ret)
+		return PHY_TIMEOUT_MAGIC;
 
 	/* Complete the protocol */
 	phy_write32(ctrl_id, PHY_DCT_WRITE_PROT, 1);
@@ -134,12 +145,14 @@ static int training_complete_wait(int ctrl_id)
 
 	while (1) {
 		mail = mail_get(ctrl_id);
-		if (mail == 0x08) {
+		if (mail == PHY_MESSAGE) {
 			stream_message_decode(ctrl_id);
-		} else if (mail == 0x07) {
+		} else if (mail == PHY_TRAIN_COMPLETE) {
 			return 0;
-		} else if (mail == 0xff) {
+		} else if (mail == PHY_TRAIN_FAIL) {
 			return -ETRAINFAIL;
+		} else if (mail == PHY_TIMEOUT_MAGIC) {
+			return -ETRAINTIMEOUT;
 		}
 	}
 }

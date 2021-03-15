@@ -54,20 +54,29 @@ int ddr_init(int ctrl_id, struct ddr_cfg *cfg)
 	if (ret)
 		return ret;
 
-	platform_reset_ctl(ctrl_id, PRESETN, RESET_ASSERT);
-	platform_reset_ctl(ctrl_id, CORERESETN, RESET_ASSERT);
+	ret = platform_reset_ctl(ctrl_id, PRESETN, RESET_ASSERT);
+	if (ret)
+		return ret;
+
+	ret = platform_reset_ctl(ctrl_id, CORERESETN, RESET_ASSERT);
+	if (ret)
+		return ret;
 
 	ret = platform_clk_cfg(ctrl_id, cfg);
 	if (ret)
 		return ret;
 
-	platform_reset_ctl(ctrl_id, PRESETN, RESET_DEASSERT);
+	ret = platform_reset_ctl(ctrl_id, PRESETN, RESET_DEASSERT);
+	if (ret)
+		return ret;
 
 	/* Step 2 */
 	ddrmc_cfg(ctrl_id, cfg);
 
 	/* Step 3 */
-	platform_reset_ctl(ctrl_id, CORERESETN, RESET_DEASSERT);
+	ret = platform_reset_ctl(ctrl_id, CORERESETN, RESET_DEASSERT);
+	if (ret)
+		return ret;
 
 	/* Step 4 */
 	val = read32(DDRMC_RFSHCTL3(ctrl_id));
@@ -90,8 +99,9 @@ int ddr_init(int ctrl_id, struct ddr_cfg *cfg)
 
 	/* Step 7 */
 	write32(DDRMC_SWCTL(ctrl_id), 1);
-	while (!(read32(DDRMC_SWSTAT(ctrl_id)) & DDRMC_SWSTAT_SWDONE_ACK))
-		continue;
+	ret = read32_poll_timeout(val, val & DDRMC_SWSTAT_SWDONE_ACK, USEC, 100 * USEC, DDRMC_SWSTAT(ctrl_id));
+	if (ret)
+		return ret;
 
 	/* Step 8 - Step 14 */
 	ret = phy_cfg(ctrl_id, cfg);
@@ -108,12 +118,14 @@ int ddr_init(int ctrl_id, struct ddr_cfg *cfg)
 
 	/* Step 17 */
 	write32(DDRMC_SWCTL(ctrl_id), 1);
-	while (!(read32(DDRMC_SWSTAT(ctrl_id)) & DDRMC_SWSTAT_SWDONE_ACK))
-		continue;
+	ret = read32_poll_timeout(val, val & DDRMC_SWSTAT_SWDONE_ACK, USEC, 100 * USEC, DDRMC_SWSTAT(ctrl_id));
+	if (ret)
+		return ret;
 
 	/* Step 18 */
-	while (!(read32(DDRMC_DFISTAT(ctrl_id)) & DDRMC_DFISTAT_INIT_COMPLETE))
-		continue;
+	ret = read32_poll_timeout(val, val & DDRMC_DFISTAT_INIT_COMPLETE, USEC, 100 * USEC, DDRMC_DFISTAT(ctrl_id));
+	if (ret)
+		return ret;
 
 	/* Step 19 */
 	write32(DDRMC_SWCTL(ctrl_id), 0);
@@ -137,12 +149,14 @@ int ddr_init(int ctrl_id, struct ddr_cfg *cfg)
 
 	/* Step 24 */
 	write32(DDRMC_SWCTL(ctrl_id), 1);
-	while (!(read32(DDRMC_SWSTAT(ctrl_id)) & DDRMC_SWSTAT_SWDONE_ACK))
-		continue;
+	ret = read32_poll_timeout(val, val & DDRMC_SWSTAT_SWDONE_ACK, USEC, 100 * USEC, DDRMC_SWSTAT(ctrl_id));
+	if (ret)
+		return ret;
 
 	/* Step 25 */
-	while (FIELD_GET(DDRMC_STAT_OPER_MODE, read32(DDRMC_STAT(ctrl_id))) != 1)
-		continue;
+	ret = read32_poll_timeout(val, (val & DDRMC_STAT_OPER_MODE) == 1, USEC, 100 * USEC, DDRMC_STAT(ctrl_id));
+	if (ret)
+		return ret;
 
 	/* Step 26 */
 	val = read32(DDRMC_RFSHCTL3(ctrl_id));
@@ -168,6 +182,8 @@ char *errcode2str(int id)
 		case ETRAINFAIL: return "PHY trainining error";
 		case EI2CCFG: return "Failed to configure I2C controller";
 		case ETIMEDOUT: return "Event timed out";
+		case ETRAINTIMEOUT: return "PHY training timed out";
+		case EUARTCFG: return "Failed to configure UART";
 		default: return "Unknown error";
 	}
 }
@@ -182,7 +198,12 @@ int main(void)
 	memset(&info, 0, sizeof(info));
 	cfg.sysinfo = &info;
 
-	uart_cfg();
+	ret = uart_cfg();
+	/* Stop initializing DDR if failed to init UART */
+	if (ret) {
+		while (1)
+			/* ... */;
+	}
 
 	for (i = 0; i < CONFIG_DDRMC_MAX_NUMBER; i++) {
 		timer_start = timer_get_usec();

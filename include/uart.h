@@ -5,6 +5,6 @@
 #ifndef _UART_H
 #define _UART_H
 
-void uart_cfg(void);
+int uart_cfg(void);
 
 #endif /* _UART_H */

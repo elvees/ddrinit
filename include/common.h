@@ -30,15 +30,19 @@
 
 #define DDRCFG_OVERRIDE_MAGIC 0xdeadc0de
 
-#define read_poll_timeout(op, addr, val, cond, sleep_us, timeout_us)	\
+#define USEC 1ULL
+#define MSEC 1000ULL
+#define SEC 1000000ULL
+
+#define read_poll_timeout(op, val, cond, sleep_us, timeout_us, args...)	\
 ({ \
 	int timeout = timer_get_usec() + timeout_us; \
 	for (;;) { \
-		(val) = op(addr); \
+		(val) = op(args); \
 		if (cond) \
 			break; \
 		if (timer_get_usec() > timeout) { \
-			(val) = op(addr); \
+			(val) = op(args); \
 			break; \
 		} \
 		if (sleep_us) \
@@ -47,8 +51,11 @@
 	(cond) ? 0 : -ETIMEDOUT; \
 })
 
-#define read32_poll_timeout(addr, val, cond, sleep_us, timeout_us) \
-	read_poll_timeout(read32, addr, val, cond, sleep_us, timeout_us)
+#define read32_poll_timeout(val, cond, sleep_us, timeout_us, addr) \
+	read_poll_timeout(read32, val, cond, sleep_us, timeout_us, addr)
+
+#define phy_read32_poll_timeout(val, cond, sleep_us, timeout_us, args...) \
+	read_poll_timeout(phy_read32, val, cond, sleep_us, timeout_us, args)
 
 extern unsigned long ddrcfg_override_start __attribute__((section(".text")));
 
@@ -67,6 +74,8 @@ enum ddrinit_error_code {
 	ETRAINFAIL,
 	EI2CCFG,
 	ETIMEDOUT,
+	ETRAINTIMEOUT,
+	EUARTCFG,
 };
 
 void delay_usec(int usec);

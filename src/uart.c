@@ -10,11 +10,14 @@
 
 #define UART_LCR_DEFAULT 3 /* 8 bit, no parity, 1 stop bit. */
 
-void uart_cfg(void)
+int uart_cfg(void)
 {
+	int ret;
 	uint16_t divisor;
 
-	platform_uart_cfg();
+	ret = platform_uart_cfg();
+	if (ret)
+		return ret;
 
 	/* Set baudrate */
 	divisor = CONFIG_UART_BASE_FREQ / (CONFIG_UART_BAUDRATE * 16);
@@ -25,13 +28,19 @@ void uart_cfg(void)
 
 	write32(UART_IER, 0);
 	write32(UART_MCR, UART_MCR_DTR | UART_MCR_RTS);
+
+	return 0;
 }
 
 int putchar(int c)
 {
+	int ret;
+	uint32_t val = 0;
+
 	while (1) {
-		while (!(read32(UART_LSR) & UART_LSR_THRE))
-			continue;
+		ret = read32_poll_timeout(val, val & UART_LSR_THRE, USEC, 100 * USEC, UART_LSR);
+		if (ret)
+			return ret;
 
 		write32(UART_THR, c);
 		if (c == '\n')

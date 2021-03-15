@@ -30,11 +30,15 @@ static uint8_t i2c_addr_get(int ctrl_id)
 	return i2c_addr[0];
 }
 
-void i2c_cfg(int i2c_ctrl_id, int ctrl_id)
+int i2c_cfg(int i2c_ctrl_id, int ctrl_id)
 {
+	int ret;
 	uint32_t val;
 
-	platform_i2c_cfg();
+	ret = platform_i2c_cfg();
+	if (ret)
+		return ret;
+
 	write32(I2C_ENABLE(i2c_ctrl_id), 0);
 	val = I2C_CON_SLAVE_DISABLE | I2C_CON_RESTART_EN | I2C_CON_MASTER_MODE |
 #ifdef CONFIG_I2C_SPEED_100
@@ -49,13 +53,15 @@ void i2c_cfg(int i2c_ctrl_id, int ctrl_id)
 	write32(I2C_SS_LCNT(i2c_ctrl_id), val);
 	write32(I2C_TAR(i2c_ctrl_id), i2c_addr_get(ctrl_id));
 	write32(I2C_ENABLE(i2c_ctrl_id), 1);
+
+	return 0;
 }
 
 static int i2c_wait(int i2c_ctrl_id, uint32_t bit_mask)
 {
 	uint32_t val = 0;
 
-	return read32_poll_timeout(I2C_STATUS(i2c_ctrl_id), val, val & bit_mask, 1, 7500);
+	return read32_poll_timeout(val, val & bit_mask, USEC, 8 * MSEC, I2C_STATUS(i2c_ctrl_id));
 }
 
 static int i2c_read_reg(int i2c_ctrl_id, uint8_t reg, uint8_t *data)
