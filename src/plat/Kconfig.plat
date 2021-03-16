@@ -120,3 +120,54 @@ config PHY_REG_INSTANCE_OFFSET
 config PHY_DFI1_EXIST
 	bool
 	default false if PLATFORM_SOLARIS
+
+config MAX_MEM_REGIONS
+	int
+	default 5 if PLATFORM_SOLARIS
+
+config MEM_REGIONS_ADDR
+	hex
+	default 0xffffffffa4000000 if PLATFORM_SOLARIS
+	help
+	  Address to write info on initialized DDR
+	  to be passed to U-Boot.
+
+config MEM_REGION0_START
+	hex
+	default 0x0 if PLATFORM_SOLARIS
+
+config MEM_REGION0_SIZE
+	hex
+	default 0x10000000 if PLATFORM_SOLARIS
+
+config MEM_REGION1_START
+	hex
+	default 0x8010000000 if PLATFORM_SOLARIS
+
+config MEM_REGION1_SIZE
+	hex
+	default 0xff0000000 if PLATFORM_SOLARIS
+
+config MEM_REGION2_START
+	hex
+	default 0x9000000000 if PLATFORM_SOLARIS
+
+config MEM_REGION2_SIZE
+	hex
+	default 0x1000000000 if PLATFORM_SOLARIS
+
+config MEM_REGION3_START
+	hex
+	default 0xA000000000 if PLATFORM_SOLARIS
+
+config MEM_REGION3_SIZE
+	hex
+	default 0x1000000000 if PLATFORM_SOLARIS
+
+config MEM_REGION4_START
+	hex
+	default 0xB000000000 if PLATFORM_SOLARIS
+
+config MEM_REGION4_SIZE
+	hex
+	default 0x1000000000 if PLATFORM_SOLARIS

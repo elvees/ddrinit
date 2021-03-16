@@ -54,9 +54,15 @@ struct ddr_cfg {
 };
 
 struct sysinfo {
-	uint64_t dram_size;
+	uint64_t dram_size[CONFIG_DDRMC_MAX_NUMBER];
+	uint64_t total_dram_size;
 	uint8_t interleaving_enabled;
 	int speed[CONFIG_DDRMC_MAX_NUMBER];
+	/* RAM configuration */
+	struct {
+		unsigned long start;
+		unsigned long size;
+	} mem_regions[CONFIG_MAX_MEM_REGIONS];
 };
 
 /* Convert picoseconds into clocks and round according to algorithm

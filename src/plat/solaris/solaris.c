@@ -534,12 +534,53 @@ static void south_ultrasoc_disable(void)
 	}
 }
 
+static void mem_regions_set(int init_mask, struct sysinfo *info)
+{
+	uint64_t *dsize = &info->dram_size[0];
+
+	if (dsize[0] > CONFIG_MEM_REGION1_SIZE + CONFIG_MEM_REGION0_SIZE) {
+		dsize[0] = CONFIG_MEM_REGION1_SIZE + CONFIG_MEM_REGION0_SIZE;
+		printf("DDRMC0: Memory size truncated to %lu MiB\n", dsize[0] / 1024 / 1024);
+	}
+	/* Assume that DDR3/DDR4 DIMM size can't be less than 1 GiB, so 2 first regions
+	 * will always be used.
+	 */
+	info->mem_regions[0].start = CONFIG_MEM_REGION0_START;
+	info->mem_regions[0].size = CONFIG_MEM_REGION0_SIZE;
+	info->mem_regions[1].start = CONFIG_MEM_REGION1_START;
+	info->mem_regions[1].size = dsize[0] - CONFIG_MEM_REGION0_SIZE;
+	int free_region_idx = 2;
+	for (int i = 1; i < CONFIG_DDRMC_MAX_NUMBER; i++) {
+		uint64_t cfg_size[] = { CONFIG_MEM_REGION2_SIZE,
+					CONFIG_MEM_REGION3_SIZE,
+					CONFIG_MEM_REGION4_SIZE };
+		unsigned long cfg_start[] = { CONFIG_MEM_REGION2_START,
+					      CONFIG_MEM_REGION3_START,
+					      CONFIG_MEM_REGION4_START };
+		if (!(init_mask & BIT(i)))
+			continue;
+		if (dsize[i] > cfg_size[i - 1]) {
+			dsize[i] = cfg_size[i - 1];
+			printf("DDRMC%d: Memory size truncated to %lu MiB\n",
+			       i, dsize[i] / 1024 / 1024);
+		}
+		if (info->interleaving_enabled) {
+			info->mem_regions[1].size += dsize[i];
+		} else {
+			info->mem_regions[free_region_idx].start = cfg_start[i - 1];
+			info->mem_regions[free_region_idx].size = dsize[i];
+		}
+		free_region_idx++;
+	}
+}
+
 int platform_system_init(int init_mask, struct sysinfo *info)
 {
 	interleave_enable(init_mask, info);
 	llc_enable(init_mask);
 	axprot_override();
 	iommu_bypass_enable();
+	mem_regions_set(init_mask, info);
 
 	/* TBD: UltraSoC disabling hangs */
 	/* south_ultrasoc_disable(); */

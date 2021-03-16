@@ -203,14 +203,16 @@ int main(void)
 			printf("DDRMC%d: Initialized successfully within %d us, %d ranks, speed %d MT/s\n",
 			       i, timer_end - timer_start, cfg.ranks, info.speed[i]);
 			init_mask |= BIT(i);
-			info.dram_size += cfg.full_size;
+			info.dram_size[i] = cfg.full_size;
+			info.total_dram_size += info.dram_size[i];
 		}
 	}
 
 	if (init_mask != 0) {
 		platform_system_init(init_mask, &info);
+		memcpy((void *)CONFIG_MEM_REGIONS_ADDR, info.mem_regions, sizeof(info.mem_regions));
 
-		printf("Total DDR memory size %d MiB\n", (int)(info.dram_size / 1024 / 1024));
+		printf("Total DDR memory size %d MiB\n", (int)(info.total_dram_size / 1024 / 1024));
 		printf("Interleaving %s\n", (info.interleaving_enabled) ? "enabled" : "disabled");
 	}
 
