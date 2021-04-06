@@ -64,7 +64,8 @@ bss_done:
 
 #ifdef CONFIG_BOOTMODE_NOSTART
 loop:
-    wait
+    // Software breakpoint
+    sdbbp   0
     bc      loop
 #endif
 
