@@ -18,7 +18,7 @@
 #define UCG_UFG_REG4(i, j) (UCG_BASE(i) + 0x30 + (j)*0x40)
 #define UCG_UFG_REG5(i, j) (UCG_BASE(i) + 0x34 + (j)*0x40)
 #define UCG_UFG_REG6(i, j) (UCG_BASE(i) + 0x38 + (j)*0x40)
-#define UCG_UFG_REG10(i, j) (UCG_BASE(i) + 0x48 + (j)*0x50)
+#define UCG_UFG_REG10(i, j) (UCG_BASE(i) + 0x48 + (j)*0x40)
 #define UCG_XBAR(i, j) (UCG_BASE(i) + 0x420 + (j)*4)
 #define UCG_FIRSTDIV(i, j) (UCG_BASE(i) + 0x820 + (j)*4)
 
