@@ -414,13 +414,16 @@ static void llc_enable(int init_mask)
 			break;
 	}
 
-	/* Set allocation policy to 0xFF and enable LLC */
+	/* Set dynamic allocation policy for CPU0, CPU1, CPU2, GPU, ELVEES Periph and
+	 * VELcore Q0 - Q3. Allocation policy for all other initiators is set as static,
+	 * disabled.
+	 */
 	for (i = 0; i < CONFIG_DDRMC_MAX_NUMBER; i++) {
 		if (BIT(i) & init_mask) {
-			write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_ARCACHE_EN(i), 0);
-			write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_AWCACHE_EN(i), 0);
-			write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_RD_EN(i), 0xFF);
-			write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_WR_EN(i), 0xFF);
+			write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_ARCACHE_EN(i), 0x7);
+			write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_AWCACHE_EN(i), 0x7);
+			write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_RD_EN(i), 0);
+			write32(NOC_AGENT_LLC_X_0_LLC_ALLOC_WR_EN(i), 0);
 			write32(NOC_AGENT_LLC_X_0_LLC_CACHE_WAY_ENABLE(i), 0xFFFFFFFF);
 		}
 	}
