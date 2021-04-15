@@ -7,3 +7,6 @@
               - ^doc/.*
               - ^.*rst
               - Jenkinsfile
+    experimental:
+      jobs:
+        - solaris-buildroot-build
