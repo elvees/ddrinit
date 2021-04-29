@@ -12,6 +12,18 @@
 #include <regs.h>
 #include <uart.h>
 
+#define ddrinit_return(ret) \
+({ \
+	if (ret) { \
+		printf("Failed to initialize DDR: %s\n", errcode2str(ret)); \
+		while (1) { \
+			/* ... */ \
+		} \
+	 } \
+	 else \
+		return 0; \
+})
+
 /* Initialize DDRMC, PHY and DRAM as descibed in DWC_UMCTL2 databook:
  * Step 1:  Follow the PHYs power up procedure.
  * Step 2:  Program the DWC_ddr_umctl2 registers.
@@ -173,6 +185,7 @@ int ddr_init(int ctrl_id, struct ddr_cfg *cfg)
 char *errcode2str(int id)
 {
 	switch (-id) {
+		case EDDRMC0INITFAIL: return "DDRMC0 must be initialized to continue booting";
 		case EPOWERUP: return "Failed to power up";
 		case ECLOCKCFG: return "Failed to configure clock";
 		case EI2CREAD: return "Failed to read over I2C";
@@ -229,13 +242,14 @@ int main(void)
 		}
 	}
 
-	if (init_mask != 0) {
+	if (init_mask & BIT(0)) {
 		platform_system_init(init_mask, &info);
 		memcpy((void *)CONFIG_MEM_REGIONS_ADDR, info.mem_regions, sizeof(info.mem_regions));
 
 		printf("Total DDR memory size %d MiB\n", (int)(info.total_dram_size / 1024 / 1024));
 		printf("Interleaving %s\n", (info.interleaving_enabled) ? "enabled" : "disabled");
+		ddrinit_return(0);
 	}
 
-	return 0;
+	ddrinit_return(-EDDRMC0INITFAIL);
 }

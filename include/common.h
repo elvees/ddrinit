@@ -65,7 +65,8 @@ struct ddrcfg_override {
 };
 
 enum ddrinit_error_code {
-	EPOWERUP = 1,
+	EDDRMC0INITFAIL = 1,
+	EPOWERUP,
 	ECLOCKCFG,
 	EI2CREAD,
 	ESPDCHECKSUM,
