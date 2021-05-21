@@ -108,6 +108,11 @@ endchoice
 choice
 	prompt "DRAM RTT_NOM select"
 
+	config DRAM_RTT_NOM_DISABLED
+		bool "disabled"
+		help
+		  TBD
+
 	config DRAM_RTT_NOM_34
 		bool "34 Ohms"
 		help
@@ -142,9 +147,77 @@ choice
 		bool "240 Ohms"
 		help
 		  TBD
+endchoice
 
-	config DRAM_RTT_NOM_DISABLED
+choice
+	prompt "DRAM RTT_WR select"
+
+	config DRAM_RTT_WR_DISABLED
 		bool "disabled"
+		help
+		  TBD
+
+	config DRAM_RTT_WR_80
+		bool "80 Ohms"
+		help
+		  TBD
+
+	config DRAM_RTT_WR_120
+		bool "120 Ohms"
+		help
+		  TBD
+
+	config DRAM_RTT_WR_240
+		bool "240 Ohms"
+		help
+		  TBD
+
+	config DRAM_RTT_WR_HIZ
+		bool "HiZ"
+		help
+		  TBD
+endchoice
+
+choice
+	prompt "DRAM RTT_PARK select"
+
+	config DRAM_RTT_PARK_DISABLED
+		bool "disabled"
+		help
+		  TBD
+
+	config DRAM_RTT_PARK_34
+		bool "34 Ohms"
+		help
+		  TBD
+
+	config DRAM_RTT_PARK_40
+		bool "40 Ohms"
+		help
+		  TBD
+
+	config DRAM_RTT_PARK_48
+		bool "48 Ohms"
+		help
+		  TBD
+
+	config DRAM_RTT_PARK_60
+		bool "60 Ohms"
+		help
+		  TBD
+
+	config DRAM_RTT_PARK_80
+		bool "80 Ohms"
+		help
+		  TBD
+
+	config DRAM_RTT_PARK_120
+		bool "120 Ohms"
+		help
+		  TBD
+
+	config DRAM_RTT_PARK_240
+		bool "240 Ohms"
 		help
 		  TBD
 endchoice

@@ -136,7 +136,18 @@ uint16_t ddr4_mr2_get(struct ddr_cfg *cfg)
 	else
 		mr2 = (cwl / 2) - 3;
 
-	return mr2 << 3;
+	mr2 <<= 3;
+
+#ifdef CONFIG_DRAM_RTT_WR_80
+	mr2 |= BIT(11);
+#elif CONFIG_DRAM_RTT_WR_120
+	mr2 |= BIT(9);
+#elif CONFIG_DRAM_RTT_WR_240
+	mr2 |= BIT(10);
+#elif CONFIG_DRAM_RTT_WR_HIZ
+	mr2 |= BIT(10) | BIT(9);
+#endif
+	return mr2;
 }
 
 uint16_t ddr4_mr3_get(struct ddr_cfg *cfg)
@@ -158,7 +169,24 @@ uint16_t ddr4_mr4_get(struct ddr_cfg *cfg)
 
 uint16_t ddr4_mr5_get(struct ddr_cfg *cfg)
 {
-	return 0;
+	uint16_t mr5 = 0;
+
+#ifdef CONFIG_DRAM_RTT_PARK_34
+	mr5 |= BIT(8) | BIT(7) | BIT(6);
+#elif CONFIG_DRAM_RTT_PARK_40
+	mr5 |= BIT(7) | BIT(6);
+#elif CONFIG_DRAM_RTT_PARK_48
+	mr5 |= BIT(8) | BIT(6);
+#elif CONFIG_DRAM_RTT_PARK_60
+	mr5 |= BIT(6);
+#elif CONFIG_DRAM_RTT_PARK_80
+	mr5 |= BIT(8) | BIT(7);
+#elif CONFIG_DRAM_RTT_PARK_120
+	mr5 |= BIT(7);
+#elif CONFIG_DRAM_RTT_PARK_240
+	mr5 |= BIT(8);
+#endif
+	return mr5;
 }
 
 static uint8_t ddr4_ccdl_get(struct ddr_cfg *cfg)
