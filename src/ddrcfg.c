@@ -9,6 +9,7 @@
 #include <ddrspd.h>
 #include <plat/plat.h>
 
+#ifdef CONFIG_DEBUG_DDRCFG_PRINT
 void ddrcfg_print(struct ddr_cfg *cfg)
 {
 	printf("Ranks:                                                %d\n", cfg->ranks);
@@ -41,6 +42,7 @@ void ddrcfg_print(struct ddr_cfg *cfg)
 	printf("Long CAS to CAS Delay Time (tCCD_L min):              %d ps\n", cfg->tccdl * cfg->tck);
 	printf("Minimum Active to Auto-Refresh Delay (tRC):           %d ps\n\n", cfg->trc * cfg->tck);
 }
+#endif
 
 int ddrcfg_get(int ctrl_id, struct ddr_cfg *cfg)
 {

@@ -12,6 +12,8 @@
 #include <config.h>
 #include <printf.h>
 
+#define DRAM_TCK_533 3759
+#define DRAM_TCK_1066 1876
 #define DRAM_TCK_1250 1600
 #define DRAM_TCK_1333 1500
 #define DRAM_TCK_1600 1250
@@ -56,6 +58,20 @@
 
 #define phy_read32_poll_timeout(val, cond, sleep_us, timeout_us, args...) \
 	read_poll_timeout(phy_read32, val, cond, sleep_us, timeout_us, args)
+
+#define max(x, y) \
+	({ \
+		typeof(x) _max1 = (x); \
+		typeof(y) _max2 = (y); \
+		(void)(&_max1 == &_max2); \
+		_max1 > _max2 ? _max1 : _max2; \
+	})
+
+#define min(x, y) ({ \
+	typeof(x) _min1 = (x); \
+	typeof(y) _min2 = (y); \
+	(void) (&_min1 == &_min2); \
+	_min1 < _min2 ? _min1 : _min2; })
 
 extern unsigned long ddrcfg_override_start __attribute__((section(".text")));
 

@@ -12,14 +12,23 @@ choice
 		  ELVEES Solaris SoC
 endchoice
 
+config UART_BASE
+	hex
+	default 0x1750000 if PLATFORM_MCOM03
+	default 0xffffffffbcc40000 if PLATFORM_SOLARIS
+	help
+	  Base address of UART controller
+
 config DDRSUB0_BASE
 	hex
+	default 0x4000000 if PLATFORM_MCOM03
 	default 0xffffffffb9000000 if PLATFORM_SOLARIS
 	help
 	  Base address of DDR subsystem #0
 
 config DDRSUB_GAP
 	hex
+	default 0x4000000 if PLATFORM_MCOM03
 	default 0x400000 if PLATFORM_SOLARIS
 	help
 	  Gap to next DDR subsystem base address
@@ -40,50 +49,53 @@ config DDRMC_AXI_PORTS
 
 config DDRMC_OFFSET
 	hex
+	default 0x2000000 if PLATFORM_MCOM03
 	default 0x100000 if PLATFORM_SOLARIS
 	help
 	  Offset of DDR controller's registers
 
 config PHY_OFFSET
 	hex
+	default 0x0 if PLATFORM_MCOM03
 	default 0x200000 if PLATFORM_SOLARIS
 	help
 	  Offset of DDR PHY's registers
 
 config PHY_DBYTE_NUM
 	int
+	default 4 if PLATFORM_MCOM03
 	default 9 if PLATFORM_SOLARIS
 	help
 	  Number of DBYTEs in DDR PHY
 
 config PHY_ANIB_NUM
 	int
+	default 10 if PLATFORM_MCOM03
 	default 12 if PLATFORM_SOLARIS
 	help
 	  Number of ANIBs in DDR PHY
 
 config PHY_ANIB_OFFSET
 	hex
-	default 0 if PLATFORM_MCOM03
-	default 0 if PLATFORM_SOLARIS
+	default 0
 	help
 	  Offset of ANIB registers in PHY address space
 
 config PHY_DBYTE_OFFSET
 	hex
-	default 0x40000 if PLATFORM_SOLARIS
+	default 0x40000
 	help
 	  Offset of DBYTE registers in PHY address space
 
 config PHY_MASTER_OFFSET
 	hex
-	default 0x80000 if PLATFORM_SOLARIS
+	default 0x80000
 	help
 	  Offset of MASTER registers in PHY address space
 
 config PHY_IMEM_OFFSET
 	hex
-	default 0x140000 if PLATFORM_SOLARIS
+	default 0x140000
 	help
 	  Offset of IMEM registers in PHY address space
 
@@ -95,38 +107,42 @@ config PHY_IMEM_SIZE
 
 config PHY_DMEM_OFFSET
 	hex
-	default 0x150000 if PLATFORM_SOLARIS
+	default 0x150000
 	help
 	  Offset of DMEM registers in PHY address space
 
 config PHY_PIE_OFFSET
 	hex
-	default 0x240000 if PLATFORM_SOLARIS
+	default 0x240000
 	help
 	  Offset of PIE registers in PHY address space
 
 config PHY_APBONLY_OFFSET
 	hex
-	default 0x340000 if PLATFORM_SOLARIS
+	default 0x340000
 	help
 	  Offset of APBONLY registers in PHY address space
 
 config PHY_REG_INSTANCE_OFFSET
 	hex
+	default 0x4000 if PLATFORM_MCOM03
 	default 0x1000 if PLATFORM_SOLARIS
 	help
 	  PHY register instance offset
 
 config PHY_DFI1_EXIST
 	bool
+	default true if PLATFORM_MCOM03
 	default false if PLATFORM_SOLARIS
 
 config MAX_MEM_REGIONS
 	int
+	default 4 if PLATFORM_MCOM03
 	default 5 if PLATFORM_SOLARIS
 
 config MEM_REGIONS_ADDR
 	hex
+	default 0xE0000000 if PLATFORM_MCOM03
 	default 0xffffffffa4000000 if PLATFORM_SOLARIS
 	help
 	  Address to write info on initialized DDR
@@ -134,34 +150,42 @@ config MEM_REGIONS_ADDR
 
 config MEM_REGION0_START
 	hex
+	default 0x80000000 if PLATFORM_MCOM03
 	default 0x0 if PLATFORM_SOLARIS
 
 config MEM_REGION0_SIZE
 	hex
+	default 0x40000000 if PLATFORM_MCOM03
 	default 0x10000000 if PLATFORM_SOLARIS
 
 config MEM_REGION1_START
 	hex
+	default 0x800000000 if PLATFORM_MCOM03
 	default 0x8010000000 if PLATFORM_SOLARIS
 
 config MEM_REGION1_SIZE
 	hex
+	default 0x400000000 if PLATFORM_MCOM03
 	default 0xff0000000 if PLATFORM_SOLARIS
 
 config MEM_REGION2_START
 	hex
+	default 0xC0000000 if PLATFORM_MCOM03
 	default 0x9000000000 if PLATFORM_SOLARIS
 
 config MEM_REGION2_SIZE
 	hex
+	default 0x40000000 if PLATFORM_MCOM03
 	default 0x1000000000 if PLATFORM_SOLARIS
 
 config MEM_REGION3_START
 	hex
+	default 0xC00000000 if PLATFORM_MCOM03
 	default 0xA000000000 if PLATFORM_SOLARIS
 
 config MEM_REGION3_SIZE
 	hex
+	default 0x400000000 if PLATFORM_MCOM03
 	default 0x1000000000 if PLATFORM_SOLARIS
 
 config MEM_REGION4_START

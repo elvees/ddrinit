@@ -50,12 +50,6 @@ config BURST_LEN
 	help
 	  DRAM burst length
 
-config UART_BASE
-	hex
-	default 0xffffffffbcc40000 if PLATFORM_SOLARIS
-	help
-	  Base address of UART controller
-
 config UART_BAUDRATE
 	int "UART Baudrate"
 	default 115200
@@ -97,6 +91,10 @@ endchoice
 choice
 	prompt "DRAM rate select"
 	depends on SPD_EEPROM && DRAM_RATE_CUSTOM || !SPD_EEPROM
+
+	config DRAM_RATE_533
+		depends on !DRAM_TYPE_DDR4
+		bool "533 MT/s"
 
 	config DRAM_RATE_1066
 		depends on !DRAM_TYPE_DDR4
@@ -254,6 +252,7 @@ config DIMM7_I2C_ADDR
 
 config DRAM_TCK
 	int
+	default 3759 if DRAM_RATE_533
 	default 1876 if DRAM_RATE_1066
 	default 1600 if DRAM_RATE_1250
 	default 1500 if DRAM_RATE_1333
@@ -283,6 +282,7 @@ config DDRMC_ACTIVE_MASK
 
 config TIMER_FREQ
 	int "Timer frequency"
+	default 27000000 if PLATFORM_MCOM03
 	default 250000000 if PLATFORM_SOLARIS
 	help
 	  Timer clock source frequency.

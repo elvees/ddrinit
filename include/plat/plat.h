@@ -17,7 +17,7 @@ int platform_ddrcfg_get(int ctrl_id, struct ddr_cfg *cfg);
 uint32_t platform_get_timer_count(void);
 int platform_i2c_cfg(void);
 int platform_i2c_ctrl_id_get(int ctrl_id);
-int platform_power_up(int ctrl_id);
+int platform_power_up(void);
 int platform_reset_ctl(int ctl_id, enum reset_type reset, enum reset_action action);
 int platform_system_init(int init_mask, struct sysinfo *info);
 int platform_uart_cfg(void);

@@ -8,14 +8,6 @@
 #include <ddrcfg.h>
 #include <regs.h>
 
-#define max(x, y)                                                                                  \
-	({                                                                                         \
-		typeof(x) _max1 = (x);                                                             \
-		typeof(y) _max2 = (y);                                                             \
-		(void)(&_max1 == &_max2);                                                          \
-		_max1 > _max2 ? _max1 : _max2;                                                     \
-	})
-
 uint16_t ddr4_mr0_get(struct ddr_cfg *cfg);
 uint16_t ddr4_mr1_get(struct ddr_cfg *cfg);
 uint16_t ddr4_mr2_get(struct ddr_cfg *cfg);

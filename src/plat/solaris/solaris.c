@@ -83,7 +83,7 @@ uint32_t phy_read32(int ctrl_id, unsigned long addr)
 	return read32(PHY_BASE(ctrl_id) + addr);
 }
 
-int platform_power_up(int ctrl_id)
+int platform_power_up(void)
 {
 	return 0;
 }

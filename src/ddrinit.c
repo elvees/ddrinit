@@ -61,11 +61,6 @@ int ddr_init(int ctrl_id, struct ddr_cfg *cfg)
 	int ret, i;
 	uint32_t val;
 
-	/* Step 1 */
-	ret = platform_power_up(ctrl_id);
-	if (ret)
-		return ret;
-
 	ret = platform_reset_ctl(ctrl_id, PRESETN, RESET_ASSERT);
 	if (ret)
 		return ret;
@@ -211,11 +206,17 @@ int main(void)
 	memset(&info, 0, sizeof(info));
 	cfg.sysinfo = &info;
 
+	ret = platform_power_up();
+	if (ret) {
+		while (1)
+			continue;
+	}
+
 	ret = uart_cfg();
 	/* Stop initializing DDR if failed to init UART */
 	if (ret) {
 		while (1)
-			/* ... */;
+			continue;
 	}
 
 	for (i = 0; i < CONFIG_DDRMC_MAX_NUMBER; i++) {
