@@ -26,6 +26,15 @@ int uart_cfg(void)
 	write32(UART_DLL, divisor);
 	write32(UART_LCR, UART_LCR_DEFAULT);
 
+	/* Make sure last LCR write wasn't ignored */
+	while (read32(UART_LCR) != UART_LCR_DEFAULT) {
+		write32(UART_FCR, 0);
+		write32(UART_FCR, UART_FCR_FIFOE);
+		write32(UART_FCR, UART_FCR_FIFOE | UART_FCR_XFIFOR | UART_FCR_RFIFOR);
+		read32(UART_THR);
+		write32(UART_LCR, UART_LCR_DEFAULT);
+	}
+
 	write32(UART_IER, 0);
 	write32(UART_MCR, UART_MCR_DTR | UART_MCR_RTS);
 

@@ -91,6 +91,11 @@ int platform_power_up(void)
 	       SERVICE_TOP_CLK_GATE_DDR;
 	write32(SERVICE_TOP_CLK_GATE, val);
 
+	/* Init timer */
+	write32(LSPERIPH1_UCG_CTR(7), 0x2);
+	write32(DW_APB_LOAD_COUNT(0), 0);
+	write32(DW_APB_CTRL(0), 0x5);
+
 	return 0;
 }
 
@@ -297,7 +302,11 @@ int platform_ddrcfg_get(int ctrl_id, struct ddr_cfg *cfg)
 
 uint32_t platform_get_timer_count(void)
 {
-	return 0;
+	/* The DW APB counter counts down, but this function
+	 * requires the count to be incrementing. Invert the
+	 * result.
+	 */
+	return ~read32(DW_APB_CURRENT_VALUE(0));
 }
 
 static void mem_regions_set(int init_mask, struct sysinfo *info)
@@ -333,7 +342,44 @@ int platform_system_init(int init_mask, struct sysinfo *info)
 	return 0;
 }
 
+void gpio_portb_cfg(int hw_enable_mask, int direction)
+{
+	uint32_t mode_mask = read32(LSPERIPH1_GPIO_SWPORTB_CTL);
+	uint32_t dir_mask = read32(LSPERIPH1_GPIO_SWPORTB_DDR);
+
+	mode_mask |= hw_enable_mask;
+
+	if (direction == GPIO_OUTPUT_DIRECTION)
+		dir_mask |= hw_enable_mask;
+	else
+		dir_mask &= ~hw_enable_mask;
+
+	write32(LSPERIPH1_GPIO_SWPORTB_CTL, mode_mask);
+	write32(LSPERIPH1_GPIO_SWPORTB_DDR, dir_mask);
+}
+
+static void uart0_pads_cfg(void)
+{
+	uint32_t val;
+
+	val = FIELD_PREP(LSPERIPH1_GPIO_PORTBN_PADCTR_PD, 1) |
+	      FIELD_PREP(LSPERIPH1_GPIO_PORTBN_PADCTR_CLE, 1) |
+	      FIELD_PREP(LSPERIPH1_GPIO_PORTBN_PADCTR_SL, 3) |
+	      FIELD_PREP(LSPERIPH1_GPIO_PORTBN_PADCTR_CTL, PAD_DRIVER_STREGTH_8mA);
+
+	write32(LSPERIPH1_GPIO_PORTBN_PADCTR(6), val);
+
+	val |= FIELD_PREP(LSPERIPH1_GPIO_PORTBN_PADCTR_E, 1);
+	write32(LSPERIPH1_GPIO_PORTBN_PADCTR(7), val);
+}
+
 int platform_uart_cfg(void)
 {
+	gpio_portb_cfg(LSPERIPH1_GPIO_UART0_SOUT, GPIO_OUTPUT_DIRECTION);
+	gpio_portb_cfg(LSPERIPH1_GPIO_UART0_SIN, GPIO_INPUT_DIRECTION);
+	uart0_pads_cfg();
+
+	write32(LSPERIPH1_UCG_CTR(6), 0x2);
+
 	return 0;
 }
