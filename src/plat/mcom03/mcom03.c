@@ -9,6 +9,8 @@
 #include <plat/plat.h>
 #include <plat/mcom03/regs.h>
 
+#define DDRMC_SAR_MINSIZE 0x10000000
+
 enum subsystem_reset_lines {
 	CPU_SUBS,
 	SDR_SUBS,
@@ -352,12 +354,26 @@ static void mem_regions_set(int init_mask, struct sysinfo *info)
 		info->mem_regions[free_region_idx].size =
 			dsize[i] - min(dsize[i], cfg_size[i * 2]);
 		free_region_idx++;
+
+		write32(DDRMC_SARBASE(i, 0), cfg_start[i * 2] / DDRMC_SAR_MINSIZE);
+		write32(DDRMC_SARBASE(i, 1), cfg_start[i * 2 + 1] / DDRMC_SAR_MINSIZE);
+		write32(DDRMC_SARBASE(i, 2), 256);
+		write32(DDRMC_SARBASE(i, 3), 257);
+
+		write32(DDRMC_SARSIZE(i, 0), cfg_size[i * 2] / DDRMC_SAR_MINSIZE - 1);
+		write32(DDRMC_SARSIZE(i, 1), cfg_size[i * 2 + 1] / DDRMC_SAR_MINSIZE - 1);
+		write32(DDRMC_SARSIZE(i, 2), 0);
+		write32(DDRMC_SARSIZE(i, 3), 0);
 	}
 }
 
 int platform_system_init(int init_mask, struct sysinfo *info)
 {
 	mem_regions_set(init_mask, info);
+
+	/* DDR interleaving is not supported */
+	write32(DDR_XDECODER_MODE, 0);
+
 	return 0;
 }
 

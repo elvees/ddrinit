@@ -194,6 +194,8 @@
 #define DDRMC_STAT_OPER_MODE GENMASK(2, 0)
 
 #define DDRMC_PCTRL(i, j) (DDRMC_BASE(i) + 0x490 + 0xb0 * (j))
+#define DDRMC_SARBASE(i, j) (DDRMC_BASE(i) + 0xf04 + 8 * (j))
+#define DDRMC_SARSIZE(i, j) (DDRMC_BASE(i) + 0xf08 + 8 * (j))
 
 /* PHY registers */
 
