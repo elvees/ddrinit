@@ -13,6 +13,12 @@
 #include <dram/ddr4/pie-cfg.h>
 #endif
 
+#ifdef CONFIG_DRAM_TYPE_LPDDR4
+#include <dram/lpddr4/fw-imem-1d.h>
+#include <dram/lpddr4/fw-dmem-1d.h>
+#include <dram/lpddr4/pie-cfg.h>
+#endif
+
 #define PHY_TRAIN_COMPLETE 0x07
 #define PHY_MESSAGE 0x08
 #define PHY_TRAIN_FAIL 0xff
@@ -50,19 +56,19 @@ static int firmware_load(int ctrl_id, enum firmware_type fwtype)
 
 	size = (fw_size % 2) ? fw_size - 1 : fw_size;
 	for (i = 0; i < size; i += 2) {
-		phy_write16(ctrl_id, write_offset, (fw[i + 1] << 8) | fw[i]);
+		phy_write32(ctrl_id, write_offset, (fw[i + 1] << 8) | fw[i]);
 		write_offset += 4;
 	}
 
 	if (fw_size % 2) {
-		phy_write16(ctrl_id, write_offset, (uint16_t)fw[size]);
+		phy_write32(ctrl_id, write_offset, (uint16_t)fw[size]);
 		write_offset += 4;
 		size += 2;
 	}
 
 	if (padding_size != 0) {
 		for (i = size; i < fw_size + padding_size; i += 2) {
-			phy_write16(ctrl_id, write_offset, 0);
+			phy_write32(ctrl_id, write_offset, 0);
 			write_offset += 4;
 		}
 	}
@@ -76,7 +82,7 @@ static uint32_t mail_get(int ctrl_id)
 	uint32_t mail, val = 0;
 
 	/*  Poll the UctWriteProtShadow, looking for 0 */
-	ret = phy_read32_poll_timeout(val, !(val & 0x1), USEC, 10 * MSEC, ctrl_id, PHY_UCT_SHADOW_REGS);
+	ret = phy_read32_poll_timeout(val, !(val & 0x1), USEC, 100 * MSEC, ctrl_id, PHY_UCT_SHADOW_REGS);
 	if (ret)
 		return PHY_TIMEOUT_MAGIC;
 
@@ -86,7 +92,7 @@ static uint32_t mail_get(int ctrl_id)
 	phy_write32(ctrl_id, PHY_DCT_WRITE_PROT, 0);
 
 	/*  Poll the UctWriteProtShadow, looking for 1 */
-	ret = phy_read32_poll_timeout(val, val & 0x1, USEC, 10 * MSEC, ctrl_id, PHY_UCT_SHADOW_REGS);
+	ret = phy_read32_poll_timeout(val, val & 0x1, USEC, 100 * MSEC, ctrl_id, PHY_UCT_SHADOW_REGS);
 	if (ret)
 		return PHY_TIMEOUT_MAGIC;
 
@@ -101,7 +107,7 @@ static uint32_t stream_message_get(int ctrl_id)
 	int ret;
 	uint32_t lower, upper, val = 0;
 
-	ret = phy_read32_poll_timeout(val, !(val & 0x1), USEC, 10 * MSEC, ctrl_id, PHY_UCT_SHADOW_REGS);
+	ret = phy_read32_poll_timeout(val, !(val & 0x1), USEC, 100 * MSEC, ctrl_id, PHY_UCT_SHADOW_REGS);
 	if (ret)
 		return PHY_TIMEOUT_MAGIC;
 
@@ -112,7 +118,7 @@ static uint32_t stream_message_get(int ctrl_id)
 	phy_write32(ctrl_id, PHY_DCT_WRITE_PROT, 0);
 
 	/*  Poll the UctWriteProtShadow, looking for 1 */
-	ret = phy_read32_poll_timeout(val, val & 0x1, USEC, 10 * MSEC, ctrl_id, PHY_UCT_SHADOW_REGS);
+	ret = phy_read32_poll_timeout(val, val & 0x1, USEC, 100 * MSEC, ctrl_id, PHY_UCT_SHADOW_REGS);
 	if (ret)
 		return PHY_TIMEOUT_MAGIC;
 
