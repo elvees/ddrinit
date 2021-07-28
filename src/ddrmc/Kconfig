@@ -1,257 +1,206 @@
-menu "DRAM Timings"
-
-menu "Frequency dependent"
-
-config DRAM_TIMING_CL
-	int "CL"
-	range 5 14 if DRAM_TYPE_DDR3
-	default 7 if DRAM_TYPE_DDR3 && DATA_RATE_1066
-	default 9 if DRAM_TYPE_DDR3 && DATA_RATE_1333
-	default 11 if DRAM_TYPE_DDR3 && DATA_RATE_1600
-	default 13 if DRAM_TYPE_DDR3 && DATA_RATE_1866
-	default 14 if DRAM_TYPE_DDR3 && DATA_RATE_2133
+config DRAM_TIMING_TMOD
+	int
+	depends on DRAM_TYPE_DDR4
+	default 15000
 	help
 	  TBD
 
-config DRAM_TIMING_TRRD
-	int "tRRD"
-	default 7500 if DRAM_TYPE_DDR3 && DATA_RATE_1066
-	default 6000 if DRAM_TYPE_DDR3 && DATA_RATE_1333
-	default 6000 if DRAM_TYPE_DDR3 && PAGE_SIZE_2K && !DATA_RATE_1066 && !DATA_RATE_1333
-	default 5000 if DRAM_TYPE_DDR3 && PAGE_SIZE_1K && !DATA_RATE_1066 && !DATA_RATE_1333
+config DRAM_TIMING_TMRD
+	int
+	depends on DRAM_TYPE_LPDDR4
+	default 14000
 	help
-	  Activate-to-Activate minimum command period
+	  TBD
 
-config DRAM_TIMING_TFAW
-	int "tFAW"
-	default 37500 if DRAM_TYPE_DDR3 && DATA_RATE_1066 && PAGE_SIZE_1K
-	default 50000 if DRAM_TYPE_DDR3 && DATA_RATE_1066 && PAGE_SIZE_2K
-	default 30000 if DRAM_TYPE_DDR3 && DATA_RATE_1333 && PAGE_SIZE_1K
-	default 45000 if DRAM_TYPE_DDR3 && DATA_RATE_1333 && PAGE_SIZE_2K
-	default 30000 if DRAM_TYPE_DDR3 && DATA_RATE_1600 && PAGE_SIZE_1K
-	default 40000 if DRAM_TYPE_DDR3 && DATA_RATE_1600 && PAGE_SIZE_2K
-	default 27000 if DRAM_TYPE_DDR3 && DATA_RATE_1866 && PAGE_SIZE_1K
-	default 35000 if DRAM_TYPE_DDR3 && DATA_RATE_1866 && PAGE_SIZE_2K
-	default 25000 if DRAM_TYPE_DDR3 && DATA_RATE_2133 && PAGE_SIZE_1K
-	default 35000 if DRAM_TYPE_DDR3 && DATA_RATE_2133 && PAGE_SIZE_2K
+config DRAM_TIMING_TMRW
+	int
+	depends on DRAM_TYPE_LPDDR4
+	default 10000
 	help
-	  Four ACTIVATE windows
-
-config DRAM_TIMING_TRAS_MIN
-	int "tRAS min"
-	default 37500 if DRAM_TYPE_DDR3 && DATA_RATE_1066
-	default 36000 if DRAM_TYPE_DDR3 && DATA_RATE_1333
-	default 35000 if DRAM_TYPE_DDR3 && DATA_RATE_1600
-	default 34000 if DRAM_TYPE_DDR3 && DATA_RATE_1866
-	default 33000 if DRAM_TYPE_DDR3 && DATA_RATE_2133
-	help
-	  Minimum ACTIVATE-to-PRECHARGE command period
-
-config DRAM_TIMING_TRCD
-	int "tRCD"
-	default 13125 if DRAM_TYPE_DDR3 && DATA_RATE_1066
-	default 13500 if DRAM_TYPE_DDR3 && DATA_RATE_1333
-	default 13750 if DRAM_TYPE_DDR3 && DATA_RATE_1600
-	default 13910 if DRAM_TYPE_DDR3 && DATA_RATE_1866
-	default 13090 if DRAM_TYPE_DDR3 && DATA_RATE_2133
-	help
-	  ACTIVATE to internal READ or WRITE delay time
-
-config DRAM_TIMING_TRC
-	int "tRC"
-	default 50625 if DRAM_TYPE_DDR3 && DATA_RATE_1066
-	default 49500 if DRAM_TYPE_DDR3 && DATA_RATE_1333
-	default 48750 if DRAM_TYPE_DDR3 && DATA_RATE_1600
-	default 47910 if DRAM_TYPE_DDR3 && DATA_RATE_1866
-	default 46090 if DRAM_TYPE_DDR3 && DATA_RATE_2133
-	help
-	  ACTIVATE-to-ACTIVATE or REFRESH command period
-
-config DRAM_TIMING_TRP
-	int "tRP"
-	default 13125 if DRAM_TYPE_DDR3 && DATA_RATE_1066
-	default 13500 if DRAM_TYPE_DDR3 && DATA_RATE_1333
-	default 13750 if DRAM_TYPE_DDR3 && DATA_RATE_1600
-	default 13910 if DRAM_TYPE_DDR3 && DATA_RATE_1866
-	default 13090 if DRAM_TYPE_DDR3 && DATA_RATE_2133
-	help
-	  PRECHARGE command period
-
-config DRAM_TIMING_TMOD
-	int "tMOD"
-	default 12 if DRAM_TYPE_DDR3 && DATA_RATE_1066
-	default 12 if DRAM_TYPE_DDR3 && DATA_RATE_1333
-	default 12 if DRAM_TYPE_DDR3 && DATA_RATE_1600
-	default 15 if DRAM_TYPE_DDR3 && DATA_RATE_1866
-	default 16 if DRAM_TYPE_DDR3 && DATA_RATE_2133
-	help
-	  MODE REGISTER SET command update time in clock cycles
-
-config DRAM_TIMING_TCKE
-	int "tCKE"
-	default 5700 if DRAM_TYPE_DDR3 && DATA_RATE_1066
-	default 5000 if DRAM_TYPE_DDR3 && !DATA_RATE_1066
-	help
-	  CKE min pulse width
-
-config DRAM_TIMING_TZQINIT
-	int "tZQinit"
-	default 512 if DRAM_TYPE_DDR3 && DATA_RATE_1066
-	default 512 if DRAM_TYPE_DDR3 && DATA_RATE_1333
-	default 512 if DRAM_TYPE_DDR3 && DATA_RATE_1600
-	default 600 if DRAM_TYPE_DDR3 && DATA_RATE_1866
-	default 690 if DRAM_TYPE_DDR3 && DATA_RATE_2133
-	help
-	  ZQCL command, POWER-UP and RESET operations, in clock cycles
-
-config DRAM_TIMING_TZQOPER
-	int "tZQoper"
-	default 256 if DRAM_TYPE_DDR3 && DATA_RATE_1066
-	default 256 if DRAM_TYPE_DDR3 && DATA_RATE_1333
-	default 256 if DRAM_TYPE_DDR3 && DATA_RATE_1600
-	default 300 if DRAM_TYPE_DDR3 && DATA_RATE_1866
-	default 345 if DRAM_TYPE_DDR3 && DATA_RATE_2133
-	help
-	  ZQCL command, NORMAL operations, in clock cycles
-
-config DRAM_TIMING_TZQCS
-	int "tZQCS"
-	default 64 if DRAM_TYPE_DDR3 && DATA_RATE_1066
-	default 64 if DRAM_TYPE_DDR3 && DATA_RATE_1333
-	default 64 if DRAM_TYPE_DDR3 && DATA_RATE_1600
-	default 75 if DRAM_TYPE_DDR3 && DATA_RATE_1866
-	default 87 if DRAM_TYPE_DDR3 && DATA_RATE_2133
-	help
-	  ZQCS command: Short calibration time, in clock cycles
-
-endmenu
+	  TBD
 
 config DRAM_TIMING_TWR
-	int "tWR"
-	default 15000 if DRAM_TYPE_DDR3
+	int
+	default 15000 if DRAM_TYPE_DDR4
+	default 18000 if DRAM_TYPE_LPDDR4
 	help
 	  Write Recovery time
 
-config DRAM_TIMING_TRAS_MAX
-	int "tRAS max"
-	default 70200000 if DRAM_TYPE_DDR3
-	help
-	  Maximum ACTIVATE-to-PRECHARGE command period
-
-config DRAM_TIMING_TREFI
-	int "tREFI"
-	default 7800000 if DRAM_TYPE_DDR3
-	help
-	  Maximum average periodic refresh
-
-config DRAM_TIMING_TRFC_MIN
-	int "tRFC min"
-	default 110000 if DRAM_TYPE_DDR3 && DRAM_SIZE_1GB
-	default 160000 if DRAM_TYPE_DDR3 && DRAM_SIZE_2GB
-	default 260000 if DRAM_TYPE_DDR3 && DRAM_SIZE_4GB
-	default 350000 if DRAM_TYPE_DDR3 && DRAM_SIZE_8GB
-	help
-	  REFRESH-to-ACTIVATE or REFRESH command period
-
 config DRAM_TIMING_TRTP
-	int "tRTP"
-	default 7500 if DRAM_TYPE_DDR3
+	int
+	default 7500 if DRAM_TYPE_DDR4
+	default 7500 if DRAM_TYPE_LPDDR4
 	help
-	  READ-to-PRECHARGE time
+	  Internal READ to PRECHARGE command delay
 
-config DRAM_TIMING_TWTR
-	int "tWTR"
-	default 7500 if DRAM_TYPE_DDR3
+config DRAM_TIMING_TRCD
+	int
+	depends on DRAM_TYPE_LPDDR4
+	default 18000 if DRAM_TYPE_LPDDR4
 	help
-	  Delay from start of internal WRITE to internal READ
+	  RAS-to-CAS delay
 
-config DRAM_TIMING_TCCD
-	int "tCCD"
-	default 4 if DRAM_TYPE_DDR3
+config DRAM_TIMING_TRRD
+	int
+	depends on DRAM_TYPE_LPDDR4
+	default 10000 if DRAM_TYPE_LPDDR4
 	help
-	  CAS#-to-CAS# command delay in clock cycles
+	  Active bank A to active bank B
 
-config DRAM_TIMING_TMRD
-	int "tMRD"
-	default 4 if DRAM_TYPE_DDR3
+config DRAM_TIMING_TRP
+	int
+	depends on DRAM_TYPE_LPDDR4
+	default 21000 if DRAM_TYPE_LPDDR4
 	help
-	  MODE REGISTER SET command cycle time in clock cycles
+	  Row precharge time (all banks)
 
-config DRAM_TIMING_TXP
-	int "tXP"
-	default 6000 if DRAM_TYPE_DDR3
+config DRAM_TIMING_TCKE
+	int
+	default 7500 if DRAM_TYPE_LPDDR4
+	default 5000 if DRAM_TYPE_DDR4
 	help
-	  DLL on, any valid command, or DLL off to commands not requiring locked DLL
+	  CKE minimum pulse width
 
-config DRAM_TIMING_TXPDLL
-	int "tXPDLL"
-	default 24000 if DRAM_TYPE_DDR3
+config DRAM_TIMING_TSR
+	int
+	depends on DRAM_TYPE_LPDDR4
+	default 15000
 	help
-	  Precharge power-down with DLL off to commands requiring a locked DLL
+	  Minimal Self-Refresh time
 
-config DRAM_TIMING_TCKSRE
-	int "tCKSRE"
-	default 10000
+config DRAM_TIMING_TCKELCK
+	int
+	depends on DRAM_TYPE_LPDDR4
+	default 5000
 	help
-	  Valid clocks after self refresh entry or power-down entry
+	  Valid clock requirement after CKE input low
+
+config DRAM_TIMING_TCKCKEH
+	int
+	depends on DRAM_TYPE_LPDDR4
+	default 1750
+	help
+	  Valid clock requirement before CKE input high
 
 config DRAM_TIMING_TCKSRX
-	int "tCKSRX"
+	int
+	depends on DRAM_TYPE_DDR4
 	default 10000
 	help
-	  Valid clocks before self refresh exit, power-down exit, reset exit
+	  TBD
 
-config DRAM_TIMING_TXS
-	int "tXS"
-	default 120000 if DRAM_TYPE_DDR3 && DRAM_SIZE_1GB
-	default 170000 if DRAM_TYPE_DDR3 && DRAM_SIZE_2GB
-	default 270000 if DRAM_TYPE_DDR3 && DRAM_SIZE_4GB
-	default 360000 if DRAM_TYPE_DDR3 && DRAM_SIZE_8GB
+config DRAM_TIMING_TWTR
+	int
+	depends on DRAM_TYPE_LPDDR4
+	default 10000
 	help
-	  Exit self refresh to commands  not requiring a locked DLL
+	  TBD
 
-config DRAM_TIMING_TXSDLL
-	int "tXSDLL"
-	default 512
+config DRAM_TIMING_TWTRS
+	int
+	depends on DRAM_TYPE_DDR4
+	default 2500
 	help
-	  Exit self refresh to commands requiring a locked DLL
+	  Internal write to read command delay for different bank group.
+
+config DRAM_TIMING_TWTRL
+	int
+	depends on DRAM_TYPE_DDR4
+	default 7500
+	help
+	  Internal write to read command delay for same bank group.
+
+config DRAM_TIMING_TRASMAX
+	int
+	default 70200000 if DRAM_TYPE_DDR4
+	default 70200000 if DRAM_TYPE_LPDDR4
+	help
+	  Row active time
+
+config DRAM_TIMING_TXP
+	int
+	default 6000 if DRAM_TYPE_DDR4
+	default 7500 if DRAM_TYPE_LPDDR4
+	help
+	  Exit Power-Down to next valid command delay
+
+config DRAM_TIMING_TDQSCKMIN
+	int
+	default 1500 if DRAM_TYPE_LPDDR4
+	help
+	  Minimal DQS output access time from CK_t/CK_c
+
+config DRAM_TIMING_TDQSCKMAX
+	int
+	default 3500 if DRAM_TYPE_LPDDR4
+	help
+	  Max DQS output access time from CK_t/CK_c
+
+config DRAM_TIMING_TODTON_MIN
+	int
+	depends on DRAM_TYPE_LPDDR4
+	default 1500
+	help
+	  TBD
+
+config DRAM_TIMING_TODTON_MAX
+	int
+	depends on DRAM_TYPE_LPDDR4
+	default 3500
+	help
+	  TBD
+
+config DRAM_TIMING_TODTOFF_MIN
+	int
+	depends on DRAM_TYPE_LPDDR4
+	default 1500
+	help
+	  TBD
+
+config DRAM_TIMING_TODTOFF_MAX
+	int
+	depends on DRAM_TYPE_LPDDR4
+	default 3500
+	help
+	  TBD
+
+config DRAM_TIMING_TRFC_AB
+	int
+	depends on DRAM_TYPE_LPDDR4
+	default 380000
+	help
+	  TBD
+
+config DRAM_TIMING_TREFI
+	int
+	default 3904000 if DRAM_TYPE_LPDDR4
+	help
+	  TBD
+
+config DRAM_TIMING_TZQOPER
+	int
+	default 1000000 if DRAM_TYPE_LPDDR4
+	help
+	  DDR3/DDR4: tZQOPER
+	  LPDDR4: tZQCAL
+
+config DRAM_TIMING_TZQCS
+	int
+	default 30000 if DRAM_TYPE_LPDDR4
+	help
+	  DDR3/DDR4: tZQCS
+	  LPDDR4: tZQLAT
 
 choice
-	prompt "DRAM ODS"
-
-	config DRAM_ODS_40
-		bool "40 Ohms"
+	prompt "Read postamble"
+	config READ_POSTAMBLE_0_5T
+		bool "0.5 tCK"
+		depends on DRAM_TYPE_LPDDR4
 		help
-		  RZQ/6
-
-	config DRAM_ODS_34
-		bool "34 Ohms"
+		  Read postamble of 0.5 tCK
+	config READ_POSTAMBLE_1_5T
+		bool "1.5 tCK"
+		depends on DRAM_TYPE_LPDDR4
 		help
-		  RZQ/7
+		  Read postamble of 1.5 tCK
 endchoice
-
-choice
-	prompt "DRAM ODT"
-
-	config DRAM_ODT_DISABLED
-		bool "Disabled"
-		help
-		  DRAM ODT disabled
-
-	config DRAM_ODT_40
-		bool "40 Ohms"
-		help
-		  RZQ/6
-
-	config DRAM_ODT_60
-		bool "60 Ohms"
-		help
-		  RZQ/4
-
-	config DRAM_ODT_120
-		bool "120 Ohms"
-		help
-		  RZQ/2
-endchoice
-
-endmenu

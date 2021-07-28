@@ -4,6 +4,7 @@ menu "Basic options"
 
 source "src/plat/Kconfig.plat"
 source "src/Kconfig.basic"
+source "src/ddrmc/Kconfig"
 
 endmenu
 
