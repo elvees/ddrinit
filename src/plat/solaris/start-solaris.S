@@ -62,7 +62,7 @@ bss_done:
     jal     main
     nop
 
-#ifdef CONFIG_BOOTMODE_NOSTART
+#ifdef CONFIG_BOOTMODE_JTAG
 loop:
     // Software breakpoint
     sdbbp   0

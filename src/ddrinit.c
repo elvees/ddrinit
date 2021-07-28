@@ -243,7 +243,7 @@ int main(void)
 		}
 	}
 
-	if (init_mask & BIT(0)) {
+	if (init_mask & CONFIG_DDRMC_INIT_REQUIRED_MASK) {
 		platform_system_init(init_mask, &info);
 		memcpy((void *)CONFIG_MEM_REGIONS_ADDR, info.mem_regions, sizeof(info.mem_regions));
 
