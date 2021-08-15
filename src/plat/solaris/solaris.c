@@ -351,7 +351,7 @@ static void interleave_enable(int init_mask, struct sysinfo *info)
 {
 	uint32_t hash_func[4] = {0, 0, 0, 0};
 
-	switch(CONFIG_INTERLEAVE_BOUNDARY) {
+	switch(CONFIG_INTERLEAVING_SIZE) {
 	case 0:
 		hash_func[2] = 0x400;
 		hash_func[0] = 0x800;
@@ -370,7 +370,7 @@ static void interleave_enable(int init_mask, struct sysinfo *info)
 	if ((init_mask & 0xf) != 0xf)
 		return;
 
-	uint32_t tmp = FIELD_PREP(DDRSUBS_REGBANK_SOC_INTERLEAVE_BOUNDARY, CONFIG_INTERLEAVE_BOUNDARY) |
+	uint32_t tmp = FIELD_PREP(DDRSUBS_REGBANK_SOC_INTERLEAVE_BOUNDARY, CONFIG_INTERLEAVING_SIZE) |
 		       FIELD_PREP(DDRSUBS_REGBANK_SOC_INTERLEAVE_ENABLE, 1);
 
 	for (int i = 0; i < CONFIG_DDRMC_MAX_NUMBER; i++)
