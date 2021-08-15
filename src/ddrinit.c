@@ -248,7 +248,13 @@ int main(void)
 		memcpy((void *)CONFIG_MEM_REGIONS_ADDR, info.mem_regions, sizeof(info.mem_regions));
 
 		printf("Total DDR memory size %d MiB\n", (int)(info.total_dram_size / 1024 / 1024));
-		printf("Interleaving %s\n", (info.interleaving_enabled) ? "enabled" : "disabled");
+
+		if (info.interleaving.enable)
+			printf("Memory interleaving: %d KiB, %d-channel\n",
+			       info.interleaving.size / 1024, info.interleaving.channels);
+		else
+			printf("Memory interleaving: disabled\n");
+
 		ddrinit_return(0);
 	}
 

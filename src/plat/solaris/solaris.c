@@ -347,28 +347,37 @@ int platform_i2c_ctrl_id_get(int ctrl_id)
 	}
 }
 
-static void interleave_enable(int init_mask, struct sysinfo *info)
+#ifdef CONFIG_INTERLEAVING
+static void interleaving_enable(int init_mask, struct sysinfo *info)
 {
 	uint32_t hash_func[4] = {0, 0, 0, 0};
+
+	/* Enable memory interleaving only if all 4 DDRMC have been initialized */
+	if ((init_mask & 0xf) != 0xf)
+		return;
 
 	switch(CONFIG_INTERLEAVING_SIZE) {
 	case 0:
 		hash_func[2] = 0x400;
 		hash_func[0] = 0x800;
+		info->interleaving.size = 1024;
 		break;
 	case 1:
 		hash_func[2] = 0x800;
 		hash_func[0] = 0x1000;
+		info->interleaving.size = 2048;
 		break;
 	case 2:
 		hash_func[2] = 0x2000;
 		hash_func[0] = 0x1000;
+		info->interleaving.size = 4096;
 		break;
+	default:
+		return;
 	}
 
-	/* Enable interleave mode only if all 4 DDRMC have been initialized */
-	if ((init_mask & 0xf) != 0xf)
-		return;
+	info->interleaving.enable = true;
+	info->interleaving.channels = 4;
 
 	uint32_t tmp = FIELD_PREP(DDRSUBS_REGBANK_SOC_INTERLEAVE_BOUNDARY, CONFIG_INTERLEAVING_SIZE) |
 		       FIELD_PREP(DDRSUBS_REGBANK_SOC_INTERLEAVE_ENABLE, 1);
@@ -409,9 +418,13 @@ static void interleave_enable(int init_mask, struct sysinfo *info)
 	for (int i = 0; i < ARRAY_SIZE(addrs); i++)
 		for (int j = 0; j < 4; j++)
 			write32(addrs[i] + j * 4, hash_func[j]);
-
-	info->interleaving_enabled = 1;
 }
+#else
+static void interleaving_enable(int init_mask, struct sysinfo *info)
+{
+	return;
+}
+#endif
 
 static void llc_enable(int init_mask)
 {
@@ -593,7 +606,7 @@ static void mem_regions_set(int init_mask, struct sysinfo *info)
 			printf("DDRMC%d: Memory size truncated to %lu MiB\n",
 			       i, dsize[i] / 1024 / 1024);
 		}
-		if (info->interleaving_enabled) {
+		if (info->interleaving.enable) {
 			info->mem_regions[1].size += dsize[i];
 		} else {
 			info->mem_regions[free_region_idx].start = cfg_start[i - 1];
@@ -605,7 +618,7 @@ static void mem_regions_set(int init_mask, struct sysinfo *info)
 
 int platform_system_init(int init_mask, struct sysinfo *info)
 {
-	interleave_enable(init_mask, info);
+	interleaving_enable(init_mask, info);
 	llc_enable(init_mask);
 	axprot_override();
 	iommu_bypass_enable();

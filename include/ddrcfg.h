@@ -6,6 +6,7 @@
 #ifndef _DDRCFG_H
 #define _DDRCFG_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 struct ddr_cfg {
@@ -56,7 +57,11 @@ struct ddr_cfg {
 struct sysinfo {
 	uint64_t dram_size[CONFIG_DDRMC_MAX_NUMBER];
 	uint64_t total_dram_size;
-	uint8_t interleaving_enabled;
+	struct {
+		bool enable;
+		int channels;
+		int size;
+	} interleaving;
 	int speed[CONFIG_DDRMC_MAX_NUMBER];
 	/* RAM configuration */
 	struct {

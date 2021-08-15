@@ -24,9 +24,15 @@ choice
 		  LPDDR4 DRAM type
 endchoice
 
+menuconfig INTERLEAVING
+	bool "Memory interleaving"
+	default y
+	depends on PLATFORM_SOLARIS
+
+if INTERLEAVING
+
 choice
 	prompt "Interleaving size"
-	depends on PLATFORM_SOLARIS
 
 	config INTERLEAVING_SIZE_1K
 		bool "1 KiB"
@@ -43,6 +49,8 @@ config INTERLEAVING_SIZE
 	default 0 if INTERLEAVING_SIZE_1K
 	default 1 if INTERLEAVING_SIZE_2K
 	default 2 if INTERLEAVING_SIZE_4K
+
+endif
 
 config BURST_LEN
 	int "DRAM burst length"
