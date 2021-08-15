@@ -31,7 +31,7 @@ $(CONFIG_HEADER_PATH): .config
 
 -include .config
 
-include $(shell find $(SRC_DIR) -name 'Makefile')
+include $(shell find $(SRC_DIR) -name Makefile)
 srcs := $(shell for f in $(obj-y); do find $(SRC_DIR) -name $$f; done)
 objs := $(srcs:.c=.o)
 objs := $(objs:.S=.o)
