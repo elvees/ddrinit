@@ -35,7 +35,10 @@ include $(shell find $(SRC_DIR) -name 'Makefile')
 srcs := $(shell for f in $(obj-y); do find $(SRC_DIR) -name $$f; done)
 objs := $(srcs:.c=.o)
 objs := $(objs:.S=.o)
-linkfile := $(shell find $(SRC_DIR) -name $(linkfile))
+
+ifneq ($(linkfile),)
+linkfile := $(shell find $(SRC_DIR) -name '$(linkfile)')
+endif
 
 %.o : %.c $(CONFIG_HEADER_PATH)
 	$(CROSS_COMPILE)gcc -c $(CFLAGS) $< -o $@
