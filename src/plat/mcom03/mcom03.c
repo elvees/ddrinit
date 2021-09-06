@@ -350,10 +350,6 @@ static void mem_regions_set(int init_mask, struct sysinfo *info)
 		info->mem_regions[free_region_idx].start = cfg_start[i * 2];
 		info->mem_regions[free_region_idx].size = min(dsize[i], cfg_size[i * 2]);
 		free_region_idx++;
-		info->mem_regions[free_region_idx].start = cfg_start[i * 2 + 1];
-		info->mem_regions[free_region_idx].size =
-			dsize[i] - min(dsize[i], cfg_size[i * 2]);
-		free_region_idx++;
 
 		write32(DDRMC_SARBASE(i, 0), cfg_start[i * 2] / DDRMC_SAR_MINSIZE);
 		write32(DDRMC_SARBASE(i, 1), cfg_start[i * 2 + 1] / DDRMC_SAR_MINSIZE);
