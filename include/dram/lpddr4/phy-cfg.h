@@ -6,6 +6,8 @@
 #ifndef _PHY_CFG_H
 #define _PHY_CFG_H
 
+#include <config.h>
+
 struct phy_cfg_record {
 	unsigned int reg;
 	unsigned int val;
@@ -116,7 +118,11 @@ static struct phy_cfg_record train_param_array[] = {
 	{ 0x150014, 0x0 },
 	{ 0x150018, 0x14 },
 	{ 0x15001c, 0x0 },
+#ifdef CONFIG_DISABLE_CA_TRAINING
 	{ 0x150020, 0x31f },
+#else
+	{ 0x150020, 0x131f },
+#endif
 	{ 0x150024, 0x05 },
 	{ 0x150028, 0x0 },
 	{ 0x15002c, 0x2 },
