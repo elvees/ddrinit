@@ -367,8 +367,73 @@ static void mem_regions_set(int init_mask, struct sysinfo *info)
 	}
 }
 
+#define CPU_SUBS_UCG_BYPASS 0x1080040
+#define CPU_SUBS_UCG_CTR(i) (0x1080000 + (i) * 4)
+#define CPU_SUBS_PLL 0x1000050
+
+/* Set CPU frequency to 1377 MHz. This is a temporary solution,
+ * the frequency should be set in U-Boot by UCG driver.
+ */
+static int cpu_freq_set(void)
+{
+	uint32_t val;
+	int i, ret;
+	uint8_t divs[] = {
+		5, /* sys clk 275.4 MHz */
+		1, /* core clk 1377 MHz */
+		3  /* dbus clk 459 MHz */
+	};
+
+	write32(CPU_SUBS_UCG_BYPASS, 0x7);
+	write32(CPU_SUBS_PLL, 50);
+
+	ret = read32_poll_timeout(val, val & BIT(31), USEC, MSEC, CPU_SUBS_PLL);
+	if (ret)
+		return -ECLOCKCFG;
+
+	for (i = 0; i < ARRAY_SIZE(divs); i++) {
+		val = read32(CPU_SUBS_UCG_CTR(i));
+		val &= ~DDR_UCG_CTR_CLK_EN & ~DDR_UCG_CTR_LPI_EN;
+		write32(CPU_SUBS_UCG_CTR(i), val);
+
+		ret = read32_poll_timeout(val,
+					  FIELD_GET(DDR_UCG_CTR_QFSM_STATE, val) == Q_FSM_STOPPED,
+					  USEC, MSEC, CPU_SUBS_UCG_CTR(i));
+		if (ret)
+			return -ECLOCKCFG;
+
+		val = read32(CPU_SUBS_UCG_CTR(i));
+		val &= ~DDR_UCG_CTR_DIFF_COEFF;
+		write32(CPU_SUBS_UCG_CTR(i), FIELD_PREP(DDR_UCG_CTR_DIFF_COEFF, divs[i]));
+
+		ret = read32_poll_timeout(val, val & DDR_UCG_CTR_DIFF_LOCK, USEC, MSEC,
+					  CPU_SUBS_UCG_CTR(i));
+		if (ret)
+			return -ECLOCKCFG;
+
+		val = read32(CPU_SUBS_UCG_CTR(i));
+		val |= DDR_UCG_CTR_CLK_EN;
+		write32(CPU_SUBS_UCG_CTR(i), val);
+
+		ret = read32_poll_timeout(val, FIELD_GET(DDR_UCG_CTR_QFSM_STATE, val) == Q_FSM_RUN,
+					  USEC, MSEC, CPU_SUBS_UCG_CTR(i));
+		if (ret)
+			return -ECLOCKCFG;
+	}
+
+	write32(CPU_SUBS_UCG_BYPASS, 0);
+
+	return 0;
+}
+
 int platform_system_init(int init_mask, struct sysinfo *info)
 {
+	int ret;
+
+	ret = cpu_freq_set();
+	if (ret)
+		return ret;
+
 	mem_regions_set(init_mask, info);
 
 	/* DDR interleaving is not supported */
