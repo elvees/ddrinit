@@ -142,7 +142,7 @@ config MAX_MEM_REGIONS
 
 config MEM_REGIONS_ADDR
 	hex
-	default 0xE0000000 if PLATFORM_MCOM03
+	default 0xA0000000 if PLATFORM_MCOM03
 	default 0xffffffffa4000000 if PLATFORM_SOLARIS
 	help
 	  Address to write info on initialized DDR

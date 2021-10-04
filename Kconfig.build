@@ -17,9 +17,9 @@ config BOOTMODE_JTAG
 config BOOTMODE_JTAG_MAGIC_ADDRESS
 	hex "Address to read magic from in JTAG boot mode"
 	depends on BOOTMODE_JTAG && PLATFORM_MCOM03
-	default 0xC1000000
+	default 0x80800000
 
 config BOOTMODE_JTAG_JUMP_ADDRESS
 	hex "Address to jump after ddrinit in JTAG boot mode"
 	depends on BOOTMODE_JTAG && PLATFORM_MCOM03
-	default 0xC0000000
+	default 0x80000000
