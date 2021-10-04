@@ -20,7 +20,7 @@ int uart_cfg(void)
 		return ret;
 
 	/* Set baudrate */
-	divisor = CONFIG_UART_BASE_FREQ / (CONFIG_UART_BAUDRATE * 16);
+	divisor = DIV_ROUND_CLOSEST(CONFIG_UART_BASE_FREQ, CONFIG_UART_BAUDRATE * 16);
 	write32(UART_LCR, UART_LCR_DEFAULT | UART_LCR_DLAB);
 	write32(UART_DLH, divisor >> 8);
 	write32(UART_DLL, divisor);
