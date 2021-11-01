@@ -12,16 +12,23 @@ choice
 		  ELVEES Solaris SoC
 endchoice
 
+config ARCH_AARCH64
+	bool "Build for AArch64"
+	default n
+	depends on PLATFORM_MCOM03
+
 config UART_BASE
 	hex
-	default 0x1750000 if PLATFORM_MCOM03
+	default 0xA1750000 if PLATFORM_MCOM03 && !ARCH_AARCH64
+	default 0x1750000 if PLATFORM_MCOM03 && ARCH_AARCH64
 	default 0xffffffffbcc40000 if PLATFORM_SOLARIS
 	help
 	  Base address of UART controller
 
 config DDRSUB0_BASE
 	hex
-	default 0x4000000 if PLATFORM_MCOM03
+	default 0xA4000000 if PLATFORM_MCOM03 && !ARCH_AARCH64
+	default 0x4000000 if PLATFORM_MCOM03 && ARCH_AARCH64
 	default 0xffffffffb9000000 if PLATFORM_SOLARIS
 	help
 	  Base address of DDR subsystem #0
@@ -139,13 +146,21 @@ config MAX_MEM_REGIONS
 	default 4 if PLATFORM_MCOM03
 	default 5 if PLATFORM_SOLARIS
 
-config MEM_REGIONS_ADDR
-	hex
-	default 0xA0000000 if PLATFORM_MCOM03
+config MEM_REGIONS_PHYS_ADDR
+	hex "Memory info physical address"
+	depends on PLATFORM_MCOM03
+	default 0xA0000000
+	help
+	  Physical address to write info on initialized DDR
+	  to be passed to U-Boot.
+
+config MEM_REGIONS_VIRT_ADDR
+	hex "Memory info virtual address"
+	default 0xE0000000 if PLATFORM_MCOM03 && !ARCH_AARCH64
+	default 0xA0000000 if PLATFORM_MCOM03 && ARCH_AARCH64
 	default 0xffffffffa4000000 if PLATFORM_SOLARIS
 	help
-	  Address to write info on initialized DDR
-	  to be passed to U-Boot.
+	  Virtual address to map CONFIG_MEM_REGIONS_PHYS_ADDR to.
 
 config MEM_REGION0_START
 	hex

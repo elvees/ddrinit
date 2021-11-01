@@ -65,8 +65,8 @@ struct sysinfo {
 	int speed[CONFIG_DDRMC_MAX_NUMBER];
 	/* RAM configuration */
 	struct {
-		unsigned long start;
-		unsigned long size;
+		uint64_t start;
+		uint64_t size;
 	} mem_regions[CONFIG_MAX_MEM_REGIONS];
 };
 

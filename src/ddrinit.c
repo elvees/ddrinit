@@ -245,7 +245,7 @@ int main(void)
 
 	if (init_mask & CONFIG_DDRMC_INIT_REQUIRED_MASK) {
 		platform_system_init(init_mask, &info);
-		memcpy((void *)CONFIG_MEM_REGIONS_ADDR, info.mem_regions, sizeof(info.mem_regions));
+		memcpy((void *)CONFIG_MEM_REGIONS_VIRT_ADDR, info.mem_regions, sizeof(info.mem_regions));
 
 		printf("Total DDR memory size %d MiB\n", (int)(info.total_dram_size / 1024 / 1024));
 

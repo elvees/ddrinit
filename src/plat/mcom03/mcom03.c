@@ -60,11 +60,11 @@ struct pll_settings pll_settings[2][8] = {
 };
 
 static unsigned long i2c_base_addr[] = {
-	0x1630000,
-	0x1710000,
-	0x1720000,
-	0x1730000,
-	0x1f090000,
+	(ARCH_OFFSET + 0x1630000),
+	(ARCH_OFFSET + 0x1710000),
+	(ARCH_OFFSET + 0x1720000),
+	(ARCH_OFFSET + 0x1730000),
+	(ARCH_OFFSET + 0x1f090000),
 };
 
 void phy_write32(int ctrl_id, unsigned long addr, uint32_t val)
@@ -414,7 +414,7 @@ static void mem_regions_set(int init_mask, struct sysinfo *info)
 				CONFIG_MEM_REGION1_SIZE,
 				CONFIG_MEM_REGION2_SIZE,
 				CONFIG_MEM_REGION3_SIZE };
-	unsigned long cfg_start[] = { CONFIG_MEM_REGION0_START,
+	uint64_t cfg_start[] = { CONFIG_MEM_REGION0_START,
 				      CONFIG_MEM_REGION1_START,
 				      CONFIG_MEM_REGION2_START,
 				      CONFIG_MEM_REGION3_START };
@@ -446,10 +446,10 @@ static void mem_regions_set(int init_mask, struct sysinfo *info)
 	}
 }
 
-#define CPU_SUBS_UCG_BYPASS 0x1080040
-#define CPU_SUBS_UCG_SYNC 0x1080044
-#define CPU_SUBS_UCG_CTR(i) (0x1080000 + (i) * 4)
-#define CPU_SUBS_PLL 0x1000050
+#define CPU_SUBS_UCG_BYPASS (ARCH_OFFSET + 0x1080040)
+#define CPU_SUBS_UCG_SYNC (ARCH_OFFSET + 0x1080044)
+#define CPU_SUBS_UCG_CTR(i) (ARCH_OFFSET + 0x1080000 + (i) * 4)
+#define CPU_SUBS_PLL (ARCH_OFFSET + 0x1000050)
 
 /* Set CPU frequency to 1161 MHz. This is a temporary solution,
  * the frequency should be set in U-Boot by UCG driver.

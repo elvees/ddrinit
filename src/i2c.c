@@ -114,9 +114,9 @@ int i2c_write_reg(int i2c_ctrl_id, uint8_t reg, uint8_t data)
 
 int i2c_spd_read(int i2c_ctrl_id, uint8_t *buf, int len)
 {
-	int ret, max_byte = 256;
+	int i, ret, max_byte = 256;
 
-	for (int i = 0; (i < len) && (i < max_byte); i++){
+	for (i = 0; (i < len) && (i < max_byte); i++){
 		ret = i2c_read_reg(i2c_ctrl_id, i, buf);
 		if (ret)
 			return ret;
