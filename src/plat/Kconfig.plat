@@ -125,8 +125,7 @@ config PHY_APBONLY_OFFSET
 
 config PHY_REG_INSTANCE_OFFSET
 	hex
-	default 0x4000 if PLATFORM_MCOM03
-	default 0x1000 if PLATFORM_SOLARIS
+	default 0x1000
 	help
 	  PHY register instance offset
 
