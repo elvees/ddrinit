@@ -31,6 +31,47 @@ enum firmware_type {
 	FW_DMEM_2D,
 };
 
+#ifdef CONFIG_DQ_MAPPING
+#define DQ_MAPPING(CTRL_ID, BYTE) \
+	{ CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE & 0xf, \
+	  CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 4 & 0xf, \
+	  CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 8 & 0xf, \
+	  CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 12 & 0xf, \
+	  CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 16 & 0xf, \
+	  CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 20 & 0xf, \
+	  CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 24 & 0xf, \
+	  CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 28 & 0xf }
+
+static const uint8_t ddrmc0_dq_mapping[CONFIG_PHY_DBYTE_NUM][8] = {
+	DQ_MAPPING(DDRMC0, BYTE0),
+	DQ_MAPPING(DDRMC0, BYTE1),
+	DQ_MAPPING(DDRMC0, BYTE2),
+	DQ_MAPPING(DDRMC0, BYTE3),
+};
+
+static const uint8_t ddrmc1_dq_mapping[CONFIG_PHY_DBYTE_NUM][8] = {
+	DQ_MAPPING(DDRMC1, BYTE0),
+	DQ_MAPPING(DDRMC1, BYTE1),
+	DQ_MAPPING(DDRMC1, BYTE2),
+	DQ_MAPPING(DDRMC1, BYTE3),
+};
+
+static void dq_mapping_set(int ctrl_id)
+{
+	const uint8_t (*dq_mapping)[8] =
+		(ctrl_id == 0) ? ddrmc0_dq_mapping : ddrmc1_dq_mapping;
+	int i, j;
+
+	for (i = 0; i < CONFIG_PHY_DBYTE_NUM; i++)
+		for (j = 0; j < 8; j++)
+			phy_write32(ctrl_id, PHY_DQN_LN_SEL(i, j), dq_mapping[i][j]);
+}
+#else
+static void dq_mapping_set(int ctrl_id)
+{
+}
+#endif
+
 static int firmware_load(int ctrl_id, enum firmware_type fwtype)
 {
 	uint8_t *fw;
@@ -186,6 +227,8 @@ int phy_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	int ret;
 
 	phy_init(ctrl_id, cfg);
+
+	dq_mapping_set(ctrl_id);
 
 	phy_write32(ctrl_id, PHY_MEMRESETL, 2);
 	phy_write32(ctrl_id, PHY_MICROCONT_MUXSEL, 0);

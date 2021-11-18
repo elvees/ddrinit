@@ -308,3 +308,72 @@ config DEBUG_SPD_DUMP
 config DEBUG_DDRCFG_PRINT
 	bool "Print DDR configuration"
 	default n
+
+menuconfig DQ_MAPPING
+	bool "DQ mapping"
+	default n
+	depends on PLATFORM_MCOM03
+
+if DQ_MAPPING
+
+menu "DDRMC0"
+
+config DDRMC0_DQ_MAPPING_BYTE0
+	hex "DQ mapping for byte 0"
+	default 0x76543210
+	help
+	  Mapping of PHY DQn to DRAM DQm for DBYTE0. Bits [3:0] corresponds
+	  to DRAM DQ0, [7:4] to DRAM DQ1 and so on. For example, if PHY DQ3
+	  is connected to DRAM DQ0, set DDRMC0_DQ_MAPPING_BYTE0[3:0] to 3.
+
+config DDRMC0_DQ_MAPPING_BYTE1
+	hex "DQ mapping for byte 1"
+	default 0x76543210
+	help
+	  See help of CONFIG_DDRMC0_DQ_MAPPING_BYTE0.
+
+config DDRMC0_DQ_MAPPING_BYTE2
+	hex "DQ mapping for byte 2"
+	default 0x76543210
+	help
+	  See help of CONFIG_DDRMC0_DQ_MAPPING_BYTE0.
+
+config DDRMC0_DQ_MAPPING_BYTE3
+	hex "DQ mapping for byte 3"
+	default 0x76543210
+	help
+	  See help of CONFIG_DDRMC0_DQ_MAPPING_BYTE0.
+
+endmenu
+
+menu "DDRMC1"
+
+config DDRMC1_DQ_MAPPING_BYTE0
+	hex "DQ mapping for byte 0"
+	default 0x76543210
+	help
+	  Mapping of PHY DQn to DRAM DQm for DBYTE0. Bits [3:0] corresponds
+	  to DRAM DQ0, [7:4] to DRAM DQ1 and so on. For example, if PHY DQ3
+	  is connected to DRAM DQ0, set DDRMC1_DQ_MAPPING_BYTE0[3:0] to 3.
+
+config DDRMC1_DQ_MAPPING_BYTE1
+	hex "DQ mapping for byte 1"
+	default 0x76543210
+	help
+	  See help of CONFIG_DDRMC1_DQ_MAPPING_BYTE0.
+
+config DDRMC1_DQ_MAPPING_BYTE2
+	hex "DQ mapping for byte 2"
+	default 0x76543210
+	help
+	  See help of CONFIG_DDRMC1_DQ_MAPPING_BYTE0.
+
+config DDRMC1_DQ_MAPPING_BYTE3
+	hex "DQ mapping for byte 3"
+	default 0x76543210
+	help
+	  See help of CONFIG_DDRMC1_DQ_MAPPING_BYTE0.
+
+endmenu
+
+endif
