@@ -227,18 +227,18 @@ int platform_clk_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	int ret;
 	uint32_t val;
 	uint8_t axi_chan_divs[] = {
-		6, /* SYS channel  200 MHz */
-		2, /* SDR channel  600 MHz */
-		2, /* PCIe channel 600 MHz */
-		6, /* ISP channel  200 MHz */
-		2, /* GPU channel  600 MHz */
-		4, /* VPU channel  300 MHz */
-		3, /* DP channel   400 MHz */
-		2, /* CPU channel  600 MHz */
-		4, /* SERV channel 300 MHz */
-		3, /* HSP channel  400 MHz */
-		6, /* LSP0 channel 200 MHz */
-		6  /* LSP1 channel 200 MHz */
+		12, /* SYS channel  100 MHz */
+		4, /* SDR channel  300 MHz */
+		4, /* PCIe channel 300 MHz */
+		12, /* ISP channel  100 MHz */
+		4, /* GPU channel  300 MHz */
+		8, /* VPU channel  150 MHz */
+		6, /* DP channel   200 MHz */
+		4, /* CPU channel  300 MHz */
+		8, /* SERV channel 150 MHz */
+		6, /* HSP channel  200 MHz */
+		12, /* LSP0 channel 100 MHz */
+		12  /* LSP1 channel 100 MHz */
 	};
 
 	if (pll_init_done == 0) {
