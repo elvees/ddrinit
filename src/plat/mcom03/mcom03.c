@@ -375,13 +375,13 @@ static int cpu_freq_set(void)
 	uint32_t val;
 	int i, ret;
 	uint8_t divs[] = {
-		5, /* sys clk 275.4 MHz */
-		1, /* core clk 1377 MHz */
-		3  /* dbus clk 459 MHz */
+		4, /* sys clk 290.25 MHz */
+		1, /* core clk 1161 MHz */
+		3  /* dbus clk 387 MHz */
 	};
 
 	write32(CPU_SUBS_UCG_BYPASS, 0x7);
-	write32(CPU_SUBS_PLL, 50);
+	write32(CPU_SUBS_PLL, 42);
 
 	ret = read32_poll_timeout(val, val & BIT(31), USEC, MSEC, CPU_SUBS_PLL);
 	if (ret)
