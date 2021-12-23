@@ -215,6 +215,14 @@ config DDR3_I2C
 	help
 	  I2C controller number that is used for DDR3 initialization.
 
+config DDR1_POWER_ENABLE
+	bool "Enable DDR1 power on ELV-MC03-SMARC r1.1"
+	depends on PLATFORM_MCOM03
+	default n
+	help
+	  SW4 channel of PMIC on some ELV-MC03-SMARC r1.1 boards is
+	  not enabled. This channel required for DDR1.
+
 config SPD_EEPROM
 	bool "SPD EEPROM"
 	default n

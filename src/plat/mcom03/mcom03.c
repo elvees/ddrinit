@@ -6,6 +6,7 @@
 #include <common.h>
 #include <config.h>
 #include <ddrcfg.h>
+#include <i2c.h>
 #include <plat/plat.h>
 #include <plat/mcom03/regs.h>
 
@@ -86,6 +87,24 @@ static void subsystem_reset_deassert(enum subsystem_reset_lines line)
 		continue;
 }
 
+int platform_i2c_cfg(int ctrl_id)
+{
+	uint32_t value;
+
+	switch (ctrl_id) {
+	/* TODO: Init subsystem, pads and clocks for other I2C */
+	case 4:
+		/* Enable clocks for CLK_I2C4 and CLK_I2C4_EXT */
+		value = read32(SERVICE_SUBS_UCG_CHAN(9));
+		write32(SERVICE_SUBS_UCG_CHAN(9), value | 0x2);
+		value = read32(SERVICE_SUBS_UCG_CHAN(12));
+		write32(SERVICE_SUBS_UCG_CHAN(12), value | 0x2);
+		return 0;
+	default:
+		return -EI2CCFG;
+	}
+}
+
 int platform_power_up(void)
 {
 	uint32_t val;
@@ -105,6 +124,16 @@ int platform_power_up(void)
 	write32(LSPERIPH1_UCG_CTR(7), 0x2);
 	write32(DW_APB_LOAD_COUNT(0), 0);
 	write32(DW_APB_CTRL(0), 0x5);
+
+#if defined(CONFIG_DDR1_POWER_ENABLE) && (CONFIG_DDRMC_ACTIVE_MASK & 0x2)
+	i = i2c_cfg(CONFIG_DDR1_I2C, 0x9);
+	if (i)
+		return i;
+
+	i = i2c_write_reg(CONFIG_DDR1_I2C, 0x68, 0x25);
+	if (i)
+		return i;
+#endif
 
 	return 0;
 }
