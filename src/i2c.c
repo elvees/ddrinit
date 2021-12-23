@@ -49,8 +49,13 @@ int i2c_cfg(int i2c_ctrl_id, int ctrl_id)
 	write32(I2C_CON(i2c_ctrl_id), val);
 
 	val = CONFIG_I2C_FREQ / CONFIG_I2C_SPEED / 2;
+#ifdef CONFIG_I2C_SPEED_100
 	write32(I2C_SS_HCNT(i2c_ctrl_id), val);
 	write32(I2C_SS_LCNT(i2c_ctrl_id), val);
+#elif CONFIG_I2C_SPEED_400
+	write32(I2C_FS_HCNT(i2c_ctrl_id), val);
+	write32(I2C_FS_LCNT(i2c_ctrl_id), val);
+#endif
 	write32(I2C_TAR(i2c_ctrl_id), i2c_addr_get(ctrl_id));
 	write32(I2C_ENABLE(i2c_ctrl_id), 1);
 

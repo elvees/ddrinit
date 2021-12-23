@@ -418,6 +418,10 @@
 
 #define I2C_SS_LCNT(i) (I2C_BASE(i) + 0x18)
 
+#define I2C_FS_HCNT(i) (I2C_BASE(i) + 0x1c)
+
+#define I2C_FS_LCNT(i) (I2C_BASE(i) + 0x20)
+
 #define I2C_ENABLE(i) (I2C_BASE(i) + 0x6C)
 
 #define I2C_STATUS(i) (I2C_BASE(i) + 0x70)
