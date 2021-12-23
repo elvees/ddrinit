@@ -183,7 +183,7 @@ char *errcode2str(int id)
 		case EDDRMC0INITFAIL: return "DDRMC0 must be initialized to continue booting";
 		case EPOWERUP: return "Failed to power up";
 		case ECLOCKCFG: return "Failed to configure clock";
-		case EI2CREAD: return "Failed to read over I2C";
+		case EI2CXFER: return "Failed to communicate over I2C";
 		case ESPDCHECKSUM: return "Incorrect SPD checksum";
 		case EDIMMCFG: return "Failed to configure DIMM";
 		case EFWTYPE: return "Unknown firmware type";

@@ -8,7 +8,8 @@
 #include <stdint.h>
 
 int i2c_ctrl_id_get(int ddr_ctrl_id);
-int i2c_cfg(int i2c_ctrl_id, int ctrl_id);
+int i2c_cfg(int i2c_ctrl_id, uint8_t addr);
+int i2c_write_reg(int i2c_ctrl_id, uint8_t reg, uint8_t data);
 int i2c_spd_read(int i2c_ctrl_id, uint8_t *buf, int len);
 
 #endif /* _I2C_H */

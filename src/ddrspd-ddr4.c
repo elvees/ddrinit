@@ -13,6 +13,28 @@
 #include <i2c.h>
 #include <plat/plat.h>
 
+static uint8_t i2c_addr_get(int ctrl_id)
+{
+	uint8_t i2c_addr[2];
+	switch (ctrl_id) {
+		case 0: i2c_addr[0] = CONFIG_DIMM0_I2C_ADDR;
+			i2c_addr[1] = CONFIG_DIMM1_I2C_ADDR;
+			break;
+		case 1: i2c_addr[0] = CONFIG_DIMM2_I2C_ADDR;
+			i2c_addr[1] = CONFIG_DIMM3_I2C_ADDR;
+			break;
+		case 2: i2c_addr[0] = CONFIG_DIMM4_I2C_ADDR;
+			i2c_addr[1] = CONFIG_DIMM5_I2C_ADDR;
+			break;
+		case 3: i2c_addr[0] = CONFIG_DIMM6_I2C_ADDR;
+			i2c_addr[1] = CONFIG_DIMM7_I2C_ADDR;
+			break;
+		default: return 0;
+	}
+	/* TODO: Use all DIMM slots for every controller */
+	return i2c_addr[0];
+}
+
 int spd_get(int ctrl_id, struct ddr4_spd *spd)
 {
 	int ret, size, i2c_ctrl_id;
@@ -20,7 +42,7 @@ int spd_get(int ctrl_id, struct ddr4_spd *spd)
 	i2c_ctrl_id = i2c_ctrl_id_get(ctrl_id);
 	if (i2c_ctrl_id < 0)
 		return i2c_ctrl_id;
-	i2c_cfg(i2c_ctrl_id, ctrl_id);
+	i2c_cfg(i2c_ctrl_id, i2c_addr_get(ctrl_id));
 
 #ifdef CONFIG_DRAM_TYPE_DDR4
 	size = sizeof(struct ddr4_spd);

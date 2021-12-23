@@ -426,5 +426,6 @@
 
 #define I2C_TX_EMPTY BIT(2)
 #define I2C_RX_DATA_PRESENT BIT(3)
+#define I2C_MST_ACTIVITY BIT(5)
 
 #endif /* _REGS_H */

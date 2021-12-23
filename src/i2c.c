@@ -8,28 +8,6 @@
 #include <regs.h>
 #include <i2c.h>
 
-static uint8_t i2c_addr_get(int ctrl_id)
-{
-	uint8_t i2c_addr[2];
-	switch (ctrl_id) {
-		case 0: i2c_addr[0] = CONFIG_DIMM0_I2C_ADDR;
-			i2c_addr[1] = CONFIG_DIMM1_I2C_ADDR;
-			break;
-		case 1: i2c_addr[0] = CONFIG_DIMM2_I2C_ADDR;
-			i2c_addr[1] = CONFIG_DIMM3_I2C_ADDR;
-			break;
-		case 2: i2c_addr[0] = CONFIG_DIMM4_I2C_ADDR;
-			i2c_addr[1] = CONFIG_DIMM5_I2C_ADDR;
-			break;
-		case 3: i2c_addr[0] = CONFIG_DIMM6_I2C_ADDR;
-			i2c_addr[1] = CONFIG_DIMM7_I2C_ADDR;
-			break;
-		default: return 0;
-	}
-	/* TODO: Use all DIMM slots for every controller */
-	return i2c_addr[0];
-}
-
 int i2c_ctrl_id_get(int ddr_ctrl_id)
 {
 	switch (ddr_ctrl_id) {
@@ -41,7 +19,7 @@ int i2c_ctrl_id_get(int ddr_ctrl_id)
 	}
 }
 
-int i2c_cfg(int i2c_ctrl_id, int ctrl_id)
+int i2c_cfg(int i2c_ctrl_id, uint8_t addr)
 {
 	unsigned long base = platform_i2c_base_get(i2c_ctrl_id);
 	int ret;
@@ -71,17 +49,18 @@ int i2c_cfg(int i2c_ctrl_id, int ctrl_id)
 	write32(I2C_FS_HCNT(base), val);
 	write32(I2C_FS_LCNT(base), val);
 #endif
-	write32(I2C_TAR(base), i2c_addr_get(ctrl_id));
+	write32(I2C_TAR(base), addr);
 	write32(I2C_ENABLE(base), 1);
 
 	return 0;
 }
 
-static int i2c_wait(unsigned long base, uint32_t bit_mask)
+static int i2c_wait(unsigned long base, uint32_t bit_mask, uint32_t value)
 {
 	uint32_t val = 0;
 
-	return read32_poll_timeout(val, val & bit_mask, USEC, 8 * MSEC, I2C_STATUS(base));
+	return read32_poll_timeout(val, (val & bit_mask) == value, USEC, 8 * MSEC,
+				   I2C_STATUS(base));
 }
 
 static int i2c_read_reg(int i2c_ctrl_id, uint8_t reg, uint8_t *data)
@@ -90,24 +69,48 @@ static int i2c_read_reg(int i2c_ctrl_id, uint8_t reg, uint8_t *data)
 	int ret;
 
 	if (!base)
-		return -EI2CREAD;
+		return -EI2CXFER;
 
 	write32(I2C_DATA_CMD(base), reg);
 	write32(I2C_DATA_CMD(base), 0x100);
 
-	ret = i2c_wait(base, I2C_TX_EMPTY);
+	ret = i2c_wait(base, I2C_TX_EMPTY, I2C_TX_EMPTY);
 	if (ret == -ETIMEDOUT)
-		return -EI2CREAD;
+		return -EI2CXFER;
 
-	ret = i2c_wait(base, I2C_RX_DATA_PRESENT);
+	ret = i2c_wait(base, I2C_RX_DATA_PRESENT, I2C_RX_DATA_PRESENT);
 	if (ret == -ETIMEDOUT)
-		return -EI2CREAD;
+		return -EI2CXFER;
 
 	*data = read32(I2C_DATA_CMD(base));
 
 	return 0;
 }
 
+/*
+ * Write one byte to register on I2C device. Address of device was set by i2c_cfg().
+ */
+int i2c_write_reg(int i2c_ctrl_id, uint8_t reg, uint8_t data)
+{
+	unsigned long base = platform_i2c_base_get(i2c_ctrl_id);
+	int ret;
+
+	if (!base)
+		return -EI2CXFER;
+
+	write32(I2C_DATA_CMD(base), reg);
+	write32(I2C_DATA_CMD(base), data);
+
+	ret = i2c_wait(base, I2C_TX_EMPTY, I2C_TX_EMPTY);
+	if (ret == -ETIMEDOUT)
+		return -EI2CXFER;
+
+	ret = i2c_wait(base, I2C_MST_ACTIVITY, 0);
+	if (ret == -ETIMEDOUT)
+		return -EI2CXFER;
+
+	return 0;
+}
 
 int i2c_spd_read(int i2c_ctrl_id, uint8_t *buf, int len)
 {
