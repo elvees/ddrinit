@@ -76,26 +76,6 @@ config DDR_XTAL_FREQ
 	help
 	  DDR XTAL frequency in Hz
 
-config SPD_EEPROM
-	bool "SPD EEPROM"
-	default y
-	help
-	  Get DRAM configuration from Serial Presence Detect (SPD) EEPROM
-
-choice
-	prompt "DRAM rate select"
-	depends on SPD_EEPROM
-
-	config DRAM_RATE_SPD_MAXIMUM
-		bool "Maximum DRAM rate from SPD"
-
-	config DRAM_RATE_SPD_MINIMUM
-		bool "Minimum DRAM rate from SPD"
-
-	config DRAM_RATE_CUSTOM
-		bool "Custom DRAM rate"
-endchoice
-
 choice
 	prompt "DRAM rate select"
 	depends on SPD_EEPROM && DRAM_RATE_CUSTOM || !SPD_EEPROM
@@ -179,16 +159,21 @@ config DRAM_CAS_LATENCY_CUSTOM
 	help
 	  DRAM CAS latency
 
+menuconfig I2C
+	bool "I2C support"
+	default n
+
+if I2C
+
 config I2C_FREQ
 	int "I2C input frequency"
-	depends on SPD_EEPROM
 	default 40000000 if PLATFORM_SOLARIS
+	default 27000000 if PLATFORM_MCOM03
 	help
 	  I2C input frequency in Hz
 
 choice
 	prompt "I2C output frequency"
-	depends on SPD_EEPROM
 
 	config I2C_SPEED_100
 		bool "100 KHz"
@@ -199,7 +184,6 @@ endchoice
 
 config I2C_SPEED
 	int
-	depends on SPD_EEPROM
 	default 100000 if I2C_SPEED_100
 	default 400000 if I2C_SPEED_400
 
@@ -216,6 +200,31 @@ config I2C_GAP
 	default 0x2900000 if PLATFORM_SOLARIS
 	help
 	  Address gap between I2C0 and I2C1 controllers
+
+config SPD_EEPROM
+	bool "SPD EEPROM"
+	default n
+	help
+	  Get DRAM configuration from Serial Presence Detect (SPD) EEPROM
+
+config DEBUG_SPD_DUMP
+	bool "Dump SPD EEPROM"
+	depends on SPD_EEPROM
+	default n
+
+choice
+	prompt "DRAM rate select"
+	depends on SPD_EEPROM
+
+	config DRAM_RATE_SPD_MAXIMUM
+		bool "Maximum DRAM rate from SPD"
+
+	config DRAM_RATE_SPD_MINIMUM
+		bool "Minimum DRAM rate from SPD"
+
+	config DRAM_RATE_CUSTOM
+		bool "Custom DRAM rate"
+endchoice
 
 config DIMM0_I2C_ADDR
 	hex "DIMM0 I2C address"
@@ -273,6 +282,8 @@ config DIMM7_I2C_ADDR
 	help
 	  DIMM7 I2C address
 
+endif
+
 config DRAM_TCK
 	int
 	default 3759 if DRAM_RATE_533
@@ -314,11 +325,6 @@ config TIMER_FREQ
 	default 250000000 if PLATFORM_SOLARIS
 	help
 	  Timer clock source frequency.
-
-config DEBUG_SPD_DUMP
-	bool "Dump SPD EEPROM to UART over I2C"
-	depends on SPD_EEPROM
-	default n
 
 config DEBUG_DDRCFG_PRINT
 	bool "Print DDR configuration"
