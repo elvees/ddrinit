@@ -2,11 +2,4 @@
 - project:
     check:
       jobs:
-        - solaris-buildroot-build:
-            irrelevant-files:
-              - ^doc/.*
-              - ^.*rst
-              - Jenkinsfile
-    experimental:
-      jobs:
-        - solaris-buildroot-build
+        - mcom03-rockpi-buildroot-build
