@@ -141,6 +141,21 @@ choice
 
 endchoice
 
+config DRAM_RATE
+	int
+	default 533 if DRAM_RATE_533
+	default 1066 if DRAM_RATE_1066
+	default 1250 if DRAM_RATE_1250
+	default 1333 if DRAM_RATE_1333
+	default 1600 if DRAM_RATE_1600
+	default 1866 if DRAM_RATE_1866
+	default 2133 if DRAM_RATE_2133
+	default 2400 if DRAM_RATE_2400
+	default 2666 if DRAM_RATE_2666
+	default 2933 if DRAM_RATE_2933
+	default 3200 if DRAM_RATE_3200
+	depends on SPD_EEPROM && DRAM_RATE_CUSTOM || !SPD_EEPROM
+
 choice
 	prompt "DRAM CAS latency select"
 	depends on SPD_EEPROM

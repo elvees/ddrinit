@@ -72,6 +72,12 @@ static void dq_mapping_set(int ctrl_id)
 }
 #endif
 
+void phy_write32_with_dbg(int ctrl_id, unsigned long addr, uint32_t val)
+{
+	phy_write32(ctrl_id, addr, val);
+	print_dbg("write: addr 0x%x, data 0x%x\n", addr, phy_read32(ctrl_id, addr));
+}
+
 static int firmware_load(int ctrl_id, enum firmware_type fwtype)
 {
 	uint8_t *fw;

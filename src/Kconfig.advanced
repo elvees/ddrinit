@@ -237,6 +237,60 @@ choice
 endchoice
 
 choice
+	prompt "DRAM CA ODT select"
+	depends on DRAM_TYPE_LPDDR4
+
+	config DRAM_CA_ODT_DISABLED
+		bool "disabled"
+
+	config DRAM_CA_ODT_40
+		bool "40 Ohms"
+
+	config DRAM_CA_ODT_48
+		bool "48 Ohms"
+
+	config DRAM_CA_ODT_60
+		bool "60 Ohms"
+
+	config DRAM_CA_ODT_80
+		bool "80 Ohms"
+
+	config DRAM_CA_ODT_120
+		bool "120 Ohms"
+
+	config DRAM_CA_ODT_240
+		bool "240 Ohms"
+
+endchoice
+
+choice
+	prompt "SoC ODT select"
+	depends on DRAM_TYPE_LPDDR4
+
+	config SOC_ODT_DISABLED
+		bool "disabled"
+
+	config SOC_ODT_40
+		bool "40 Ohms"
+
+	config SOC_ODT_48
+		bool "48 Ohms"
+
+	config SOC_ODT_60
+		bool "60 Ohms"
+
+	config SOC_ODT_80
+		bool "80 Ohms"
+
+	config SOC_ODT_120
+		bool "120 Ohms"
+
+	config SOC_ODT_240
+		bool "240 Ohms"
+
+endchoice
+
+choice
 	prompt "External calibration resistor select"
 
 	config PHY_CALIBRATION_EXT_RESISTOR_240
@@ -303,6 +357,20 @@ config PHY_D4TX_PREAMBLE_LEN
 	default 0 if PLATFORM_SOLARIS
 	help
 	  TBD
+
+choice
+	prompt "Read postamble"
+	config READ_POSTAMBLE_0_5T
+		bool "0.5 tCK"
+		depends on DRAM_TYPE_LPDDR4
+		help
+		  Read postamble of 0.5 tCK
+	config READ_POSTAMBLE_1_5T
+		bool "1.5 tCK"
+		depends on DRAM_TYPE_LPDDR4
+		help
+		  Read postamble of 1.5 tCK
+endchoice
 
 config DISABLE_CA_TRAINING
 	bool "Disable CA training"

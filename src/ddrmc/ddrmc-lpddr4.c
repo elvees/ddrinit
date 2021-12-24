@@ -7,6 +7,20 @@
 #include <ddrmc.h>
 #include <regs.h>
 
+#define LPDDR4_MR1_BL GENMASK(1, 0)
+#define LPDDR4_MR1_WR_PRE BIT(2)
+#define LPDDR4_MR1_RD_PRE BIT(3)
+#define LPDDR4_MR1_NWR GENMASK(6, 4)
+#define LPDDR4_MR1_RPST BIT(7)
+
+#define LPDDR4_MR2_RL GENMASK(2, 0)
+#define LPDDR4_MR2_WL GENMASK(5, 3)
+#define LPDDR4_MR2_WLS BIT(6)
+#define LPDDR4_MR2_WRLEV BIT(7)
+
+#define LPDDR4_MR11_DQ_ODT GENMASK(2, 0)
+#define LPDDR4_MR11_CA_ODT GENMASK(6, 4)
+
 static int cwl_get(int tck)
 {
 	if (tck >= DRAM_TCK_533)
@@ -261,6 +275,154 @@ static int dramtmg14_txsr_get(struct ddr_cfg *cfg)
 	int txsr = max(trfc_ab_get(cfg) + 7500, 2);
 
 	return DIV_ROUND_UP(txsr, 2);
+}
+
+uint8_t lpddr4_mr1_get(struct ddr_cfg *cfg)
+{
+	uint8_t mr1;
+	uint8_t nwr = 0;
+	uint8_t bl = (CONFIG_BURST_LEN == 16) ? 0 : 1;
+	uint8_t rpst;
+
+#ifdef CONFIG_READ_POSTAMBLE_0_5T
+	rpst = 0;
+#else
+	rpst = 1;
+#endif
+
+	switch (twr_get(cfg->tck)) {
+	case 6:
+		nwr = 0;
+		break;
+	case 10:
+		nwr = 1;
+		break;
+	case 16:
+		nwr = 2;
+		break;
+	case 20:
+		nwr = 3;
+		break;
+	case 24:
+		nwr = 4;
+		break;
+	case 30:
+		nwr = 5;
+		break;
+	case 34:
+		nwr = 6;
+		break;
+	case 40:
+		nwr = 7;
+		break;
+	}
+
+	mr1 = FIELD_PREP(LPDDR4_MR1_BL, bl) |
+	      FIELD_PREP(LPDDR4_MR1_WR_PRE, 1) |
+	      FIELD_PREP(LPDDR4_MR1_RD_PRE, 0) |
+	      FIELD_PREP(LPDDR4_MR1_NWR, nwr) |
+	      FIELD_PREP(LPDDR4_MR1_RPST, rpst);
+
+	return mr1;
+}
+
+uint8_t lpddr4_mr2_get(struct ddr_cfg *cfg)
+{
+	uint8_t mr2, rl = 0;
+
+	switch (cfg->taa) {
+	case 6:
+		rl = 0;
+		break;
+	case 10:
+		rl = 1;
+		break;
+	case 14:
+		rl = 2;
+		break;
+	case 20:
+		rl = 3;
+		break;
+	case 24:
+		rl = 4;
+		break;
+	case 28:
+		rl = 5;
+		break;
+	case 32:
+		rl = 6;
+		break;
+	case 36:
+		rl = 7;
+		break;
+	}
+
+	mr2 = FIELD_PREP(LPDDR4_MR2_RL, rl) |
+	      FIELD_PREP(LPDDR4_MR2_WL, cwl_get(cfg->tck) / 2 - 2) |
+	      FIELD_PREP(LPDDR4_MR2_WLS, 0) |
+	      FIELD_PREP(LPDDR4_MR2_WRLEV, 0);
+
+	return mr2;
+}
+
+uint8_t lpddr4_mr11_get(struct ddr_cfg *cfg)
+{
+	uint8_t mr11, dq_odt = 0, ca_odt = 0;
+
+#ifdef CONFIG_DRAM_RTT_NOM_34
+	dq_odt = 6;
+#elif CONFIG_DRAM_RTT_NOM_40
+	dq_odt = 6;
+#elif CONFIG_DRAM_RTT_NOM_48
+	dq_odt = 5;
+#elif CONFIG_DRAM_RTT_NOM_60
+	dq_odt = 4;
+#elif CONFIG_DRAM_RTT_NOM_80
+	dq_odt = 3;
+#elif CONFIG_DRAM_RTT_NOM_120
+	dq_odt = 2;
+#elif CONFIG_DRAM_RTT_NOM_240
+	dq_odt = 1;
+#endif
+
+#ifdef CONFIG_DRAM_CA_ODT_40
+	ca_odt = 6;
+#elif CONFIG_DRAM_CA_ODT_48
+	ca_odt = 5;
+#elif CONFIG_DRAM_CA_ODT_60
+	ca_odt = 4;
+#elif CONFIG_DRAM_CA_ODT_80
+	ca_odt = 3;
+#elif CONFIG_DRAM_CA_ODT_120
+	ca_odt = 2;
+#elif CONFIG_DRAM_CA_ODT_240
+	ca_odt = 1;
+#endif
+
+	mr11 = FIELD_PREP(LPDDR4_MR11_DQ_ODT, dq_odt) |
+	       FIELD_PREP(LPDDR4_MR11_CA_ODT, ca_odt);
+
+	return mr11;
+}
+
+uint8_t lpddr4_mr22_get(struct ddr_cfg *cfg)
+{
+	uint8_t mr22 = 0;
+
+#ifdef CONFIG_SOC_ODT_40
+	mr22 = 6;
+#elif CONFIG_SOC_ODT_48
+	mr22 = 5;
+#elif CONFIG_SOC_ODT_60
+	mr22 = 4;
+#elif CONFIG_SOC_ODT_80
+	mr22 = 3;
+#elif CONFIG_SOC_ODT_120
+	mr22 = 2;
+#elif CONFIG_SOC_ODT_240
+	mr22 = 1;
+#endif
+	return mr22;
 }
 
 void dram_timings_cfg(int ctrl_id, struct ddr_cfg *cfg)

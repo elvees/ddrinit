@@ -190,17 +190,3 @@ config DRAM_TIMING_TZQCS
 	help
 	  DDR3/DDR4: tZQCS
 	  LPDDR4: tZQLAT
-
-choice
-	prompt "Read postamble"
-	config READ_POSTAMBLE_0_5T
-		bool "0.5 tCK"
-		depends on DRAM_TYPE_LPDDR4
-		help
-		  Read postamble of 0.5 tCK
-	config READ_POSTAMBLE_1_5T
-		bool "1.5 tCK"
-		depends on DRAM_TYPE_LPDDR4
-		help
-		  Read postamble of 1.5 tCK
-endchoice
