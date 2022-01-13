@@ -47,6 +47,14 @@ enum pdci_reset_lines {
 	PDCI_LINE_MAX
 };
 
+static unsigned long i2c_base_addr[] = {
+	0xffffffffbcc60000,
+	0xffffffffbcc70000,
+	0xffffffffbd060000,
+	0xffffffffbd070000,
+	0xffffffffbf970000,
+};
+
 void phy_write32(int ctrl_id, unsigned long addr, uint32_t val)
 {
 	if (addr >= 0x200000) {
@@ -322,7 +330,15 @@ int platform_uart_cfg(void)
 	return 0;
 }
 
-int platform_i2c_cfg(void)
+unsigned long platform_i2c_base_get(int ctrl_id)
+{
+	if (ctrl_id < 0 || ctrl_id >= ARRAY_SIZE(i2c_base_addr))
+		return 0;
+
+	return i2c_base_addr[ctrl_id];  // cppcheck-suppress arrayIndexOutOfBoundsCond
+}
+
+int platform_i2c_cfg(int ctrl_id)
 {
 	int ret;
 
@@ -330,21 +346,9 @@ int platform_i2c_cfg(void)
 	if (ret)
 		return -EI2CCFG;
 
-	i2c_pads_cfg(3);
-	i2c_pads_cfg(4);
+	i2c_pads_cfg(ctrl_id);
 
 	return 0;
-}
-
-int platform_i2c_ctrl_id_get(int ctrl_id)
-{
-	switch (ctrl_id) {
-		case 0:
-		case 1: return 0; break;
-		case 2:
-		case 3: return 1; break;
-		default: return -EI2CCFG;
-	}
 }
 
 #ifdef CONFIG_INTERLEAVING

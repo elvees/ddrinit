@@ -187,19 +187,33 @@ config I2C_SPEED
 	default 100000 if I2C_SPEED_100
 	default 400000 if I2C_SPEED_400
 
-config I2C0_BASE
-	hex
-	depends on SPD_EEPROM
-	default 0xffffffffbd070000 if PLATFORM_SOLARIS
+config DDR0_I2C
+	int "I2C for DDR0"
+	default 3 if PLATFORM_SOLARIS
+	default 4 if PLATFORM_MCOM03
 	help
-	  Base address of I2C controller #0
+	  I2C controller number that is used for DDR0 initialization.
 
-config I2C_GAP
-	hex
-	depends on SPD_EEPROM
-	default 0x2900000 if PLATFORM_SOLARIS
+config DDR1_I2C
+	int "I2C for DDR1"
+	default 3 if PLATFORM_SOLARIS
+	default 4 if PLATFORM_MCOM03
 	help
-	  Address gap between I2C0 and I2C1 controllers
+	  I2C controller number that is used for DDR1 initialization.
+
+config DDR2_I2C
+	int "I2C for DDR2"
+	default 4 if PLATFORM_SOLARIS
+	default -1 if PLATFORM_MCOM03
+	help
+	  I2C controller number that is used for DDR2 initialization.
+
+config DDR3_I2C
+	int "I2C for DDR3"
+	default 4 if PLATFORM_SOLARIS
+	default -1 if PLATFORM_MCOM03
+	help
+	  I2C controller number that is used for DDR3 initialization.
 
 config SPD_EEPROM
 	bool "SPD EEPROM"

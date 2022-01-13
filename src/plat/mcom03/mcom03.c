@@ -56,6 +56,14 @@ struct pll_settings pll_settings[2][6] = {
 	},
 };
 
+static unsigned long i2c_base_addr[] = {
+	0x1630000,
+	0x1710000,
+	0x1720000,
+	0x1730000,
+	0x1f090000,
+};
+
 void phy_write32(int ctrl_id, unsigned long addr, uint32_t val)
 {
 	write32(PHY_BASE(ctrl_id) + addr, val);
@@ -119,6 +127,14 @@ int platform_reset_ctl(int ctrl_id, enum reset_type reset, enum reset_action act
 	}
 
 	return ret;
+}
+
+unsigned long platform_i2c_base_get(int ctrl_id)
+{
+	if (ctrl_id < 0 || ctrl_id >= ARRAY_SIZE(i2c_base_addr))
+		return 0;
+
+	return i2c_base_addr[ctrl_id];  // cppcheck-suppress arrayIndexOutOfBoundsCond
 }
 
 static int pll_settings_get(int pll_id, int tck, struct pll_settings *pll_cfg)

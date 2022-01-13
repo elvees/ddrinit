@@ -30,61 +30,80 @@ static uint8_t i2c_addr_get(int ctrl_id)
 	return i2c_addr[0];
 }
 
+int i2c_ctrl_id_get(int ddr_ctrl_id)
+{
+	switch (ddr_ctrl_id) {
+		case 0: return CONFIG_DDR0_I2C;
+		case 1: return CONFIG_DDR1_I2C;
+		case 2: return CONFIG_DDR2_I2C;
+		case 3: return CONFIG_DDR3_I2C;
+		default: return -EI2CCFG;
+	}
+}
+
 int i2c_cfg(int i2c_ctrl_id, int ctrl_id)
 {
+	unsigned long base = platform_i2c_base_get(i2c_ctrl_id);
 	int ret;
 	uint32_t val;
 
-	ret = platform_i2c_cfg();
+	if (!base)
+		return -EI2CCFG;
+
+	ret = platform_i2c_cfg(i2c_ctrl_id);
 	if (ret)
 		return ret;
 
-	write32(I2C_ENABLE(i2c_ctrl_id), 0);
+	write32(I2C_ENABLE(base), 0);
 	val = I2C_CON_SLAVE_DISABLE | I2C_CON_RESTART_EN | I2C_CON_MASTER_MODE |
 #ifdef CONFIG_I2C_SPEED_100
 	      I2C_CON_SPEED_MASK_100;
 #elif CONFIG_I2C_SPEED_400
 	      I2C_CON_SPEED_MASK_FAST;
 #endif
-	write32(I2C_CON(i2c_ctrl_id), val);
+	write32(I2C_CON(base), val);
 
 	val = CONFIG_I2C_FREQ / CONFIG_I2C_SPEED / 2;
 #ifdef CONFIG_I2C_SPEED_100
-	write32(I2C_SS_HCNT(i2c_ctrl_id), val);
-	write32(I2C_SS_LCNT(i2c_ctrl_id), val);
+	write32(I2C_SS_HCNT(base), val);
+	write32(I2C_SS_LCNT(base), val);
 #elif CONFIG_I2C_SPEED_400
-	write32(I2C_FS_HCNT(i2c_ctrl_id), val);
-	write32(I2C_FS_LCNT(i2c_ctrl_id), val);
+	write32(I2C_FS_HCNT(base), val);
+	write32(I2C_FS_LCNT(base), val);
 #endif
-	write32(I2C_TAR(i2c_ctrl_id), i2c_addr_get(ctrl_id));
-	write32(I2C_ENABLE(i2c_ctrl_id), 1);
+	write32(I2C_TAR(base), i2c_addr_get(ctrl_id));
+	write32(I2C_ENABLE(base), 1);
 
 	return 0;
 }
 
-static int i2c_wait(int i2c_ctrl_id, uint32_t bit_mask)
+static int i2c_wait(unsigned long base, uint32_t bit_mask)
 {
 	uint32_t val = 0;
 
-	return read32_poll_timeout(val, val & bit_mask, USEC, 8 * MSEC, I2C_STATUS(i2c_ctrl_id));
+	return read32_poll_timeout(val, val & bit_mask, USEC, 8 * MSEC, I2C_STATUS(base));
 }
 
 static int i2c_read_reg(int i2c_ctrl_id, uint8_t reg, uint8_t *data)
 {
+	unsigned long base = platform_i2c_base_get(i2c_ctrl_id);
 	int ret;
 
-	write32(I2C_DATA_CMD(i2c_ctrl_id), reg);
-	write32(I2C_DATA_CMD(i2c_ctrl_id), 0x100);
+	if (!base)
+		return -EI2CREAD;
 
-	ret = i2c_wait(i2c_ctrl_id, I2C_TX_EMPTY);
+	write32(I2C_DATA_CMD(base), reg);
+	write32(I2C_DATA_CMD(base), 0x100);
+
+	ret = i2c_wait(base, I2C_TX_EMPTY);
 	if (ret == -ETIMEDOUT)
 		return -EI2CREAD;
 
-	ret = i2c_wait(i2c_ctrl_id, I2C_RX_DATA_PRESENT);
+	ret = i2c_wait(base, I2C_RX_DATA_PRESENT);
 	if (ret == -ETIMEDOUT)
 		return -EI2CREAD;
 
-	*data = read32(I2C_DATA_CMD(i2c_ctrl_id));
+	*data = read32(I2C_DATA_CMD(base));
 
 	return 0;
 }
@@ -93,6 +112,7 @@ static int i2c_read_reg(int i2c_ctrl_id, uint8_t reg, uint8_t *data)
 int i2c_spd_read(int i2c_ctrl_id, uint8_t *buf, int len)
 {
 	int ret, max_byte = 256;
+
 	for (int i = 0; (i < len) && (i < max_byte); i++){
 		ret = i2c_read_reg(i2c_ctrl_id, i, buf);
 		if (ret)

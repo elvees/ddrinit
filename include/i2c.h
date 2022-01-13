@@ -5,8 +5,9 @@
 #ifndef _I2C_H
 #define _I2C_H
 
-#include <ddrcfg.h>
+#include <stdint.h>
 
+int i2c_ctrl_id_get(int ddr_ctrl_id);
 int i2c_cfg(int i2c_ctrl_id, int ctrl_id);
 int i2c_spd_read(int i2c_ctrl_id, uint8_t *buf, int len);
 

@@ -401,30 +401,28 @@
 
 /* I2C registers */
 
-#define I2C_BASE(i) (CONFIG_I2C0_BASE + (i)*CONFIG_I2C_GAP)
-
-#define I2C_CON(i) I2C_BASE(i)
+#define I2C_CON(b) (b)
 #define I2C_CON_SLAVE_DISABLE BIT(6)
 #define I2C_CON_RESTART_EN BIT(5)
 #define I2C_CON_SPEED_MASK_100 BIT(1)
 #define I2C_CON_SPEED_MASK_FAST BIT(2)
 #define I2C_CON_MASTER_MODE BIT(0)
 
-#define I2C_TAR(i) (I2C_BASE(i) + 0x4)
+#define I2C_TAR(b) ((b) + 0x4)
 
-#define I2C_DATA_CMD(i) (I2C_BASE(i) + 0x10)
+#define I2C_DATA_CMD(b) ((b) + 0x10)
 
-#define I2C_SS_HCNT(i) (I2C_BASE(i) + 0x14)
+#define I2C_SS_HCNT(b) ((b) + 0x14)
 
-#define I2C_SS_LCNT(i) (I2C_BASE(i) + 0x18)
+#define I2C_SS_LCNT(b) ((b) + 0x18)
 
-#define I2C_FS_HCNT(i) (I2C_BASE(i) + 0x1c)
+#define I2C_FS_HCNT(b) ((b) + 0x1c)
 
-#define I2C_FS_LCNT(i) (I2C_BASE(i) + 0x20)
+#define I2C_FS_LCNT(b) ((b) + 0x20)
 
-#define I2C_ENABLE(i) (I2C_BASE(i) + 0x6C)
+#define I2C_ENABLE(b) ((b) + 0x6C)
 
-#define I2C_STATUS(i) (I2C_BASE(i) + 0x70)
+#define I2C_STATUS(b) ((b) + 0x70)
 
 #define I2C_TX_EMPTY BIT(2)
 #define I2C_RX_DATA_PRESENT BIT(3)
