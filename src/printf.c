@@ -85,7 +85,7 @@ static int printi(char **out, int i, int b, int sg, int width, int pad, int letb
 	*s = '\0';
 
 	while (u) {
-		t = u % b;
+		t = u % b;  // cppcheck-suppress zerodivcond
 		if (t >= 10)
 			t += letbase - '0' - 10;
 		*--s = t + '0';

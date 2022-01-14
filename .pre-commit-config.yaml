@@ -34,3 +34,4 @@ repos:
     rev: master
     hooks:
       - id: cppcheck
+        args: [--enable=warning, --inline-suppr]
