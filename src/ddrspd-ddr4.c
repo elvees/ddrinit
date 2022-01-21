@@ -313,8 +313,8 @@ int spd_parse(struct ddr4_spd *spd, struct ddr_cfg *cfg)
 	if (cfg->tck < cfg->tckmin || cfg->tck > cfg->tckmax)
 		return -EDIMMCFG;
 
-#if defined(CONFIG_DRAM_CAS_LATENCY_CUSTOM)
-	cfg->taa = CONFIG_DRAM_CAS_LATENCY_CUSTOM;
+#if !defined(CONFIG_DRAM_CAS_AUTO)
+	cfg->taa = CONFIG_DRAM_CAS_LATENCY;
 #else
 	cfg->taa = ps2clk_jedec(spd2ps(spd->taa_min, spd->fine_taa_min), cfg->tck);
 #endif

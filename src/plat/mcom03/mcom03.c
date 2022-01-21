@@ -357,7 +357,7 @@ int platform_ddrcfg_get(int ctrl_id, struct ddr_cfg *cfg)
 	cfg->bank_group_bits = 0;
 
 	cfg->tck = CONFIG_DRAM_TCK;
-	cfg->taa = CONFIG_DRAM_CAS_LATENCY_CUSTOM;
+	cfg->taa = CONFIG_DRAM_CAS_LATENCY;
 	cfg->trasmin = ps2clk_jedec(42000, cfg->tck);
 	cfg->tfaw = ps2clk_jedec(40000, cfg->tck);
 	cfg->trc = cfg->trasmin + ps2clk_jedec(21000, cfg->tck);

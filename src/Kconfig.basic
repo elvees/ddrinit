@@ -136,28 +136,26 @@ config DRAM_RATE
 	default 3200 if DRAM_RATE_3200
 	depends on SPD_EEPROM && DRAM_RATE_CUSTOM || !SPD_EEPROM
 
-choice
-	prompt "DRAM CAS latency select"
-	depends on SPD_EEPROM
+config DRAM_CAS_AUTO
+	bool "Calculate CAS latency automatically"
+	default y
+	help
+	  If SPD_EEPROM is enabled get CAS latency from there. If not,
+	  use predefined value for corresponding DRAM rate.
 
-	config DRAM_CAS_SPD_MINIMUM
-		bool "Minimum CAS latency from SPD"
-
-	config DRAM_CAS_CUSTOM
-		bool "Custom CAS latency"
-endchoice
-
-config DRAM_CAS_LATENCY_CUSTOM
-	int "CAS latency"
+config DRAM_CAS_LATENCY
+	int
 	default 6 if DRAM_TYPE_LPDDR4 && DRAM_RATE_533
 	default 10 if DRAM_TYPE_LPDDR4 && DRAM_RATE_1066
 	default 14 if DRAM_TYPE_LPDDR4 && DRAM_RATE_1600
 	default 20 if DRAM_TYPE_LPDDR4 && DRAM_RATE_2133
 	default 24 if DRAM_TYPE_LPDDR4 && DRAM_RATE_2666
 	default 28 if DRAM_TYPE_LPDDR4 && DRAM_RATE_3200
-	depends on SPD_EEPROM && DRAM_CAS_CUSTOM || !SPD_EEPROM
-	help
-	  DRAM CAS latency
+	depends on DRAM_CAS_AUTO
+
+config DRAM_CAS_LATENCY
+	int "CAS latency"
+	depends on !DRAM_CAS_AUTO
 
 menuconfig I2C
 	bool "I2C support"
