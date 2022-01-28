@@ -1,7 +1,7 @@
 #Copyright 2020 RnD Center "ELVEES", JSC
 
 CROSS_COMPILE ?=
-CFLAGS := -I$(CURDIR)/include -Wall -nostdlib -ffreestanding -Os
+CFLAGS := -I$(CURDIR)/include -Wall -nostdlib -ffreestanding -fno-stack-protector -Os
 LDFLAGS := -nostdlib
 CONFIG_HEADER_PATH := $(CURDIR)/include/config.h
 SRC_DIR := $(CURDIR)/src
