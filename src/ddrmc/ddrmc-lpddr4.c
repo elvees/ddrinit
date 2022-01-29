@@ -102,6 +102,17 @@ static int tzqcs_get(struct ddr_cfg *cfg)
 	return tzqcs;
 }
 
+static int tzqcs_interval_get(struct ddr_cfg *cfg)
+{
+	/* There is no such timing in JEDEC spec. NXP uses 32 ms. */
+	return 32000000000ULL / 1024 / cfg->tck;
+}
+
+static int tzq_reset_nop_get(struct ddr_cfg *cfg)
+{
+	return ps2clk_jedec(CONFIG_DRAM_TIMING_TZQRESET, cfg->tck);
+}
+
 static int dramtmg0_trasmin_get(struct ddr_cfg *cfg)
 {
 	return DIV_ROUND_UP(cfg->trasmin, 2);
@@ -141,7 +152,7 @@ static int dramtmg2_wr2rd_get(struct ddr_cfg *cfg)
 	twtr = max(twtr, 8);
 	ret += twtr + 2;
 
-	return DIV_ROUND_UP(ret, 2);
+	return DIV_ROUND_UP(ret, 2) * 13 / 10;
 }
 
 static int dramtmg2_rd2wr_get(struct ddr_cfg *cfg)
@@ -160,7 +171,7 @@ static int dramtmg2_rd2wr_get(struct ddr_cfg *cfg)
 #else
 	ret += 1 - odtlon_get(cfg->tck) - DIV_ROUND_UP(CONFIG_DRAM_TIMING_TODTON_MIN, cfg->tck);
 #endif
-	return DIV_ROUND_UP(ret, 2);
+	return DIV_ROUND_UP(ret, 2)  * 13 / 10;
 }
 
 static int dramtmg3_tmod_get(struct ddr_cfg *cfg)
@@ -180,10 +191,15 @@ static int dramtmg3_tmrd_get(struct ddr_cfg *cfg)
 static int dramtmg3_tmrw_get(struct ddr_cfg *cfg)
 {
 	int tmrw = 0;
+	int tmrwckel = 0;
 
 	tmrw = ps2clk_jedec(CONFIG_DRAM_TIMING_TMRW, cfg->tck);
 	tmrw = max(tmrw, 10);
-	return DIV_ROUND_UP(tmrw, 2);
+
+	tmrwckel = ps2clk_jedec(CONFIG_DRAM_TIMING_TMRWCKEL, cfg->tck);
+	tmrwckel = max(tmrwckel, 10);
+
+	return DIV_ROUND_UP(max(tmrw, tmrwckel), 2);
 }
 
 static int dramtmg4_trcd_get(struct ddr_cfg *cfg)
@@ -272,7 +288,7 @@ static int dramtmg7_tckpde_get(struct ddr_cfg *cfg)
 
 static int dramtmg14_txsr_get(struct ddr_cfg *cfg)
 {
-	int txsr = max(trfc_ab_get(cfg) + 7500, 2);
+	int txsr = trfc_ab_get(cfg) + ps2clk_jedec(7500, cfg->tck);
 
 	return DIV_ROUND_UP(txsr, 2);
 }
@@ -464,8 +480,8 @@ void dram_timings_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	write32_with_dbg(DDRMC_DRAMTMG5(ctrl_id), val);
 
 	val = FIELD_PREP(DDRMC_DRAMTMG6_TCKCSX, DIV_ROUND_UP(txp_get(cfg) + 2, 2)) |
-	      FIELD_PREP(DDRMC_DRAMTMG6_TCKDPDX, 2) |
-	      FIELD_PREP(DDRMC_DRAMTMG6_TCKDPDE, 2);
+	      FIELD_PREP(DDRMC_DRAMTMG6_TCKDPDX, 1) |
+	      FIELD_PREP(DDRMC_DRAMTMG6_TCKDPDE, 1);
 	write32_with_dbg(DDRMC_DRAMTMG6(ctrl_id), val);
 
 	val = FIELD_PREP(DDRMC_DRAMTMG7_TCKPDX, dramtmg7_tckpdx_get(cfg)) |
@@ -564,7 +580,7 @@ static void dfi_timings_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	      FIELD_PREP(DDRMC_DFITMG2_RDCSLAT, cl - 5);
 	write32_with_dbg(DDRMC_DFITMG2(ctrl_id), val);
 
-	val = FIELD_PREP(DDRMC_DFIUPD0_CTRLUPD_MIN, 24) | FIELD_PREP(DDRMC_DFIUPD0_CTRLUPD_MAX, 48);
+	val = FIELD_PREP(DDRMC_DFIUPD0_CTRLUPD_MIN, 24) | FIELD_PREP(DDRMC_DFIUPD0_CTRLUPD_MAX, 64);
 	write32_with_dbg(DDRMC_DFIUPD0(ctrl_id), val);
 
 	val = FIELD_PREP(DDRMC_DFIUPD1_CTRLUPD_INTMIN, 64) |
@@ -595,6 +611,10 @@ void ddrmc_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	val = FIELD_PREP(DDRMC_ZQCTL0_TZQCS, DIV_ROUND_UP(tzqcs_get(cfg), 2)) |
 	      FIELD_PREP(DDRMC_ZQCTL0_TZQOPER, DIV_ROUND_UP(tzqoper_get(cfg), 2));
 	write32_with_dbg(DDRMC_ZQCTL0(ctrl_id), val);
+
+	val = FIELD_PREP(DDRMC_ZQCTL1_TZQCS_INTERVAL, DIV_ROUND_UP(tzqcs_interval_get(cfg), 2)) |
+	      FIELD_PREP(DDRMC_ZQCTL1_TZQ_RESET_NOP, DIV_ROUND_UP(tzq_reset_nop_get(cfg), 2));
+	write32_with_dbg(DDRMC_ZQCTL1(ctrl_id), val);
 
 	write32_with_dbg(DDRMC_DBICTL(ctrl_id), 0);
 	write32_with_dbg(DDRMC_ODTMAP(ctrl_id), 0);

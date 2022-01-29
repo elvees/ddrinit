@@ -19,6 +19,11 @@ config DRAM_TIMING_TMRW
 	help
 	  TBD
 
+config DRAM_TIMING_TMRWCKEL
+	int
+	depends on DRAM_TYPE_LPDDR4
+	default 14000
+
 config DRAM_TIMING_TWR
 	int
 	default 15000 if DRAM_TYPE_DDR4
@@ -50,7 +55,7 @@ config DRAM_TIMING_TRRD
 config DRAM_TIMING_TRP
 	int
 	depends on DRAM_TYPE_LPDDR4
-	default 21000 if DRAM_TYPE_LPDDR4
+	default 18000 if DRAM_TYPE_LPDDR4
 	help
 	  Row precharge time (all banks)
 
@@ -113,7 +118,7 @@ config DRAM_TIMING_TWTRL
 config DRAM_TIMING_TRASMAX
 	int
 	default 70200000 if DRAM_TYPE_DDR4
-	default 70200000 if DRAM_TYPE_LPDDR4
+	default 35136000 if DRAM_TYPE_LPDDR4
 	help
 	  Row active time
 
@@ -190,3 +195,8 @@ config DRAM_TIMING_TZQCS
 	help
 	  DDR3/DDR4: tZQCS
 	  LPDDR4: tZQLAT
+
+config DRAM_TIMING_TZQRESET
+	int
+	depends on DRAM_TYPE_LPDDR4
+	default 50000
