@@ -496,10 +496,6 @@ static struct pie_cfg_record pie_cfg[] = {
 	{ 0x400d6, 0x20a },
 	{ 0x400d7, 0x20b },
 	{ 0x2003a, 0x2 },
-	{ 0x2000b, 0x21 },
-	{ 0x2000c, 0x42 },
-	{ 0x2000d, 0x29a },
-	{ 0x2000e, 0x21 },
 	{ 0x9000c, 0x0 },
 	{ 0x9000d, 0x173 },
 	{ 0x9000e, 0x60 },
@@ -508,6 +504,17 @@ static struct pie_cfg_record pie_cfg[] = {
 	{ 0x90011, 0xdfbd },
 	{ 0x90012, 0x2060 },
 	{ 0x90013, 0x6152 },
+#if defined(CONFIG_DRAM_RATE_1333) || \
+    defined(CONFIG_DRAM_RATE_1600) || \
+    defined(CONFIG_DRAM_RATE_1866) || \
+    defined(CONFIG_DRAM_RATE_2133) || \
+    defined(CONFIG_DRAM_RATE_2400) || \
+    defined(CONFIG_DRAM_RATE_2666) || \
+    defined(CONFIG_DRAM_RATE_2933) || \
+    defined(CONFIG_DRAM_RATE_3200)
+	{ 0x20010, 0x5a },
+	{ 0x20011, 0x3 },
+#endif
 	{ 0x40080, 0xe0 },
 	{ 0x40081, 0x12 },
 	{ 0x40082, 0xe0 },
