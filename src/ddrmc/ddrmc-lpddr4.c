@@ -433,52 +433,52 @@ void dram_timings_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	      FIELD_PREP(DDRMC_DRAMTMG0_TRASMAX, dramtmg0_trasmax_get(cfg)) |
 	      FIELD_PREP(DDRMC_DRAMTMG0_TFAW, dramtmg0_tfaw_get(cfg)) |
 	      FIELD_PREP(DDRMC_DRAMTMG0_WR2PRE, dramtmg0_wr2pre_get(cfg));
-	write32(DDRMC_DRAMTMG0(ctrl_id), val);
+	write32_with_dbg(DDRMC_DRAMTMG0(ctrl_id), val);
 
 	val = FIELD_PREP(DDRMC_DRAMTMG1_TRC, DIV_ROUND_UP(cfg->trc, 2)) |
 	      FIELD_PREP(DDRMC_DRAMTMG1_RD2PRE, dramtmg1_rd2pre_get(cfg)) |
 	      FIELD_PREP(DDRMC_DRAMTMG1_TXP, DIV_ROUND_UP(txp_get(cfg), 2));
-	write32(DDRMC_DRAMTMG1(ctrl_id), val);
+	write32_with_dbg(DDRMC_DRAMTMG1(ctrl_id), val);
 
 	val = FIELD_PREP(DDRMC_DRAMTMG2_WR2RD, dramtmg2_wr2rd_get(cfg)) |
 	      FIELD_PREP(DDRMC_DRAMTMG2_RD2WR, dramtmg2_rd2wr_get(cfg)) |
 	      FIELD_PREP(DDRMC_DRAMTMG2_RDLAT, DIV_ROUND_UP(cfg->taa, 2)) |
 	      FIELD_PREP(DDRMC_DRAMTMG2_WRLAT, DIV_ROUND_UP(cwl_get(cfg->tck), 2));
-	write32(DDRMC_DRAMTMG2(ctrl_id), val);
+	write32_with_dbg(DDRMC_DRAMTMG2(ctrl_id), val);
 
 	val = FIELD_PREP(DDRMC_DRAMTMG3_TMOD, dramtmg3_tmod_get(cfg)) |
 	      FIELD_PREP(DDRMC_DRAMTMG3_TMRD, dramtmg3_tmrd_get(cfg)) |
 	      FIELD_PREP(DDRMC_DRAMTMG3_TMRW, dramtmg3_tmrw_get(cfg));
-	write32(DDRMC_DRAMTMG3(ctrl_id), val);
+	write32_with_dbg(DDRMC_DRAMTMG3(ctrl_id), val);
 
 	val = FIELD_PREP(DDRMC_DRAMTMG4_TRP, dramtmg4_trp_get(cfg)) |
 	      FIELD_PREP(DDRMC_DRAMTMG4_TRRD, dramtmg4_trrd_get(cfg)) |
 	      FIELD_PREP(DDRMC_DRAMTMG4_TCCD, dramtmg4_tccd_get(cfg)) |
 	      FIELD_PREP(DDRMC_DRAMTMG4_TRCD, dramtmg4_trcd_get(cfg));
-	write32(DDRMC_DRAMTMG4(ctrl_id), val);
+	write32_with_dbg(DDRMC_DRAMTMG4(ctrl_id), val);
 
 	val = FIELD_PREP(DDRMC_DRAMTMG5_TCKE, dramtmg5_tcke_get(cfg)) |
 	      FIELD_PREP(DDRMC_DRAMTMG5_TCKESR, dramtmg5_tckesr_get(cfg)) |
 	      FIELD_PREP(DDRMC_DRAMTMG5_TCKSRE, dramtmg5_tcksre_get(cfg)) |
 	      FIELD_PREP(DDRMC_DRAMTMG5_TCKSRX, dramtmg5_tcksrx_get(cfg));
-	write32(DDRMC_DRAMTMG5(ctrl_id), val);
+	write32_with_dbg(DDRMC_DRAMTMG5(ctrl_id), val);
 
 	val = FIELD_PREP(DDRMC_DRAMTMG6_TCKCSX, DIV_ROUND_UP(txp_get(cfg) + 2, 2)) |
 	      FIELD_PREP(DDRMC_DRAMTMG6_TCKDPDX, 2) |
 	      FIELD_PREP(DDRMC_DRAMTMG6_TCKDPDE, 2);
-	write32(DDRMC_DRAMTMG6(ctrl_id), val);
+	write32_with_dbg(DDRMC_DRAMTMG6(ctrl_id), val);
 
 	val = FIELD_PREP(DDRMC_DRAMTMG7_TCKPDX, dramtmg7_tckpdx_get(cfg)) |
 	      FIELD_PREP(DDRMC_DRAMTMG7_TCKPDE, dramtmg7_tckpde_get(cfg));
-	write32(DDRMC_DRAMTMG7(ctrl_id), val);
+	write32_with_dbg(DDRMC_DRAMTMG7(ctrl_id), val);
 
 	val = FIELD_PREP(DDRMC_DRAMTMG13_TPPD, 2) |
 	      FIELD_PREP(DDRMC_DRAMTMG13_TCCDMW, 16) |
 	      FIELD_PREP(DDRMC_DRAMTMG13_ODTLOFF, DIV_ROUND_UP(odtloff_get(cfg->tck), 2));
-	write32(DDRMC_DRAMTMG13(ctrl_id), val);
+	write32_with_dbg(DDRMC_DRAMTMG13(ctrl_id), val);
 
 	val = FIELD_PREP(DDRMC_DRAMTMG14_TXSR, dramtmg14_txsr_get(cfg));
-	write32(DDRMC_DRAMTMG14(ctrl_id), val);
+	write32_with_dbg(DDRMC_DRAMTMG14(ctrl_id), val);
 }
 
 static void addrmap_cfg(int ctrl_id, struct ddr_cfg *cfg)
@@ -486,8 +486,8 @@ static void addrmap_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	uint8_t next_bit;
 	uint32_t val, tmp1, tmp2;
 
-	write32(DDRMC_ADDRMAP2(ctrl_id), 0);
-	write32(DDRMC_ADDRMAP3(ctrl_id), 0);
+	write32_with_dbg(DDRMC_ADDRMAP2(ctrl_id), 0);
+	write32_with_dbg(DDRMC_ADDRMAP3(ctrl_id), 0);
 
 	if (cfg->col_addr_bits <= 10) {
 		tmp1 = 31;
@@ -502,40 +502,40 @@ static void addrmap_cfg(int ctrl_id, struct ddr_cfg *cfg)
 		}
 	}
 	val = FIELD_PREP(DDRMC_ADDRMAP4_COL_B10, tmp1) | FIELD_PREP(DDRMC_ADDRMAP4_COL_B11, tmp2);
-	write32(DDRMC_ADDRMAP4(ctrl_id), val);
+	write32_with_dbg(DDRMC_ADDRMAP4(ctrl_id), val);
 	next_bit = cfg->col_addr_bits;
 
 	val = FIELD_PREP(DDRMC_ADDRMAP1_BANK_B0, next_bit - 2) |
 	      FIELD_PREP(DDRMC_ADDRMAP1_BANK_B1, next_bit - 2) |
 	      FIELD_PREP(DDRMC_ADDRMAP1_BANK_B2, (cfg->bank_addr_bits == 2) ? 63 : next_bit - 2);
-	write32(DDRMC_ADDRMAP1(ctrl_id), val);
+	write32_with_dbg(DDRMC_ADDRMAP1(ctrl_id), val);
 	next_bit += cfg->bank_addr_bits;
 
 	val = FIELD_PREP(DDRMC_ADDRMAP8_BG_B0, (cfg->bank_group_bits == 0) ? 63 : next_bit - 2) |
 	      FIELD_PREP(DDRMC_ADDRMAP8_BG_B1, (cfg->bank_addr_bits == 2) ? next_bit - 2 : 63);
-	write32(DDRMC_ADDRMAP8(ctrl_id), val);
+	write32_with_dbg(DDRMC_ADDRMAP8(ctrl_id), val);
 	next_bit += cfg->bank_group_bits;
 
 	val = FIELD_PREP(DDRMC_ADDRMAP5_ROW_B0, next_bit - 6) |
 	      FIELD_PREP(DDRMC_ADDRMAP5_ROW_B1, next_bit - 6) |
 	      FIELD_PREP(DDRMC_ADDRMAP5_ROW_B2_B10, next_bit - 6) |
 	      FIELD_PREP(DDRMC_ADDRMAP5_ROW_B11, next_bit - 6);
-	write32(DDRMC_ADDRMAP5(ctrl_id), val);
+	write32_with_dbg(DDRMC_ADDRMAP5(ctrl_id), val);
 
 	val = FIELD_PREP(DDRMC_ADDRMAP6_ROW_B12, (cfg->row_addr_bits <= 12) ? 15 : next_bit - 6) |
 	      FIELD_PREP(DDRMC_ADDRMAP6_ROW_B13, (cfg->row_addr_bits <= 13) ? 15 : next_bit - 6) |
 	      FIELD_PREP(DDRMC_ADDRMAP6_ROW_B14, (cfg->row_addr_bits <= 14) ? 15 : next_bit - 6) |
 	      FIELD_PREP(DDRMC_ADDRMAP6_ROW_B15, (cfg->row_addr_bits <= 15) ? 15 : next_bit - 6);
-	write32(DDRMC_ADDRMAP6(ctrl_id), val);
+	write32_with_dbg(DDRMC_ADDRMAP6(ctrl_id), val);
 
 	val = FIELD_PREP(DDRMC_ADDRMAP7_ROW_B16, (cfg->row_addr_bits <= 16) ? 15 : next_bit - 6) |
 	      FIELD_PREP(DDRMC_ADDRMAP7_ROW_B17, (cfg->row_addr_bits <= 17) ? 15 : next_bit - 6);
-	write32(DDRMC_ADDRMAP7(ctrl_id), val);
+	write32_with_dbg(DDRMC_ADDRMAP7(ctrl_id), val);
 	next_bit += cfg->row_addr_bits;
 
 	val = FIELD_PREP(DDRMC_ADDRMAP0_CS_B0, (cfg->ranks == 1) ? 31 : next_bit - 6) |
 	      FIELD_PREP(DDRMC_ADDRMAP0_CS_B1, (cfg->ranks <= 2) ? 31 : next_bit - 6);
-	write32(DDRMC_ADDRMAP0(ctrl_id), val);
+	write32_with_dbg(DDRMC_ADDRMAP0(ctrl_id), val);
 }
 
 static void dfi_timings_cfg(int ctrl_id, struct ddr_cfg *cfg)
@@ -552,24 +552,24 @@ static void dfi_timings_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	      FIELD_PREP(DDRMC_DFITMG0_RDDATAEN, cl - 5) |
 	      FIELD_PREP(DDRMC_DFITMG0_RDDATA_DFI_CLK, 1) |
 	      FIELD_PREP(DDRMC_DFITMG0_CTRLDELAY, ctrl_delay);
-	write32(DDRMC_DFITMG0(ctrl_id), val);
+	write32_with_dbg(DDRMC_DFITMG0(ctrl_id), val);
 
 	/* TODO: Verification of DFITMG1_WRDATA_DELAY is needed */
 	val = FIELD_PREP(DDRMC_DFITMG1_DRAM_CLK_EN, ctrl_delay - 2) |
 	      FIELD_PREP(DDRMC_DFITMG1_DRAM_CLK_DIS, ctrl_delay - 2) |
 	      FIELD_PREP(DDRMC_DFITMG1_WRDATA_DELAY, DIV_ROUND_UP(ctrl_delay + 6 + CONFIG_BURST_LEN / 2, 2) + 1);
-	write32(DDRMC_DFITMG1(ctrl_id), val);
+	write32_with_dbg(DDRMC_DFITMG1(ctrl_id), val);
 
 	val = FIELD_PREP(DDRMC_DFITMG2_WRCSLAT, cwl + 1 - 5) |
 	      FIELD_PREP(DDRMC_DFITMG2_RDCSLAT, cl - 5);
-	write32(DDRMC_DFITMG2(ctrl_id), val);
+	write32_with_dbg(DDRMC_DFITMG2(ctrl_id), val);
 
 	val = FIELD_PREP(DDRMC_DFIUPD0_CTRLUPD_MIN, 24) | FIELD_PREP(DDRMC_DFIUPD0_CTRLUPD_MAX, 48);
-	write32(DDRMC_DFIUPD0(ctrl_id), val);
+	write32_with_dbg(DDRMC_DFIUPD0(ctrl_id), val);
 
 	val = FIELD_PREP(DDRMC_DFIUPD1_CTRLUPD_INTMIN, 64) |
 	      FIELD_PREP(DDRMC_DFIUPD1_CTRLUPD_INTMAX, 192);
-	write32(DDRMC_DFIUPD1(ctrl_id), val);
+	write32_with_dbg(DDRMC_DFIUPD1(ctrl_id), val);
 }
 
 void ddrmc_cfg(int ctrl_id, struct ddr_cfg *cfg)
@@ -581,23 +581,23 @@ void ddrmc_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	      FIELD_PREP(DDRMC_MSTR_BURST_RDWR, CONFIG_BURST_LEN / 2) |
 	      FIELD_PREP(DDRMC_MSTR_RANKS, (1 << cfg->ranks) - 1) |
 	      FIELD_PREP(DDRMC_MSTR_DEVCONFIG, __builtin_ffsll(cfg->device_width) - 3);
-	write32(DDRMC_MSTR(ctrl_id), val);
+	write32_with_dbg(DDRMC_MSTR(ctrl_id), val);
 
 	val = FIELD_PREP(DDRMC_INIT0_PRECKE, DIV_ROUND_UP(2000000000, tck * 2048)) |
 	      FIELD_PREP(DDRMC_INIT0_POSTCKE, DIV_ROUND_UP(2000000, tck * 2048)) |
 	      FIELD_PREP(DDRMC_INIT0_SKIP_DRAM_INIT, 3);
-	write32(DDRMC_INIT0(ctrl_id), val);
+	write32_with_dbg(DDRMC_INIT0(ctrl_id), val);
 
 	val = FIELD_PREP(DDRMC_RFSHTMG_TRFC, DIV_ROUND_UP(trfc_ab_get(cfg), 2)) |
 	      FIELD_PREP(DDRMC_RFSHTMG_TREFI, CONFIG_DRAM_TIMING_TREFI / tck / 64);
-	write32(DDRMC_RFSHTMG(ctrl_id), val);
+	write32_with_dbg(DDRMC_RFSHTMG(ctrl_id), val);
 
 	val = FIELD_PREP(DDRMC_ZQCTL0_TZQCS, DIV_ROUND_UP(tzqcs_get(cfg), 2)) |
 	      FIELD_PREP(DDRMC_ZQCTL0_TZQOPER, DIV_ROUND_UP(tzqoper_get(cfg), 2));
-	write32(DDRMC_ZQCTL0(ctrl_id), val);
+	write32_with_dbg(DDRMC_ZQCTL0(ctrl_id), val);
 
-	write32(DDRMC_DBICTL(ctrl_id), 0);
-	write32(DDRMC_ODTMAP(ctrl_id), 0);
+	write32_with_dbg(DDRMC_DBICTL(ctrl_id), 0);
+	write32_with_dbg(DDRMC_ODTMAP(ctrl_id), 0);
 
 	dram_timings_cfg(ctrl_id, cfg);
 	dfi_timings_cfg(ctrl_id, cfg);

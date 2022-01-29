@@ -88,24 +88,24 @@ int ddr_init(int ctrl_id, struct ddr_cfg *cfg)
 	/* Step 4 */
 	val = read32(DDRMC_RFSHCTL3(ctrl_id));
 	val |= DDRMC_RFSHCTL3_DIS_AUTO_REFRESH;
-	write32(DDRMC_RFSHCTL3(ctrl_id), val);
+	write32_with_dbg(DDRMC_RFSHCTL3(ctrl_id), val);
 
 	val = read32(DDRMC_PWRCTL(ctrl_id));
 	val &= ~DDRMC_PWRCTL_SELF_REFRESH_EN & ~DDRMC_PWRCTL_POWERDOWN_EN &
 	       ~DDRMC_PWRCTL_DFI_DRAMCLK_DIS;
 	val |= DDRMC_PWRCTL_SELFREF_SW;
-	write32(DDRMC_PWRCTL(ctrl_id), val);
+	write32_with_dbg(DDRMC_PWRCTL(ctrl_id), val);
 
 	/* Step 5 */
-	write32(DDRMC_SWCTL(ctrl_id), 0);
+	write32_with_dbg(DDRMC_SWCTL(ctrl_id), 0);
 
 	/* Step 6 */
 	val = read32(DDRMC_DFIMISC(ctrl_id));
 	val &= ~DDRMC_DFIMISC_COMPLETE_EN;
-	write32(DDRMC_DFIMISC(ctrl_id), val);
+	write32_with_dbg(DDRMC_DFIMISC(ctrl_id), val);
 
 	/* Step 7 */
-	write32(DDRMC_SWCTL(ctrl_id), 1);
+	write32_with_dbg(DDRMC_SWCTL(ctrl_id), 1);
 	ret = read32_poll_timeout(val, val & DDRMC_SWSTAT_SWDONE_ACK, USEC, 100 * USEC, DDRMC_SWSTAT(ctrl_id));
 	if (ret)
 		return ret;
@@ -116,15 +116,15 @@ int ddr_init(int ctrl_id, struct ddr_cfg *cfg)
 		return ret;
 
 	/* Step 15 */
-	write32(DDRMC_SWCTL(ctrl_id), 0);
+	write32_with_dbg(DDRMC_SWCTL(ctrl_id), 0);
 
 	/* Step 16 */
 	val = read32(DDRMC_DFIMISC(ctrl_id));
 	val |= DDRMC_DFIMISC_INIT_START;
-	write32(DDRMC_DFIMISC(ctrl_id), val);
+	write32_with_dbg(DDRMC_DFIMISC(ctrl_id), val);
 
 	/* Step 17 */
-	write32(DDRMC_SWCTL(ctrl_id), 1);
+	write32_with_dbg(DDRMC_SWCTL(ctrl_id), 1);
 	ret = read32_poll_timeout(val, val & DDRMC_SWSTAT_SWDONE_ACK, USEC, 100 * USEC, DDRMC_SWSTAT(ctrl_id));
 	if (ret)
 		return ret;
@@ -135,27 +135,27 @@ int ddr_init(int ctrl_id, struct ddr_cfg *cfg)
 		return ret;
 
 	/* Step 19 */
-	write32(DDRMC_SWCTL(ctrl_id), 0);
+	write32_with_dbg(DDRMC_SWCTL(ctrl_id), 0);
 
 	/* Step 20 */
 	val = read32(DDRMC_DFIMISC(ctrl_id));
 	val &= ~DDRMC_DFIMISC_INIT_START;
-	write32(DDRMC_DFIMISC(ctrl_id), val);
+	write32_with_dbg(DDRMC_DFIMISC(ctrl_id), val);
 
 	/* Step 21: optional */
 
 	/* Step 22 */
 	val = read32(DDRMC_DFIMISC(ctrl_id));
 	val |= DDRMC_DFIMISC_COMPLETE_EN;
-	write32(DDRMC_DFIMISC(ctrl_id), val);
+	write32_with_dbg(DDRMC_DFIMISC(ctrl_id), val);
 
 	/* Step 23 */
 	val = read32(DDRMC_PWRCTL(ctrl_id));
 	val &= ~DDRMC_PWRCTL_SELFREF_SW;
-	write32(DDRMC_PWRCTL(ctrl_id), val);
+	write32_with_dbg(DDRMC_PWRCTL(ctrl_id), val);
 
 	/* Step 24 */
-	write32(DDRMC_SWCTL(ctrl_id), 1);
+	write32_with_dbg(DDRMC_SWCTL(ctrl_id), 1);
 	ret = read32_poll_timeout(val, val & DDRMC_SWSTAT_SWDONE_ACK, USEC, 100 * USEC, DDRMC_SWSTAT(ctrl_id));
 	if (ret)
 		return ret;
@@ -168,11 +168,11 @@ int ddr_init(int ctrl_id, struct ddr_cfg *cfg)
 	/* Step 26 */
 	val = read32(DDRMC_RFSHCTL3(ctrl_id));
 	val &= ~DDRMC_RFSHCTL3_DIS_AUTO_REFRESH;
-	write32(DDRMC_RFSHCTL3(ctrl_id), val);
+	write32_with_dbg(DDRMC_RFSHCTL3(ctrl_id), val);
 
 	/* Enable all AXI ports */
 	for (i = 0; i < CONFIG_DDRMC_AXI_PORTS; i++)
-		write32(DDRMC_PCTRL(ctrl_id, i), 1);
+		write32_with_dbg(DDRMC_PCTRL(ctrl_id, i), 1);
 
 	return 0;
 }

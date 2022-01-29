@@ -16,6 +16,12 @@ void write32(unsigned long addr, uint32_t val)
 	*((volatile uint32_t *)addr) = val;
 }
 
+void write32_with_dbg(unsigned long addr, uint32_t val)
+{
+	*((volatile uint32_t *)addr) = val;
+	print_dbg("write: addr 0x%x, data 0x%x\n", addr, read32(addr));
+}
+
 void write64(unsigned long addr, uint64_t val)
 {
 	*((volatile uint64_t *)addr) = val;

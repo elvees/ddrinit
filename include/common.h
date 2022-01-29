@@ -115,6 +115,7 @@ char *strcpy(char *dest, const char *src);
 int timer_get_usec(void);
 void write16(unsigned long addr, uint16_t val);
 void write32(unsigned long addr, uint32_t val);
+void write32_with_dbg(unsigned long addr, uint32_t val);
 void write64(unsigned long addr, uint64_t val);
 
 #endif
