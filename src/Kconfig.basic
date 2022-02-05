@@ -171,18 +171,39 @@ config DRAM_CAS_LATENCY
 	int
 	default 6 if DRAM_TYPE_LPDDR4 && (DRAM_RATE_66 || DRAM_RATE_133)
 	default 6 if DRAM_TYPE_LPDDR4 && (DRAM_RATE_266 || DRAM_RATE_533)
-	default 10 if DRAM_TYPE_LPDDR4 && DRAM_RATE_1066
-	default 14 if DRAM_TYPE_LPDDR4 && DRAM_RATE_1600
-	default 20 if DRAM_TYPE_LPDDR4 && DRAM_RATE_1866
-	default 20 if DRAM_TYPE_LPDDR4 && DRAM_RATE_2133
-	default 24 if DRAM_TYPE_LPDDR4 && DRAM_RATE_2400
-	default 24 if DRAM_TYPE_LPDDR4 && DRAM_RATE_2666
-	default 28 if DRAM_TYPE_LPDDR4 && DRAM_RATE_3200
+	default 10 if DRAM_TYPE_LPDDR4 && DRAM_RATE_1066 && !READ_DBI
+	default 14 if DRAM_TYPE_LPDDR4 && DRAM_RATE_1600 && !READ_DBI
+	default 20 if DRAM_TYPE_LPDDR4 && DRAM_RATE_1866 && !READ_DBI
+	default 20 if DRAM_TYPE_LPDDR4 && DRAM_RATE_2133 && !READ_DBI
+	default 24 if DRAM_TYPE_LPDDR4 && DRAM_RATE_2400 && !READ_DBI
+	default 24 if DRAM_TYPE_LPDDR4 && DRAM_RATE_2666 && !READ_DBI
+	default 28 if DRAM_TYPE_LPDDR4 && DRAM_RATE_3200 && !READ_DBI
+	default 12 if DRAM_TYPE_LPDDR4 && DRAM_RATE_1066 && READ_DBI
+	default 16 if DRAM_TYPE_LPDDR4 && DRAM_RATE_1600 && READ_DBI
+	default 22 if DRAM_TYPE_LPDDR4 && DRAM_RATE_1866 && READ_DBI
+	default 22 if DRAM_TYPE_LPDDR4 && DRAM_RATE_2133 && READ_DBI
+	default 28 if DRAM_TYPE_LPDDR4 && DRAM_RATE_2400 && READ_DBI
+	default 28 if DRAM_TYPE_LPDDR4 && DRAM_RATE_2666 && READ_DBI
+	default 32 if DRAM_TYPE_LPDDR4 && DRAM_RATE_3200 && READ_DBI
 	depends on DRAM_CAS_AUTO
 
 config DRAM_CAS_LATENCY
 	int "CAS latency"
 	depends on !DRAM_CAS_AUTO
+
+config READ_DBI
+	bool "Enable read DBI"
+	depends on DRAM_TYPE_DDR4 || DRAM_TYPE_LPDDR4
+	default n
+	help
+	  Enable data bus inverted feature during read
+
+config WRITE_DBI
+        bool "Enable write DBI"
+        depends on DRAM_TYPE_DDR4 || DRAM_TYPE_LPDDR4
+        default n
+        help
+          Enable data bus inverted feature during write
 
 menuconfig I2C
 	bool "I2C support"

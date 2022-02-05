@@ -16,6 +16,12 @@
 #define LPDDR4_MR2_WLS	 BIT(6)
 #define LPDDR4_MR2_WRLEV BIT(7)
 
+#define LPDDR4_MR3_PUCAL	BIT(0)
+#define LPDDR4_MR3_WR_POSTAMBLE BIT(1)
+#define LPDDR4_MR3_PDDS		GENMASK(5, 3)
+#define LPDDR4_MR3_DBI_RD	BIT(6)
+#define LPDDR4_MR3_DBI_WR	BIT(7)
+
 #define LPDDR4_MR11_DQ_ODT GENMASK(2, 0)
 #define LPDDR4_MR11_CA_ODT GENMASK(6, 4)
 
@@ -349,25 +355,25 @@ uint8_t lpddr4_mr2_get(struct ddr_cfg *cfg)
 		rl = 0;
 		break;
 	case 10:
+	case 12:
 		rl = 1;
 		break;
 	case 14:
+	case 16:
 		rl = 2;
 		break;
 	case 20:
+	case 22:
 		rl = 3;
 		break;
 	case 24:
 		rl = 4;
 		break;
 	case 28:
-		rl = 5;
+		rl = (IS_ENABLED(CONFIG_READ_DBI)) ? 4 : 5;
 		break;
 	case 32:
-		rl = 6;
-		break;
-	case 36:
-		rl = 7;
+		rl = (IS_ENABLED(CONFIG_READ_DBI)) ? 5 : 6;
 		break;
 	}
 
@@ -375,6 +381,19 @@ uint8_t lpddr4_mr2_get(struct ddr_cfg *cfg)
 	      FIELD_PREP(LPDDR4_MR2_WLS, 0) | FIELD_PREP(LPDDR4_MR2_WRLEV, 0);
 
 	return mr2;
+}
+
+uint8_t lpddr4_mr3_get(struct ddr_cfg *cfg)
+{
+	uint8_t mr3;
+	bool read_dbi_en = (IS_ENABLED(CONFIG_READ_DBI)) ? true : false;
+	bool write_dbi_en = (IS_ENABLED(CONFIG_WRITE_DBI)) ? true : false;
+
+	mr3 = FIELD_PREP(LPDDR4_MR3_PUCAL, 1) | FIELD_PREP(LPDDR4_MR3_WR_POSTAMBLE, 1) |
+	      FIELD_PREP(LPDDR4_MR3_PDDS, 6) | FIELD_PREP(LPDDR4_MR3_DBI_RD, read_dbi_en) |
+	      FIELD_PREP(LPDDR4_MR3_DBI_WR, write_dbi_en);
+
+	return mr3;
 }
 
 uint8_t lpddr4_mr11_get(struct ddr_cfg *cfg)
@@ -637,7 +656,15 @@ void ddrmc_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	      FIELD_PREP(DDRMC_ZQCTL1_TZQ_RESET_NOP, DIV_ROUND_UP(tzq_reset_nop_get(cfg), 2));
 	write32_with_dbg(DDRMC_ZQCTL1(ctrl_id), val);
 
-	write32_with_dbg(DDRMC_DBICTL(ctrl_id), 0);
+	val = 0;
+	if (IS_ENABLED(CONFIG_WRITE_DBI))
+		val |= FIELD_PREP(DDRMC_DBICTL_WR_DBI_EN, 1);
+
+	if (IS_ENABLED(CONFIG_READ_DBI))
+		val |= FIELD_PREP(DDRMC_DBICTL_RD_DBI_EN, 1);
+
+	write32_with_dbg(DDRMC_DBICTL(ctrl_id), val);
+
 	write32_with_dbg(DDRMC_ODTMAP(ctrl_id), 0);
 
 	dram_timings_cfg(ctrl_id, cfg);

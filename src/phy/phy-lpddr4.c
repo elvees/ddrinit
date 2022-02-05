@@ -246,14 +246,16 @@ void phy_init(int ctrl_id, struct ddr_cfg *cfg)
 	dfifreq_xlat_cfg(ctrl_id);
 
 	/* Set DqDqsRcvCntrl1 */
+	tmp1 = (IS_ENABLED(CONFIG_READ_DBI)) ? 0x400 : 0x500;
+
 	for (i = 0; i < CONFIG_PHY_DBYTE_NUM; i++)
-		phy_write32_with_dbg(ctrl_id, PHY_DQ_DQS_RCV_CNTRL1(i), 0x500);
+		phy_write32_with_dbg(ctrl_id, PHY_DQ_DQS_RCV_CNTRL1(i), tmp1);
 
 	/* Set MasterX4Config */
 	phy_write32_with_dbg(ctrl_id, PHY_MASTER_X4_CONFIG, 0);
 
 	/* Set DMIPinPresent */
-	phy_write32_with_dbg(ctrl_id, PHY_DMI_PIN_PRESENT, 0);
+	phy_write32_with_dbg(ctrl_id, PHY_DMI_PIN_PRESENT, (IS_ENABLED(CONFIG_READ_DBI)) ? 1 : 0);
 
 	/* Set Acx4AnibDis */
 	phy_write32_with_dbg(ctrl_id, PHY_ACX4_ANIB_DIS, 0);
@@ -303,7 +305,7 @@ void phy_training_params_load(int ctrl_id, struct ddr_cfg *cfg)
 
 	params.MR1_A0 = lpddr4_mr1_get(cfg);
 	params.MR2_A0 = lpddr4_mr2_get(cfg);
-	params.MR3_A0 = 0x33;
+	params.MR3_A0 = lpddr4_mr3_get(cfg);
 	params.MR4_A0 = 0;
 	params.MR11_A0 = lpddr4_mr11_get(cfg);
 	params.MR12_A0 = 0x4d;
@@ -315,7 +317,7 @@ void phy_training_params_load(int ctrl_id, struct ddr_cfg *cfg)
 	params.MR24_A0 = 0;
 	params.MR1_A1 = lpddr4_mr1_get(cfg);
 	params.MR2_A1 = lpddr4_mr2_get(cfg);
-	params.MR3_A1 = 0x33;
+	params.MR3_A1 = lpddr4_mr3_get(cfg);
 	params.MR4_A1 = 0;
 	params.MR11_A1 = lpddr4_mr11_get(cfg);
 	params.MR12_A1 = 0x4d;
@@ -328,7 +330,7 @@ void phy_training_params_load(int ctrl_id, struct ddr_cfg *cfg)
 
 	params.MR1_B0 = lpddr4_mr1_get(cfg);
 	params.MR2_B0 = lpddr4_mr2_get(cfg);
-	params.MR3_B0 = 0x33;
+	params.MR3_B0 = lpddr4_mr3_get(cfg);
 	params.MR4_B0 = 0;
 	params.MR11_B0 = lpddr4_mr11_get(cfg);
 	params.MR12_B0 = 0x4d;
@@ -340,7 +342,7 @@ void phy_training_params_load(int ctrl_id, struct ddr_cfg *cfg)
 	params.MR24_B0 = 0;
 	params.MR1_B1 = lpddr4_mr1_get(cfg);
 	params.MR2_B1 = lpddr4_mr2_get(cfg);
-	params.MR3_B1 = 0x33;
+	params.MR3_B1 = lpddr4_mr3_get(cfg);
 	params.MR4_B1 = 0;
 	params.MR11_B1 = lpddr4_mr11_get(cfg);
 	params.MR12_B1 = 0x4d;

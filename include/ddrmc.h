@@ -17,6 +17,7 @@ uint16_t ddr4_mr6_get(struct ddr_cfg *cfg);
 
 uint8_t lpddr4_mr1_get(struct ddr_cfg *cfg);
 uint8_t lpddr4_mr2_get(struct ddr_cfg *cfg);
+uint8_t lpddr4_mr3_get(struct ddr_cfg *cfg);
 uint8_t lpddr4_mr11_get(struct ddr_cfg *cfg);
 uint8_t lpddr4_mr22_get(struct ddr_cfg *cfg);
 

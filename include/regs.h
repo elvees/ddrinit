@@ -210,7 +210,9 @@
 #define DDRMC_DFISTAT(i)	    (DDRMC_BASE(i) + 0x1BC)
 #define DDRMC_DFISTAT_INIT_COMPLETE BIT(0)
 
-#define DDRMC_DBICTL(i) (DDRMC_BASE(i) + 0x1C0)
+#define DDRMC_DBICTL(i)	       (DDRMC_BASE(i) + 0x1C0)
+#define DDRMC_DBICTL_WR_DBI_EN BIT(1)
+#define DDRMC_DBICTL_RD_DBI_EN BIT(2)
 
 #define DDRMC_STAT(i)	     (DDRMC_BASE(i) + 0x4)
 #define DDRMC_STAT_OPER_MODE GENMASK(2, 0)
