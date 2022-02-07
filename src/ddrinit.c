@@ -187,7 +187,7 @@ char *errcode2str(int id)
 		case ESPDCHECKSUM: return "Incorrect SPD checksum";
 		case EDIMMCFG: return "Failed to configure DIMM";
 		case EFWTYPE: return "Unknown firmware type";
-		case ETRAINFAIL: return "PHY trainining error";
+		case ETRAINFAIL: return "PHY training error";
 		case EI2CCFG: return "Failed to configure I2C controller";
 		case ETIMEDOUT: return "Event timed out";
 		case ETRAINTIMEOUT: return "PHY training timed out";
