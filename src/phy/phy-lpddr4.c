@@ -273,9 +273,9 @@ void phy_training_params_load(int ctrl_id, struct ddr_cfg *cfg)
 	params.DfiFreqRatio = 2;
 	params.PhyVref = 0x14;
 	params.EnabledDQsChA = 16;
-	params.CsPresentChA = 3;
+	params.CsPresentChA = (CONFIG_DRAM_RANKS == 2) ? 3 : 1;
 	params.EnabledDQsChB = 16;
-	params.CsPresentChB = 3;
+	params.CsPresentChB = (CONFIG_DRAM_RANKS == 2) ? 3 : 1;
 	params.UseBroadcastMR = 0;
 	params.Lp4Misc = 0;
 	params.CATerminatingRankChA = 0;
