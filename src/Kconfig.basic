@@ -76,12 +76,32 @@ config DDR_XTAL_FREQ
 	help
 	  DDR XTAL frequency in Hz
 
+config PHY_PLL_BYPASS
+	bool
+	default n
+
 choice
 	prompt "DRAM rate select"
 	depends on SPD_EEPROM && DRAM_RATE_CUSTOM || !SPD_EEPROM
 
+	config DRAM_RATE_66
+		depends on DRAM_TYPE_LPDDR4 || DRAM_TYPE_LPDDR3
+		select PHY_PLL_BYPASS
+		bool "66 MT/s"
+
+	config DRAM_RATE_133
+		depends on DRAM_TYPE_LPDDR4 || DRAM_TYPE_LPDDR3
+		select PHY_PLL_BYPASS
+		bool "133 MT/s"
+
+	config DRAM_RATE_266
+		depends on DRAM_TYPE_LPDDR4 || DRAM_TYPE_LPDDR3
+		select PHY_PLL_BYPASS
+		bool "266 MT/s"
+
 	config DRAM_RATE_533
-		depends on !DRAM_TYPE_DDR4
+		depends on DRAM_TYPE_LPDDR4 || DRAM_TYPE_LPDDR3
+		select PHY_PLL_BYPASS
 		bool "533 MT/s"
 
 	config DRAM_RATE_1066
@@ -123,6 +143,9 @@ endchoice
 
 config DRAM_RATE
 	int
+	default 66 if DRAM_RATE_66
+	default 133 if DRAM_RATE_133
+	default 266 if DRAM_RATE_266
 	default 533 if DRAM_RATE_533
 	default 1066 if DRAM_RATE_1066
 	default 1250 if DRAM_RATE_1250
@@ -145,7 +168,8 @@ config DRAM_CAS_AUTO
 
 config DRAM_CAS_LATENCY
 	int
-	default 6 if DRAM_TYPE_LPDDR4 && DRAM_RATE_533
+	default 6 if DRAM_TYPE_LPDDR4 && (DRAM_RATE_66 || DRAM_RATE_133)
+	default 6 if DRAM_TYPE_LPDDR4 && (DRAM_RATE_266 || DRAM_RATE_533)
 	default 10 if DRAM_TYPE_LPDDR4 && DRAM_RATE_1066
 	default 14 if DRAM_TYPE_LPDDR4 && DRAM_RATE_1600
 	default 20 if DRAM_TYPE_LPDDR4 && DRAM_RATE_2133
@@ -307,7 +331,10 @@ endif
 
 config DRAM_TCK
 	int
-	default 3759 if DRAM_RATE_533
+	default 30016 if DRAM_RATE_66
+	default 14992 if DRAM_RATE_133
+	default 7504 if DRAM_RATE_266
+	default 3748 if DRAM_RATE_533
 	default 1876 if DRAM_RATE_1066
 	default 1600 if DRAM_RATE_1250
 	default 1500 if DRAM_RATE_1333

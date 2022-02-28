@@ -129,7 +129,7 @@ static uint32_t mail_get(int ctrl_id)
 	uint32_t mail, val = 0;
 
 	/*  Poll the UctWriteProtShadow, looking for 0 */
-	ret = phy_read32_poll_timeout(val, !(val & 0x1), USEC, 100 * MSEC, ctrl_id, PHY_UCT_SHADOW_REGS);
+	ret = phy_read32_poll_timeout(val, !(val & 0x1), USEC, 500 * MSEC, ctrl_id, PHY_UCT_SHADOW_REGS);
 	if (ret)
 		return PHY_TIMEOUT_MAGIC;
 
@@ -139,7 +139,7 @@ static uint32_t mail_get(int ctrl_id)
 	phy_write32(ctrl_id, PHY_DCT_WRITE_PROT, 0);
 
 	/*  Poll the UctWriteProtShadow, looking for 1 */
-	ret = phy_read32_poll_timeout(val, val & 0x1, USEC, 100 * MSEC, ctrl_id, PHY_UCT_SHADOW_REGS);
+	ret = phy_read32_poll_timeout(val, val & 0x1, USEC, 500 * MSEC, ctrl_id, PHY_UCT_SHADOW_REGS);
 	if (ret)
 		return PHY_TIMEOUT_MAGIC;
 
@@ -154,7 +154,7 @@ static uint32_t stream_message_get(int ctrl_id)
 	int ret;
 	uint32_t lower, upper, val = 0;
 
-	ret = phy_read32_poll_timeout(val, !(val & 0x1), USEC, 100 * MSEC, ctrl_id, PHY_UCT_SHADOW_REGS);
+	ret = phy_read32_poll_timeout(val, !(val & 0x1), USEC, 500 * MSEC, ctrl_id, PHY_UCT_SHADOW_REGS);
 	if (ret)
 		return PHY_TIMEOUT_MAGIC;
 
@@ -165,7 +165,7 @@ static uint32_t stream_message_get(int ctrl_id)
 	phy_write32(ctrl_id, PHY_DCT_WRITE_PROT, 0);
 
 	/*  Poll the UctWriteProtShadow, looking for 1 */
-	ret = phy_read32_poll_timeout(val, val & 0x1, USEC, 100 * MSEC, ctrl_id, PHY_UCT_SHADOW_REGS);
+	ret = phy_read32_poll_timeout(val, val & 0x1, USEC, 500 * MSEC, ctrl_id, PHY_UCT_SHADOW_REGS);
 	if (ret)
 		return PHY_TIMEOUT_MAGIC;
 

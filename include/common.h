@@ -12,7 +12,8 @@
 #include <config.h>
 #include <printf.h>
 
-#define DRAM_TCK_533 3759
+#define DRAM_TCK_266 7504
+#define DRAM_TCK_533 3748
 #define DRAM_TCK_1066 1876
 #define DRAM_TCK_1250 1600
 #define DRAM_TCK_1333 1500

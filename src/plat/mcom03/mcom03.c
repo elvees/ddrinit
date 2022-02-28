@@ -43,8 +43,9 @@ struct pll_settings {
 	uint8_t od;
 };
 
-struct pll_settings pll_settings[2][7] = {
+struct pll_settings pll_settings[2][8] = {
 	{
+		{ 27000000, DRAM_TCK_266, 8, 351, 15 },
 		{ 27000000, DRAM_TCK_533, 4, 393, 15 },
 		{ 27000000, DRAM_TCK_1066, 8, 1063, 11 },
 		{ 27000000, DRAM_TCK_1600, 1, 236, 7 },
@@ -309,16 +310,33 @@ int platform_clk_cfg(int ctrl_id, struct ddr_cfg *cfg)
 		for (i = 0; i < 4; i++)
 			ucg_bypass_enable(0, i);
 
-		ret = pll_cfg(0, cfg->tck);
+#ifdef CONFIG_PHY_PLL_BYPASS
+		int tck = cfg->tck / 4;
+#else
+		int tck = cfg->tck;
+#endif
+		ret = pll_cfg(0, tck);
 		if (ret)
 			return ret;
 
 		pll_init_done = 1;
 	}
 
+#ifdef CONFIG_PHY_PLL_BYPASS
+	ret = ucg_channel_cfg(0, 2 * ctrl_id, 4);
+	if (ret)
+		return ret;
+
+	ret = ucg_channel_cfg(0, 2 * ctrl_id + 1, 1);
+	if (ret)
+		return ret;
+
+	ucg_bypass_disable(0, 2 * ctrl_id + 1);
+#else
 	ret = ucg_channel_cfg(0, 2 * ctrl_id, 1);
 	if (ret)
 		return ret;
+#endif
 
 	ucg_bypass_disable(0, 2 * ctrl_id);
 

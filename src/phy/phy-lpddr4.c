@@ -149,6 +149,13 @@ static void dfifreq_xlat_cfg(int ctrl_id)
 	uint16_t vals[] = {0, 0, 0x4444, 0x8888, 0x5555, 0, 0, 0xf000};
 	int i;
 
+/* According to phyinit code DFI_FREQ_XLAT0 and DFI_FREQ_XLAT4 must be increased
+ * in case of PLL bypass. There is no any explanation in PHY PUB databook.
+ */
+#ifdef CONFIG_PHY_PLL_BYPASS
+	vals[0] += 6;
+	vals[4] += 1;
+#endif
 	/* Set DfiXlat */
 	for (i = 0; i < 8; i++)
 		phy_write32_with_dbg(ctrl_id, PHY_DFI_FREQ_XLAT(i), vals[i]);
@@ -193,6 +200,11 @@ void phy_init(int ctrl_id, struct ddr_cfg *cfg)
 		tmp1 = 0x2;
 	else
 		tmp1 = 0x1;
+
+/* According to PHY PUB databook ARdPtrInitVal must be increased by 1 if PLL bypass is used */
+#ifdef CONFIG_PHY_PLL_BYPASS
+	tmp1 += 1;
+#endif
 	phy_write32_with_dbg(ctrl_id, PHY_ARDPTR_INITVAL, tmp1);
 
 	/* Set Seq0BGPR4 */
@@ -255,6 +267,11 @@ void phy_training_params_load(int ctrl_id, struct ddr_cfg *cfg)
 
 	params.Pstate = 0;
 	params.DRAMFreq = CONFIG_DRAM_RATE;
+
+#ifdef CONFIG_PHY_PLL_BYPASS
+	params.PllBypassEn = 1;
+#endif
+
 #ifdef CONFIG_DISABLE_CA_TRAINING
 	params.SequenceCtrl =  0x31f;
 #else

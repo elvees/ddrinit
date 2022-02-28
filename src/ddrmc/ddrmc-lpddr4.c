@@ -121,7 +121,9 @@ static int dramtmg0_trasmin_get(struct ddr_cfg *cfg)
 static int dramtmg0_trasmax_get(struct ddr_cfg *cfg)
 {
 	int trasmax = CONFIG_DRAM_TIMING_TRASMAX / cfg->tck / 1024;
-	return (trasmax - 1) / 2;
+	trasmax = (trasmax - 1) / 2;
+
+	return max(trasmax, 1);
 }
 
 static int dramtmg0_tfaw_get(struct ddr_cfg *cfg)
