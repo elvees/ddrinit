@@ -407,6 +407,13 @@ static void mem_regions_set(int init_mask, struct sysinfo *info)
 				      CONFIG_MEM_REGION2_START,
 				      CONFIG_MEM_REGION3_START };
 
+	if (info->interleaving.enable) {
+		cfg_start[2] = cfg_start[0];
+		cfg_start[3] = cfg_start[1];
+		for (i = 0; i < ARRAY_SIZE(cfg_size); i++)
+			cfg_size[i] *= 2;
+	}
+
 	for (i = 0; i < CONFIG_DDRMC_MAX_NUMBER; i++) {
 		if (!(init_mask & BIT(i)))
 			continue;
@@ -488,6 +495,18 @@ static int cpu_freq_set(void)
 	return 0;
 }
 
+static void interleaving_init(int init_mask, struct sysinfo *info)
+{
+	if (IS_ENABLED(CONFIG_INTERLEAVING) && (init_mask & 0x3) == 0x3) {
+		info->interleaving.enable = true;
+		info->interleaving.channels = 2;
+		info->interleaving.size = 4096;
+		write32(DDR_XDECODER_MODE, 1);
+	} else {
+		write32(DDR_XDECODER_MODE, 0);
+	}
+}
+
 int platform_system_init(int init_mask, struct sysinfo *info)
 {
 	int ret;
@@ -496,10 +515,8 @@ int platform_system_init(int init_mask, struct sysinfo *info)
 	if (ret)
 		return ret;
 
+	interleaving_init(init_mask, info);
 	mem_regions_set(init_mask, info);
-
-	/* DDR interleaving is not supported */
-	write32(DDR_XDECODER_MODE, 0);
 
 	return 0;
 }

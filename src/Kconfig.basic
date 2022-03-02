@@ -26,8 +26,7 @@ endchoice
 
 menuconfig INTERLEAVING
 	bool "Memory interleaving"
-	default y
-	depends on PLATFORM_SOLARIS
+	default y if PLATFORM_SOLARIS
 
 if INTERLEAVING
 
@@ -36,9 +35,11 @@ choice
 
 	config INTERLEAVING_SIZE_1K
 		bool "1 KiB"
+		depends on PLATFORM_SOLARIS
 
 	config INTERLEAVING_SIZE_2K
 		bool "2 KiB"
+		depends on PLATFORM_SOLARIS
 
 	config INTERLEAVING_SIZE_4K
 		bool "4 KiB"
