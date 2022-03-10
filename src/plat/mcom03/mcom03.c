@@ -428,10 +428,11 @@ static void mem_regions_set(int init_mask, struct sysinfo *info)
 }
 
 #define CPU_SUBS_UCG_BYPASS 0x1080040
+#define CPU_SUBS_UCG_SYNC 0x1080044
 #define CPU_SUBS_UCG_CTR(i) (0x1080000 + (i) * 4)
 #define CPU_SUBS_PLL 0x1000050
 
-/* Set CPU frequency to 1377 MHz. This is a temporary solution,
+/* Set CPU frequency to 1161 MHz. This is a temporary solution,
  * the frequency should be set in U-Boot by UCG driver.
  */
 static int cpu_freq_set(void)
@@ -441,7 +442,7 @@ static int cpu_freq_set(void)
 	uint8_t divs[] = {
 		4, /* sys clk 290.25 MHz */
 		1, /* core clk 1161 MHz */
-		3  /* dbus clk 387 MHz */
+		2  /* dbus clk 580.5 MHz */
 	};
 
 	write32(CPU_SUBS_UCG_BYPASS, 0x7);
@@ -481,6 +482,7 @@ static int cpu_freq_set(void)
 			return -ECLOCKCFG;
 	}
 
+	write32(CPU_SUBS_UCG_SYNC, 7);
 	write32(CPU_SUBS_UCG_BYPASS, 0);
 
 	return 0;
