@@ -89,6 +89,33 @@ static void subsystem_reset_deassert(enum subsystem_reset_lines line)
 		continue;
 }
 
+static int ucg_channel_cfg(unsigned long ucg_addr, int chan_id, int div)
+{
+	uint32_t val;
+	int ret;
+
+	val = read32(UCG_CTR(ucg_addr, chan_id));
+	val &= ~(UCG_CTR_DIV_COEFF | UCG_CTR_LPI_EN);
+	write32(UCG_CTR(ucg_addr, chan_id), val | FIELD_PREP(UCG_CTR_DIV_COEFF, div));
+	ret = read32_poll_timeout(val, val & UCG_CTR_DIV_LOCK, USEC, MSEC,
+				  UCG_CTR(ucg_addr, chan_id));
+	if (ret)
+		return -ECLOCKCFG;
+
+	val = read32(UCG_CTR(ucg_addr, chan_id));
+	if (FIELD_GET(UCG_CTR_QFSM_STATE, val) != Q_FSM_RUN) {
+		val |= UCG_CTR_CLK_EN;
+		write32(UCG_CTR(ucg_addr, chan_id), val);
+
+		ret = read32_poll_timeout(val, FIELD_GET(UCG_CTR_QFSM_STATE, val) == Q_FSM_RUN,
+					  USEC, MSEC, UCG_CTR(ucg_addr, chan_id));
+		if (ret)
+			return -ECLOCKCFG;
+	}
+
+	return 0;
+}
+
 int platform_i2c_cfg(int ctrl_id)
 {
 	uint32_t value;
@@ -215,57 +242,28 @@ static int pll_cfg(int pll_id, int tck)
 	return 0;
 }
 
-static void ucg_bypass_enable(int ucg_id, int chan_id)
+static void ucg_bypass_enable(unsigned long ucg_addr, int chan_id)
 {
 	uint32_t val;
 
-	val = read32(DDR_UCG_CTR(ucg_id, chan_id));
-	if (FIELD_GET(DDR_UCG_CTR_QFSM_STATE, val) == Q_FSM_RUN) {
-		val = read32(DDR_UCG_BP(ucg_id));
+	val = read32(UCG_CTR(ucg_addr, chan_id));
+	if (FIELD_GET(UCG_CTR_QFSM_STATE, val) == Q_FSM_RUN) {
+		val = read32(UCG_BP(ucg_addr));
 		val |= BIT(chan_id);
-		write32(DDR_UCG_BP(ucg_id), val);
+		write32(UCG_BP(ucg_addr), val);
 	}
 }
 
-static void ucg_bypass_disable(int ucg_id, int chan_id)
+static void ucg_bypass_disable(unsigned long ucg_addr, int chan_id)
 {
 	uint32_t val;
 
-	val = read32(DDR_UCG_BP(ucg_id));
+	val = read32(UCG_BP(ucg_addr));
 
 	if (val & BIT(chan_id))
 		val &= ~BIT(chan_id);
 
-	write32(DDR_UCG_BP(ucg_id), val);
-}
-
-static int ucg_channel_cfg(int ucg_id, int chan_id, int div)
-{
-	uint32_t val;
-	int ret;
-
-	val = read32(DDR_UCG_CTR(ucg_id, chan_id));
-	val &= ~DDR_UCG_CTR_DIFF_COEFF;
-	write32(DDR_UCG_CTR(ucg_id, chan_id), FIELD_PREP(DDR_UCG_CTR_DIFF_COEFF, div));
-
-	ret = read32_poll_timeout(val, val & DDR_UCG_CTR_DIFF_LOCK, USEC, MSEC,
-				  DDR_UCG_CTR(ucg_id, chan_id));
-	if (ret)
-		return -ECLOCKCFG;
-
-	val = read32(DDR_UCG_CTR(ucg_id, chan_id));
-	if (FIELD_GET(DDR_UCG_CTR_QFSM_STATE, val) != Q_FSM_RUN) {
-		val &= ~DDR_UCG_CTR_LPI_EN;
-		val |= DDR_UCG_CTR_CLK_EN;
-		write32(DDR_UCG_CTR(ucg_id, chan_id), val);
-
-		ret = read32_poll_timeout(val, FIELD_GET(DDR_UCG_CTR_QFSM_STATE, val) == Q_FSM_RUN,
-					  USEC, MSEC, DDR_UCG_CTR(ucg_id, chan_id));
-		if (ret)
-			return -ECLOCKCFG;
-	}
-
-	return 0;
+	write32(UCG_BP(ucg_addr), val);
 }
 
 int platform_clk_cfg(int ctrl_id, struct ddr_cfg *cfg)
@@ -292,23 +290,23 @@ int platform_clk_cfg(int ctrl_id, struct ddr_cfg *cfg)
 		int i;
 
 		for (i = 0; i < CONFIG_DDRMC_AXI_PORTS + 1; i++)
-			ucg_bypass_enable(1, i);
+			ucg_bypass_enable(DDR_SUBS_UCG_BASE(1), i);
 
 		ret = pll_cfg(1, 833);
 		if (ret)
 			return ret;
 
 		for (i = 0; i < CONFIG_DDRMC_AXI_PORTS + 1; i++) {
-			ret = ucg_channel_cfg(1, i, axi_chan_divs[i]);
+			ret = ucg_channel_cfg(DDR_SUBS_UCG_BASE(1), i, axi_chan_divs[i]);
 			if (ret)
 				return ret;
 		}
 
 		for (i = 0; i < CONFIG_DDRMC_AXI_PORTS + 1; i++)
-			ucg_bypass_disable(1, i);
+			ucg_bypass_disable(DDR_SUBS_UCG_BASE(1), i);
 
 		for (i = 0; i < 4; i++)
-			ucg_bypass_enable(0, i);
+			ucg_bypass_enable(DDR_SUBS_UCG_BASE(0), i);
 
 #ifdef CONFIG_PHY_PLL_BYPASS
 		int tck = cfg->tck / 4;
@@ -333,12 +331,12 @@ int platform_clk_cfg(int ctrl_id, struct ddr_cfg *cfg)
 
 	ucg_bypass_disable(0, 2 * ctrl_id + 1);
 #else
-	ret = ucg_channel_cfg(0, 2 * ctrl_id, 1);
+	ret = ucg_channel_cfg(DDR_SUBS_UCG_BASE(0), 2 * ctrl_id, 1);
 	if (ret)
 		return ret;
 #endif
 
-	ucg_bypass_disable(0, 2 * ctrl_id);
+	ucg_bypass_disable(DDR_SUBS_UCG_BASE(0), 2 * ctrl_id);
 
 	/* Enable all AXI channels */
 	val = DDR_AXI_CHS_ENABLE_SDR | DDR_AXI_CHS_ENABLE_PCIE |
