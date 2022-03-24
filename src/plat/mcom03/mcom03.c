@@ -116,23 +116,37 @@ static int ucg_channel_cfg(unsigned long ucg_addr, int chan_id, int div)
 	return 0;
 }
 
+#ifdef CONFIG_I2C_FREQ
 int platform_i2c_cfg(int ctrl_id)
 {
-	uint32_t value;
+	uint32_t div;
+	int ret;
 
 	switch (ctrl_id) {
 	/* TODO: Init subsystem, pads and clocks for other I2C */
 	case 4:
-		/* Enable clocks for CLK_I2C4 and CLK_I2C4_EXT */
-		value = read32(SERVICE_SUBS_UCG_CHAN(9));
-		write32(SERVICE_SUBS_UCG_CHAN(9), value | 0x2);
-		value = read32(SERVICE_SUBS_UCG_CHAN(12));
-		write32(SERVICE_SUBS_UCG_CHAN(12), value | 0x2);
+		div = FIELD_GET(DDR_PLL_CFG_SEL, read32(SERVICE_SUBS_URB_PLL)) + 1;
+		div = DIV_ROUND_UP(div * CONFIG_DDR_XTAL_FREQ, CONFIG_I2C_FREQ);
+		/* Set dividers for clocks CLK_I2C4 and CLK_I2C4_EXT and enable them */
+		ret = ucg_channel_cfg(SERVICE_SUBS_UCG_BASE, 9, div);
+		if (ret)
+			return ret;
+
+		ret = ucg_channel_cfg(SERVICE_SUBS_UCG_BASE, 12, div);
+		if (ret)
+			return ret;
+
 		return 0;
 	default:
 		return -EI2CCFG;
 	}
 }
+#else
+int platform_i2c_cfg(int ctrl_id)
+{
+	return 0;
+}
+#endif
 
 int platform_power_up(void)
 {
