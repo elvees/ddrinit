@@ -446,67 +446,6 @@ static void mem_regions_set(int init_mask, struct sysinfo *info)
 	}
 }
 
-#define CPU_SUBS_UCG_BYPASS (ARCH_OFFSET + 0x1080040)
-#define CPU_SUBS_UCG_SYNC (ARCH_OFFSET + 0x1080044)
-#define CPU_SUBS_UCG_CTR(i) (ARCH_OFFSET + 0x1080000 + (i) * 4)
-#define CPU_SUBS_PLL (ARCH_OFFSET + 0x1000050)
-
-/* Set CPU frequency to 1161 MHz. This is a temporary solution,
- * the frequency should be set in U-Boot by UCG driver.
- */
-static int cpu_freq_set(void)
-{
-	uint32_t val;
-	int i, ret;
-	uint8_t divs[] = {
-		4, /* sys clk 290.25 MHz */
-		1, /* core clk 1161 MHz */
-		2  /* dbus clk 580.5 MHz */
-	};
-
-	write32(CPU_SUBS_UCG_BYPASS, 0x7);
-	write32(CPU_SUBS_PLL, 42);
-
-	ret = read32_poll_timeout(val, val & BIT(31), USEC, MSEC, CPU_SUBS_PLL);
-	if (ret)
-		return -ECLOCKCFG;
-
-	for (i = 0; i < ARRAY_SIZE(divs); i++) {
-		val = read32(CPU_SUBS_UCG_CTR(i));
-		val &= ~UCG_CTR_CLK_EN & ~UCG_CTR_LPI_EN;
-		write32(CPU_SUBS_UCG_CTR(i), val);
-
-		ret = read32_poll_timeout(val,
-					  FIELD_GET(UCG_CTR_QFSM_STATE, val) == Q_FSM_STOPPED,
-					  USEC, MSEC, CPU_SUBS_UCG_CTR(i));
-		if (ret)
-			return -ECLOCKCFG;
-
-		val = read32(CPU_SUBS_UCG_CTR(i));
-		val &= ~UCG_CTR_DIV_COEFF;
-		write32(CPU_SUBS_UCG_CTR(i), FIELD_PREP(UCG_CTR_DIV_COEFF, divs[i]));
-
-		ret = read32_poll_timeout(val, val & UCG_CTR_DIV_LOCK, USEC, MSEC,
-					  CPU_SUBS_UCG_CTR(i));
-		if (ret)
-			return -ECLOCKCFG;
-
-		val = read32(CPU_SUBS_UCG_CTR(i));
-		val |= UCG_CTR_CLK_EN;
-		write32(CPU_SUBS_UCG_CTR(i), val);
-
-		ret = read32_poll_timeout(val, FIELD_GET(UCG_CTR_QFSM_STATE, val) == Q_FSM_RUN,
-					  USEC, MSEC, CPU_SUBS_UCG_CTR(i));
-		if (ret)
-			return -ECLOCKCFG;
-	}
-
-	write32(CPU_SUBS_UCG_SYNC, 7);
-	write32(CPU_SUBS_UCG_BYPASS, 0);
-
-	return 0;
-}
-
 static void interleaving_init(int init_mask, struct sysinfo *info)
 {
 	if (IS_ENABLED(CONFIG_INTERLEAVING) && (init_mask & 0x3) == 0x3) {
@@ -521,12 +460,6 @@ static void interleaving_init(int init_mask, struct sysinfo *info)
 
 int platform_system_init(int init_mask, struct sysinfo *info)
 {
-	int ret;
-
-	ret = cpu_freq_set();
-	if (ret)
-		return ret;
-
 	interleaving_init(init_mask, info);
 	mem_regions_set(init_mask, info);
 
