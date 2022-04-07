@@ -459,29 +459,29 @@ static int cpu_freq_set(void)
 
 	for (i = 0; i < ARRAY_SIZE(divs); i++) {
 		val = read32(CPU_SUBS_UCG_CTR(i));
-		val &= ~DDR_UCG_CTR_CLK_EN & ~DDR_UCG_CTR_LPI_EN;
+		val &= ~UCG_CTR_CLK_EN & ~UCG_CTR_LPI_EN;
 		write32(CPU_SUBS_UCG_CTR(i), val);
 
 		ret = read32_poll_timeout(val,
-					  FIELD_GET(DDR_UCG_CTR_QFSM_STATE, val) == Q_FSM_STOPPED,
+					  FIELD_GET(UCG_CTR_QFSM_STATE, val) == Q_FSM_STOPPED,
 					  USEC, MSEC, CPU_SUBS_UCG_CTR(i));
 		if (ret)
 			return -ECLOCKCFG;
 
 		val = read32(CPU_SUBS_UCG_CTR(i));
-		val &= ~DDR_UCG_CTR_DIFF_COEFF;
-		write32(CPU_SUBS_UCG_CTR(i), FIELD_PREP(DDR_UCG_CTR_DIFF_COEFF, divs[i]));
+		val &= ~UCG_CTR_DIV_COEFF;
+		write32(CPU_SUBS_UCG_CTR(i), FIELD_PREP(UCG_CTR_DIV_COEFF, divs[i]));
 
-		ret = read32_poll_timeout(val, val & DDR_UCG_CTR_DIFF_LOCK, USEC, MSEC,
+		ret = read32_poll_timeout(val, val & UCG_CTR_DIV_LOCK, USEC, MSEC,
 					  CPU_SUBS_UCG_CTR(i));
 		if (ret)
 			return -ECLOCKCFG;
 
 		val = read32(CPU_SUBS_UCG_CTR(i));
-		val |= DDR_UCG_CTR_CLK_EN;
+		val |= UCG_CTR_CLK_EN;
 		write32(CPU_SUBS_UCG_CTR(i), val);
 
-		ret = read32_poll_timeout(val, FIELD_GET(DDR_UCG_CTR_QFSM_STATE, val) == Q_FSM_RUN,
+		ret = read32_poll_timeout(val, FIELD_GET(UCG_CTR_QFSM_STATE, val) == Q_FSM_RUN,
 					  USEC, MSEC, CPU_SUBS_UCG_CTR(i));
 		if (ret)
 			return -ECLOCKCFG;
