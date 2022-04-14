@@ -6,20 +6,7 @@ config DEBUG
 
 config BOOTMODE_JTAG
 	bool "Build for JTAG boot mode"
+	depends on PLATFORM_SOLARIS
 	help
-	  Solaris: if enabled puts CPU in endless loop after ddrinit
+	  If enabled puts CPU in endless loop after ddrinit
 	  completion since there is no place to return in this mode.
-	  MCom-03: if enabled puts CPU in endless loop reading memory
-	  address defined by CONFIG_BOOTMODE_JTAG_MAGIC_ADDRESS. Once
-	  a special value 0xdeadc0de has been read ddrinit jumps to
-	  address defined in CONFIG_BOOTMODE_JTAG_JUMP_ADDRESS.
-
-config BOOTMODE_JTAG_MAGIC_ADDRESS
-	hex "Address to read magic from in JTAG boot mode"
-	depends on BOOTMODE_JTAG && PLATFORM_MCOM03
-	default 0x80800000
-
-config BOOTMODE_JTAG_JUMP_ADDRESS
-	hex "Address to jump after ddrinit in JTAG boot mode"
-	depends on BOOTMODE_JTAG && PLATFORM_MCOM03
-	default 0x80000000

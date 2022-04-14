@@ -9,13 +9,8 @@
 .global _start
 
 _start:
-#ifdef CONFIG_BOOTMODE_JTAG
 	ldr	x1, =0xfff0
 	mov	sp, x1
-#else
-	sub	sp, sp, 16
-	str	x30, [sp]
-#endif
 
 _clean_bss:
 	mov	w0, #0
@@ -30,16 +25,14 @@ _bss_clean_loop:
 
 	bl	main
 
-#ifdef CONFIG_BOOTMODE_JTAG
-_jtag_mode_loop:
-	ldr	x1, =CONFIG_BOOTMODE_JTAG_MAGIC_ADDRESS
+_ddrinit_loop:
+	ldr	x1, =CONFIG_DDRINIT_JTAG_MAGIC_ADDRESS
 	ldr	w1, [x1]
 	ldr	w2, =0xdeadc0de
 	cmp	w1, w2
-	bne	_jtag_mode_loop
-	ldr	x2, =CONFIG_BOOTMODE_JTAG_JUMP_ADDRESS
+	bne	_ddrinit_loop
+	ldr	x2, =CONFIG_DDRINIT_RETURN_ADDRESS
 	br	x2
-#endif
 
 	ldr	x30, [sp]
 	add	sp, sp, 16

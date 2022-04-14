@@ -213,3 +213,20 @@ config MEM_REGION4_SIZE
 config AXI_BUS_FREQUENCY
 	int
 	default 680000000 if PLATFORM_SOLARIS
+
+config DDRINIT_JTAG_MAGIC_ADDRESS
+	hex "Address to read magic from"
+	depends on PLATFORM_MCOM03 && ARCH_AARCH64
+	default 0x80800000
+	help
+	  If ddrinit is run on Aarch64, the CPU is put into an
+	  endless loop reading the memory address defined by this
+	  option until a special value 0xdeadc0de has been read.
+
+config DDRINIT_RETURN_ADDRESS
+	hex "Address to jump to after ddrinit"
+	depends on PLATFORM_MCOM03 && ARCH_AARCH64
+	default 0x80000000
+	help
+	  An address to jump to once a special value 0xdeadc0de
+	  has been read from CONFIG_DDRINIT_JTAG_MAGIC_ADDRESS.
