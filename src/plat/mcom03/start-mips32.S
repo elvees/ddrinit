@@ -10,6 +10,8 @@
 .set    noreorder
 .section .text.boot
 
+.global _start
+
 _start:
 /* In noBoot mode the stack pointer is set up to CRAM by BootROM.
  * In QSPI0 XIP boot mode ddrinit retains the stack pointer set up by SBL.
