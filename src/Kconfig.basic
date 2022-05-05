@@ -367,7 +367,8 @@ config DDRMC_ACTIVE_MASK
 config DDRMC_INIT_REQUIRED_MASK
 	hex
 	default 0x1 if PLATFORM_SOLARIS
-	default 0x3 if PLATFORM_MCOM03
+	default 0x1 if PLATFORM_MCOM03 && !INTERLEAVING
+	default 0x3 if PLATFORM_MCOM03 && INTERLEAVING
 
 config TIMER_FREQ
 	int "Timer frequency"

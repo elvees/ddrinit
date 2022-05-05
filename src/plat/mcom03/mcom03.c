@@ -407,49 +407,48 @@ uint32_t platform_get_timer_count(void)
 	return ~read32(DW_APB_CURRENT_VALUE(0));
 }
 
+static void region_set(struct sysinfo *info, int ctrl_id, int region_id, uint64_t region_start,
+		       uint64_t region_size)
+{
+	static int free_region_id;
+	int i;
+
+	write32(DDRMC_SARBASE(ctrl_id, region_id), region_start / DDRMC_SAR_MINSIZE);
+	write32(DDRMC_SARSIZE(ctrl_id, region_id), region_size / DDRMC_SAR_MINSIZE - 1);
+
+	for (i = free_region_id - 1; i >= 0; i--)
+		if (region_start == info->mem_regions[i].start)
+			return;
+
+	info->mem_regions[free_region_id].start = region_start;
+	info->mem_regions[free_region_id].size = region_size;
+	free_region_id++;
+}
+
 static void mem_regions_set(int init_mask, struct sysinfo *info)
 {
-	uint64_t *dsize = &info->dram_size[0];
-	int i, free_region_idx = 0;
-	uint64_t cfg_size[] = { CONFIG_MEM_REGION0_SIZE,
-				CONFIG_MEM_REGION1_SIZE,
-				CONFIG_MEM_REGION2_SIZE,
-				CONFIG_MEM_REGION3_SIZE };
-	uint64_t cfg_start[] = { CONFIG_MEM_REGION0_START,
-				      CONFIG_MEM_REGION1_START,
-				      CONFIG_MEM_REGION2_START,
-				      CONFIG_MEM_REGION3_START };
-
-	if (info->interleaving.enable) {
-		cfg_start[2] = cfg_start[0];
-		cfg_start[3] = cfg_start[1];
-		for (i = 0; i < ARRAY_SIZE(cfg_size); i++)
-			cfg_size[i] *= 2;
-	}
+	int i;
+	uint64_t ddr_low_start[] = { CONFIG_MEM_REGION0_START, CONFIG_MEM_REGION2_START };
+	uint64_t ddr_low_size[] = { CONFIG_MEM_REGION0_SIZE, CONFIG_MEM_REGION2_SIZE };
 
 	for (i = 0; i < CONFIG_DDRMC_MAX_NUMBER; i++) {
 		if (!(init_mask & BIT(i)))
 			continue;
 
-		info->mem_regions[free_region_idx].start = cfg_start[i * 2];
-		info->mem_regions[free_region_idx].size = min(dsize[i], cfg_size[i * 2]);
-		free_region_idx++;
+		uint64_t low_size = ddr_low_size[i];
 
-		write32(DDRMC_SARBASE(i, 0), cfg_start[i * 2] / DDRMC_SAR_MINSIZE);
-		write32(DDRMC_SARBASE(i, 1), cfg_start[i * 2 + 1] / DDRMC_SAR_MINSIZE);
-		write32(DDRMC_SARBASE(i, 2), 256);
-		write32(DDRMC_SARBASE(i, 3), 257);
+		if (IS_ENABLED(CONFIG_INTERLEAVING)) {
+			low_size *= 2;
+			ddr_low_start[1] = ddr_low_start[0];
+		}
 
-		write32(DDRMC_SARSIZE(i, 0), cfg_size[i * 2] / DDRMC_SAR_MINSIZE - 1);
-		write32(DDRMC_SARSIZE(i, 1), cfg_size[i * 2 + 1] / DDRMC_SAR_MINSIZE - 1);
-		write32(DDRMC_SARSIZE(i, 2), 0);
-		write32(DDRMC_SARSIZE(i, 3), 0);
+		region_set(info, i, 0, ddr_low_start[i], low_size);
 	}
 }
 
 static void interleaving_init(int init_mask, struct sysinfo *info)
 {
-	if (IS_ENABLED(CONFIG_INTERLEAVING) && (init_mask & 0x3) == 0x3) {
+	if (IS_ENABLED(CONFIG_INTERLEAVING)) {
 		info->interleaving.enable = true;
 		info->interleaving.channels = 2;
 		info->interleaving.size = 4096;

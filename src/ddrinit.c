@@ -176,7 +176,7 @@ int ddr_init(int ctrl_id, struct ddr_cfg *cfg)
 char *errcode2str(int id)
 {
 	switch (-id) {
-		case EDDRMC0INITFAIL: return "DDRMC0 must be initialized to continue booting";
+		case EDDRMC0INITFAIL: return "Required DDRMCs have not been initialized";
 		case EPOWERUP: return "Failed to power up";
 		case ECLOCKCFG: return "Failed to configure clock";
 		case EI2CXFER: return "Failed to communicate over I2C";
@@ -239,7 +239,7 @@ int main(void)
 		}
 	}
 
-	if (init_mask & CONFIG_DDRMC_INIT_REQUIRED_MASK) {
+	if ((init_mask & CONFIG_DDRMC_INIT_REQUIRED_MASK) == CONFIG_DDRMC_INIT_REQUIRED_MASK) {
 		ret = platform_system_init(init_mask, &info);
 		if (ret)
 			ddrinit_panic(ret);

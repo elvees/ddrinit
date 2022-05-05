@@ -502,26 +502,21 @@ void dram_timings_cfg(int ctrl_id, struct ddr_cfg *cfg)
 static void addrmap_cfg(int ctrl_id, struct ddr_cfg *cfg)
 {
 	uint8_t next_bit;
-	uint32_t val, tmp1, tmp2;
+	uint32_t val;
 
+	/* According to LPDDR4 specification, all memories have 10 bits of column address */
 	write32_with_dbg(DDRMC_ADDRMAP2(ctrl_id), 0);
 	write32_with_dbg(DDRMC_ADDRMAP3(ctrl_id), 0);
+	write32_with_dbg(DDRMC_ADDRMAP4(ctrl_id), FIELD_PREP(DDRMC_ADDRMAP4_COL_B10, 31) |
+						  FIELD_PREP(DDRMC_ADDRMAP4_COL_B11, 31));
 
-	if (cfg->col_addr_bits <= 10) {
-		tmp1 = 31;
-		tmp2 = 31;
-	} else {
-		if (cfg->col_addr_bits == 11) {
-			tmp1 = 0;
-			tmp2 = 31;
-		} else {
-			tmp1 = 0;
-			tmp2 = 0;
-		}
-	}
-	val = FIELD_PREP(DDRMC_ADDRMAP4_COL_B10, tmp1) | FIELD_PREP(DDRMC_ADDRMAP4_COL_B11, tmp2);
-	write32_with_dbg(DDRMC_ADDRMAP4(ctrl_id), val);
 	next_bit = cfg->col_addr_bits;
+
+	/* Do not assign 12th bit of AXI address (10th bit of HIF address)
+	 * if 4 KiB interleaving is enabled.
+	 */
+	if (IS_ENABLED(CONFIG_PLATFORM_MCOM03) && IS_ENABLED(CONFIG_INTERLEAVING_SIZE_4K))
+		next_bit += 1;
 
 	val = FIELD_PREP(DDRMC_ADDRMAP1_BANK_B0, next_bit - 2) |
 	      FIELD_PREP(DDRMC_ADDRMAP1_BANK_B1, next_bit - 2) |
