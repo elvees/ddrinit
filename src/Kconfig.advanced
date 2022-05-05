@@ -379,3 +379,26 @@ config DISABLE_CA_TRAINING
 	help
 	  Disable Command/Address training step during PHY trainings.
 	  Applicable only for LPDDR3/LPDDR4 devices.
+
+config DDR_LOW_SIZE
+	int "Memory size for DDR Low region"
+	depends on PLATFORM_MCOM03
+	range 256 1024
+	default 256
+	help
+	  DDR memory size in MiB of each DDRMC that is mapped to DDR Low region.
+
+choice
+	prompt "Memory regions to pass to Linux"
+	depends on PLATFORM_MCOM03
+
+	config LINUX_DDR_HIGH_ONLY
+		bool "DDR High only"
+
+	config LINUX_DDR_LOW_ONLY
+		bool "DDR Low only"
+
+	config LINUX_DDR_LOW_HIGH
+		bool "Both DDR Low and High"
+
+endchoice
