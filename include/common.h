@@ -123,6 +123,7 @@ enum ddrinit_error_code {
 	ETIMEDOUT,
 	ETRAINTIMEOUT,
 	EUARTCFG,
+	EVMMUCFG,
 };
 
 void delay_usec(int usec);

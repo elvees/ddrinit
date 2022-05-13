@@ -12,10 +12,16 @@ choice
 		  ELVEES Solaris SoC
 endchoice
 
-config ARCH_AARCH64
-	bool "Build for AArch64"
-	default n
+choice
+	prompt "Architecture select"
 	depends on PLATFORM_MCOM03
+
+	config ARCH_MIPS32
+		bool "Build for MIPS32"
+
+	config ARCH_AARCH64
+		bool "Build for AArch64"
+endchoice
 
 choice
 	prompt "Bootloader select"
@@ -34,7 +40,7 @@ endchoice
 
 config RAM_BASE
 	hex
-	default 0xa0000000 if PLATFORM_MCOM03 && !ARCH_AARCH64
+	default 0xa0000000 if PLATFORM_MCOM03 && ARCH_MIPS32
 	default 0x00000000 if PLATFORM_MCOM03 && ARCH_AARCH64
 	default 0xffffffff9ff14000 if PLATFORM_SOLARIS
 	help
@@ -42,13 +48,13 @@ config RAM_BASE
 
 config RAM_SIZE
 	hex
-	default 0xF000 if PLATFORM_MCOM03
+	default 0xF000 if PLATFORM_MCOM03 && ARCH_MIPS32
 	help
 	  RAM size
 
 config UART_BASE
 	hex
-	default 0xA1750000 if PLATFORM_MCOM03 && !ARCH_AARCH64
+	default 0xA1750000 if PLATFORM_MCOM03 && ARCH_MIPS32
 	default 0x1750000 if PLATFORM_MCOM03 && ARCH_AARCH64
 	default 0xffffffffbcc40000 if PLATFORM_SOLARIS
 	help
@@ -56,7 +62,7 @@ config UART_BASE
 
 config DDRSUB0_BASE
 	hex
-	default 0xA4000000 if PLATFORM_MCOM03 && !ARCH_AARCH64
+	default 0xA4000000 if PLATFORM_MCOM03 && ARCH_MIPS32
 	default 0x4000000 if PLATFORM_MCOM03 && ARCH_AARCH64
 	default 0xffffffffb9000000 if PLATFORM_SOLARIS
 	help
@@ -185,11 +191,35 @@ config MEM_REGIONS_PHYS_ADDR
 
 config MEM_REGIONS_VIRT_ADDR
 	hex "Memory info virtual address"
-	default 0xE0000000 if PLATFORM_MCOM03 && !ARCH_AARCH64
+	default 0xC2000000 if PLATFORM_MCOM03 && ARCH_MIPS32
 	default 0xA0000000 if PLATFORM_MCOM03 && ARCH_AARCH64
 	default 0xffffffffa4000000 if PLATFORM_SOLARIS
 	help
 	  Virtual address to map CONFIG_MEM_REGIONS_PHYS_ADDR to.
+
+config VMMU_TABLE_BASE
+	hex
+	depends on PLATFORM_MCOM03
+	depends on ARCH_MIPS32
+	default 0x80000000
+	help
+	  Physical address where VMMU table is located
+
+config VMMU_VIRT_BASE_START
+	hex
+	depends on PLATFORM_MCOM03
+	depends on ARCH_MIPS32
+	default 0xC0000000
+	help
+	  Start address of virtual addresses
+
+config VMMU_VIRT_SLOT_COUNT
+	int
+	depends on PLATFORM_MCOM03
+	depends on ARCH_MIPS32
+	default 256
+	help
+	  2MiB slot count to map to DDR high.
 
 config MEM_REGION0_START
 	hex

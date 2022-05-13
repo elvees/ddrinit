@@ -8,6 +8,10 @@
 #include <plat/plat.h>
 #include <plat/mcom03/regs.h>
 
+#ifdef CONFIG_ARCH_MIPS32
+#include <plat/mcom03/vmmu.h>
+#endif
+
 #define DDRMC_SAR_MINSIZE 0x10000000
 
 enum subsystem_reset_lines {
@@ -468,6 +472,17 @@ int platform_system_init(int init_mask, struct sysinfo *info)
 {
 	interleaving_init(init_mask, info);
 	mem_regions_set(init_mask, info);
+
+	if (IS_ENABLED(CONFIG_ARCH_MIPS32)) {
+		int ret;
+
+		vmmu_t *vmmu_reg = (vmmu_t *)vmmu_get_registers();
+		vmmu_init(vmmu_reg, CONFIG_VMMU_TABLE_BASE);
+		ret = vmmu_map_64bit_address(vmmu_reg, CONFIG_MEM_REGIONS_VIRT_ADDR,
+					     CONFIG_MEM_REGIONS_PHYS_ADDR);
+		if (ret)
+			return ret;
+	}
 
 	return 0;
 }

@@ -186,6 +186,7 @@ char *errcode2str(int id)
 		case ETIMEDOUT: return "Event timed out";
 		case ETRAINTIMEOUT: return "PHY training timed out";
 		case EUARTCFG: return "Failed to configure UART";
+		case EVMMUCFG: return "Failed to configure VMMU";
 		default: return "Unknown error";
 	}
 }
