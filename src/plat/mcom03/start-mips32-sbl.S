@@ -43,36 +43,9 @@ bss_clean_loop:
 	b       bss_clean_loop
 	nop
 bss_clean_done:
-	/* Map 16 MiB at CONFIG_MEM_REGIONS_PHYS_ADDR to
-	 * CONFIG_MEM_REGIONS_VIRT_ADDR to save
-	 * initialized memory info.
-	 */
-	li      a0, 1
-	mtc0    a0, C0_INDEX
-
-	li      a1, CONFIG_MEM_REGIONS_VIRT_ADDR
-	mtc0    a1, C0_ENTRYHI
-
-	li      a1, (CONFIG_MEM_REGIONS_PHYS_ADDR>>6|0x17)
-	mtc0    a1, C0_ENTRYLO0
-	mtc0    a1, C0_ENTRYLO1
-	ehb
-	tlbwi
-	nop
-
-	/* Switch to TLB mapping */
-	li      a0, 0xbfd08000
-	li      v0, 0
-	sw      v0, 0(a0)
-
 	la      a2, main
 	jalr    a2
 	nop
-
-	/* Switch to fixed mapping */
-	li      a0, 0xbfd08000
-	li      v0, 0x1
-	sw      v0, 0(a0)
 
 	/* Jump to previously stored return address */
 	lw      ra, 0(sp)

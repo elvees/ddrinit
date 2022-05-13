@@ -184,7 +184,7 @@ config MAX_MEM_REGIONS
 config MEM_REGIONS_PHYS_ADDR
 	hex "Memory info physical address"
 	depends on PLATFORM_MCOM03
-	default 0xA0000000
+	default 0x882400000
 	help
 	  Physical address to write info on initialized DDR
 	  to be passed to U-Boot.
