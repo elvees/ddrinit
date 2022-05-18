@@ -17,7 +17,10 @@ node('linter') {
     }
 
     stage('Build HTML') {
-        sh 'pipenv run make -C doc html'
+        sh '''
+            module load plantuml
+            pipenv run make -C doc html
+        '''
 
         publishHTML target: [
             reportName: 'ddrinit HTML documentation',

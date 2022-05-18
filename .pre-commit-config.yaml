@@ -60,6 +60,8 @@ repos:
     rev: v6.0.0rc3
     hooks:
       - id: rstcheck
+        args: [--ignore-directives=uml, --report-level=warning]
+        additional_dependencies: [sphinx]
   - repo: https://github.com/jorisroovers/gitlint
     rev: v0.12.0
     hooks:

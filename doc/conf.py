@@ -10,3 +10,5 @@ language = 'ru'
 highlight_language = 'none'
 
 copyright = 'АО НПЦ "ЭЛВИС"'
+
+extensions = ['sphinxcontrib.plantuml']
