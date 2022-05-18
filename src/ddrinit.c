@@ -12,16 +12,12 @@
 #include <regs.h>
 #include <uart.h>
 
-#define ddrinit_return(ret) \
+#define ddrinit_panic(ret) \
 ({ \
-	if (ret) { \
-		printf("Failed to initialize DDR: %s\n", errcode2str(ret)); \
+		printf("Failed to initialize DDR: %s\n", errcode2str((ret))); \
 		while (1) { \
 			/* ... */ \
 		} \
-	 } \
-	 else \
-		return 0; \
 })
 
 /* Initialize DDRMC, PHY and DRAM as descibed in DWC_UMCTL2 databook:
@@ -244,7 +240,10 @@ int main(void)
 	}
 
 	if (init_mask & CONFIG_DDRMC_INIT_REQUIRED_MASK) {
-		platform_system_init(init_mask, &info);
+		ret = platform_system_init(init_mask, &info);
+		if (ret)
+			ddrinit_panic(ret);
+
 		memcpy((void *)CONFIG_MEM_REGIONS_VIRT_ADDR, info.mem_regions, sizeof(info.mem_regions));
 
 		printf("Total DDR memory size %d MiB\n", (int)(info.total_dram_size / 1024 / 1024));
@@ -255,8 +254,8 @@ int main(void)
 		else
 			printf("Memory interleaving: disabled\n");
 
-		ddrinit_return(0);
+		return 0;
 	}
 
-	ddrinit_return(-EDDRMC0INITFAIL);
+	ddrinit_panic(-EDDRMC0INITFAIL);
 }
