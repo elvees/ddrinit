@@ -29,7 +29,7 @@ SECTIONS
 		*(.data)
 		*(.data.*)
 		. = ALIGN(4);
-		_gp = ABSOLUTE(. + 0x7ff0);  /* Base of small data (for MIPS) */
+		_gp = ALIGN(16);  /* Base of small data (for MIPS) */
 		*(.lit8)
 		*(.lit4)
 		*(.sdata)
