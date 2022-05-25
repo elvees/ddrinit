@@ -4,7 +4,7 @@
 
 #include "machine/asm.h"
 #include "machine/regdef.h"
-#include "m32c0.h"
+#include "mips/m32c0.h"
 #include <config.h>
 
 .set    noreorder
