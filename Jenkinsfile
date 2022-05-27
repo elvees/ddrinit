@@ -50,4 +50,10 @@ node('linter') {
             ls -lh src/ddrinit.{elf,bin}
         '''
     }
+
+    stage('Stack checking') {
+        sh '''
+            pipenv run make check-stack
+        '''
+    }
 }

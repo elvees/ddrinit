@@ -5,6 +5,11 @@
 *.bin
 *.elf
 *.dis
+*.map
+*.su
+*.cgraph
+*.csv
+*.json
 Pipfile.lock
 doc/build/
 include/config.h

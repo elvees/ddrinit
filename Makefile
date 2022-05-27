@@ -1,11 +1,13 @@
 #Copyright 2020 RnD Center "ELVEES", JSC
 
-CROSS_COMPILE ?=
-CFLAGS := -I$(CURDIR)/include -Wall -nostdlib -ffreestanding -fno-stack-protector -Os
-LDFLAGS := -nostdlib
 CONFIG_HEADER_PATH := $(CURDIR)/include/config.h
 SRC_DIR := $(CURDIR)/src
 TARGET := $(SRC_DIR)/ddrinit
+
+CROSS_COMPILE ?=
+CFLAGS := -I$(CURDIR)/include -Wall -nostdlib -ffreestanding -fno-stack-protector -Os \
+		-fstack-usage -fdump-ipa-cgraph
+LDFLAGS := -nostdlib -Wl,-Map=$(TARGET).map
 
 ## Build artifacts
 all: $(TARGET).bin $(TARGET).dis
@@ -55,10 +57,21 @@ endif
 $(TARGET).elf: $(objs)
 	$(CROSS_COMPILE)gcc -T$(linkfile) $(LDFLAGS) $^ -o $@
 
+## Check stack usage
+check-stack: $(TARGET).elf
+	find . -name '*.cgraph' | grep -v stack-usage-log | xargs cat > stack-usage-log.cgraph
+	find . -name '*.su'     | grep -v stack-usage-log | xargs cat > stack-usage-log.su
+	python2 stack-usage.py --csv stack-usage.csv --json stack-usage.json
+	#TODO: Add desired stack size in defconfig
+	#TODO: Compare stack size with one defined in defconfig
+
 ## Remove build artifacts
 clean:
 	find $(SRC_DIR) -name *.o | xargs $(RM) -f
-	$(RM) -f $(TARGET).elf $(TARGET).bin $(TARGET).dis $(CONFIG_HEADER_PATH)
+	find . -name *.su | xargs $(RM) -f
+	find . -name *.cgraph | xargs $(RM) -f
+	$(RM) -f stack-usage.json stack-usage.csv
+	$(RM) -f $(TARGET).elf $(TARGET).bin $(TARGET).dis $(TARGET).map $(CONFIG_HEADER_PATH)
 
 ## Remove build artifacts and .config file
 clean-all: clean
@@ -80,4 +93,4 @@ install:
 	install -D -m 0755 $(TARGET).bin $(DESTDIR)/ddrinit.bin
 	install -D -m 0755 $(TARGET).elf $(DESTDIR)/ddrinit.elf
 
-.PHONY: all help clean clean-all menuconfig oldconfig savedefconfig install
+.PHONY: all help clean clean-all menuconfig oldconfig savedefconfig install check-stack
