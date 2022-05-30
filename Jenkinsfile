@@ -44,6 +44,10 @@ node('linter') {
             module load toolchain/mips/codescape/img/bare/2018.09-03
             pipenv run make solarisbub_defconfig
             pipenv run make CROSS_COMPILE=mips-img-elf-
+
+            # Print build sizes
+            ls -l src/ddrinit.{elf,bin}
+            ls -lh src/ddrinit.{elf,bin}
         '''
     }
 }
