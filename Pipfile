@@ -11,4 +11,4 @@ sphinx = ">=4.3, <4.4"
 kconfiglib = ">=14.1, <15.0"
 
 [requires]
-python_version = "3.6"
+python_version = "3.8"
