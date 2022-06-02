@@ -3,13 +3,15 @@
  * Copyright 2020 RnD Center "ELVEES", JSC
  */
 
-OUTPUT_ARCH(mips)
+#include <config.h>
+
+OUTPUT_ARCH("mips")
 
 ENTRY(__app_entry)
 
 SECTIONS
 {
-	.text_init 0xffffffff9ff14000 : {
+	.text_init CONFIG_RAM_BASE : {
 		*(.boot)
 		*(.text)*(.text.*)
 		. = ALIGN(16);

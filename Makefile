@@ -48,14 +48,17 @@ endif
 %.o : %.S $(CONFIG_HEADER_PATH)
 	$(CROSS_COMPILE)gcc -c $(CFLAGS) $< -o $@
 
+$(TARGET).ld : $(linkfile) $(CONFIG_HEADER_PATH)
+	$(CROSS_COMPILE)gcc $(CFLAGS) -E $< -P -o $@
+
 %.bin : %.elf
 	$(CROSS_COMPILE)objcopy -O binary $< $@
 
 %.dis : %.elf
 	$(CROSS_COMPILE)objdump -D  $< > $@
 
-$(TARGET).elf: $(objs)
-	$(CROSS_COMPILE)gcc -T$(linkfile) $(LDFLAGS) $^ -o $@
+$(TARGET).elf: $(TARGET).ld $(objs)
+	$(CROSS_COMPILE)gcc -T$^ $(LDFLAGS) -o $@
 
 ## Check stack usage
 check-stack: $(TARGET).elf
@@ -71,7 +74,7 @@ clean:
 	find . -name *.su | xargs $(RM) -f
 	find . -name *.cgraph | xargs $(RM) -f
 	$(RM) -f stack-usage.json stack-usage.csv
-	$(RM) -f $(TARGET).elf $(TARGET).bin $(TARGET).dis $(TARGET).map $(CONFIG_HEADER_PATH)
+	$(RM) -f $(TARGET).elf $(TARGET).bin $(TARGET).dis $(TARGET).map $(TARGET).ld $(CONFIG_HEADER_PATH)
 
 ## Remove build artifacts and .config file
 clean-all: clean
