@@ -11,3 +11,8 @@ line-length = 72
 
 [title-match-regex]
 regex = ^([\.a-zA-Z0-9-_]+: )*[A-Z].*
+
+# ignore max line length for git trailers
+[ignore-by-body]
+regex=^(Depends-on|Depends-On)
+ignore=body-max-line-length
