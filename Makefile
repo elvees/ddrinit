@@ -10,6 +10,13 @@ override CFLAGS += -I$(CURDIR)/include -Wall -ffreestanding -fno-stack-protector
 		-fstack-usage -fdump-ipa-cgraph -fdata-sections -ffunction-sections
 override LDFLAGS += -nostdlib -nostartfiles -Wl,--gc-sections -Wl,-Map=$(TARGET).map
 
+# Don't traverse above current directory while searching for .git
+BUILD_COMMIT := $(shell git log --pretty=tformat:"%h" -n1 .)
+
+ifneq ($(BUILD_COMMIT),)
+override CFLAGS += -DVERSION=\"$(BUILD_COMMIT)\"
+endif
+
 ## Build artifacts
 all: $(TARGET).bin $(TARGET).dis
 

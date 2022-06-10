@@ -214,6 +214,10 @@ int main(void)
 			continue;
 	}
 
+#if defined(VERSION)
+	printf("ddrinit: %s\n", VERSION);
+#endif
+
 	for (i = 0; i < CONFIG_DDRMC_MAX_NUMBER; i++) {
 		timer_start = timer_get_usec();
 		ret = ddrcfg_get(i, &cfg);
