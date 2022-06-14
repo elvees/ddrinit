@@ -221,6 +221,23 @@ config VMMU_VIRT_SLOT_COUNT
 	help
 	  2MiB slot count to map to DDR high.
 
+config DDRHIGH_MAP_REGION0_PHYS
+	hex
+	depends on PLATFORM_MCOM03 && ARCH_MIPS32
+	default 0x880300000
+	help
+	  Physical address of 2MB region in DDR High. ddrinit maps this area into a 32-bit
+	  address space accessible from RISC0. This is done so that whoever runs after ddrinit
+	  on RISC0 can write data to this area. For example, SBL can use this area to load
+	  TF-A image.
+
+config DDRHIGH_MAP_REGION0_VIRT
+	hex
+	depends on PLATFORM_MCOM03 && ARCH_MIPS32
+	default 0xC0000000
+	help
+	  Virtual 32-bit address to map CONFIG_DDRHIGH_MAP_REGION0_PHYS to
+
 config MEM_REGION0_START
 	hex
 	default 0x80000000 if PLATFORM_MCOM03

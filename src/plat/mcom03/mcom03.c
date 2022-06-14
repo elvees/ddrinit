@@ -482,6 +482,13 @@ int platform_system_init(int init_mask, struct sysinfo *info)
 					     CONFIG_MEM_REGIONS_PHYS_ADDR);
 		if (ret)
 			return ret;
+
+		if (IS_ENABLED(CONFIG_BOOTLOADER_SBL)) {
+			ret = vmmu_map_64bit_address(vmmu_reg, CONFIG_DDRHIGH_MAP_REGION0_VIRT,
+						     CONFIG_DDRHIGH_MAP_REGION0_PHYS);
+			if (ret)
+				return ret;
+		}
 	}
 
 	return 0;
