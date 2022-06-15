@@ -2,13 +2,13 @@
  * Copyright 2021 RnD Center "ELVEES", JSC
  */
 
-#include <config.h>
-
 ENTRY(_start)
+
+SPRAM_BASE_ADDR = 0x0;
 
 SECTIONS
 {
-	. = CONFIG_RAM_BASE;
+	. = SPRAM_BASE_ADDR;
 
 	.text : {
 		*(.text.boot*)

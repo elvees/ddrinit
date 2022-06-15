@@ -2,22 +2,17 @@
  * Copyright 2022 RnD Center "ELVEES", JSC
  */
 
-#include <config.h>
-
-OUTPUT_ARCH("mips:isa32")
+OUTPUT_ARCH("mips")
 TARGET("elf32-littlemips")
 GROUP(-lc -lgcc)
 
 ENTRY(_start)
 
-MEMORY
-{
-	ram (rwx)  : ORIGIN = CONFIG_RAM_BASE, LENGTH = CONFIG_RAM_SIZE
-}
+SPRAM_BASE_ADDR = 0xa0000000;
 
 SECTIONS
 {
-	. = CONFIG_RAM_BASE;
+	. = SPRAM_BASE_ADDR;
 
 	.text : {
 		*(.text.boot*)

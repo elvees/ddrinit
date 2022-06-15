@@ -10,7 +10,6 @@
 *.cgraph
 *.csv
 *.json
-src/*.ld
 Pipfile.lock
 doc/build/
 include/config.h
