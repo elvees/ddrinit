@@ -5,9 +5,9 @@ SRC_DIR := $(CURDIR)/src
 TARGET := $(SRC_DIR)/ddrinit
 
 CROSS_COMPILE ?=
-CFLAGS := -I$(CURDIR)/include -Wall -ffreestanding -fno-stack-protector -Os \
+override CFLAGS += -I$(CURDIR)/include -Wall -ffreestanding -fno-stack-protector -Os \
 		-fstack-usage -fdump-ipa-cgraph -fdata-sections -ffunction-sections
-LDFLAGS := -nostdlib -nostartfiles -Wl,--gc-sections -Wl,-Map=$(TARGET).map
+override LDFLAGS += -nostdlib -nostartfiles -Wl,--gc-sections -Wl,-Map=$(TARGET).map
 
 ## Build artifacts
 all: $(TARGET).bin $(TARGET).dis
