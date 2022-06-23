@@ -1,13 +1,13 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /* Copyright 2021 RnD Center "ELVEES", JSC */
 
-ENTRY(_start)
+#include <config.h>
 
-SPRAM_BASE_ADDR = 0x0;
+ENTRY(_start)
 
 SECTIONS
 {
-	. = SPRAM_BASE_ADDR;
+	. = CONFIG_RAM_BASE;
 
 	.text : {
 		*(.text.boot*)

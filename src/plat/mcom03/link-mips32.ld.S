@@ -1,28 +1,32 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /* Copyright 2022 RnD Center "ELVEES", JSC */
 
+#include <config.h>
+
 OUTPUT_ARCH("mips")
 TARGET("elf32-littlemips")
 GROUP(-lc -lgcc)
 
 ENTRY(_start)
 
-SPRAM_BASE_ADDR = 0xa0000000;
+MEMORY
+{
+	ram (rwx)  : ORIGIN = CONFIG_RAM_BASE, LENGTH = CONFIG_RAM_SIZE
+}
 
 SECTIONS
 {
-	. = SPRAM_BASE_ADDR;
+	. = CONFIG_RAM_BASE;
 
 	.text : {
 		*(.text.boot*)
 		*(.text*)
-		__text_end = ABSOLUTE(.);
-	}
-
-	. = ALIGN(8);
+		__text_end = .;
+	} > ram
 
 	.data : {
-		__data_start = ABSOLUTE(.);
+		. = ALIGN(8);
+		__data_start = .;
 		*(.rodata)
 		*(.rodata.*)
 		*(.data)
@@ -33,25 +37,29 @@ SECTIONS
 		*(.lit4)
 		*(.sdata)
 		*(.sdata.*)
-		__data_end = ABSOLUTE(.);
-	}
-
-	. = ALIGN(8);
+		__data_end = .;
+	} > ram
 
 	.sbss : {
-		__bss_start = ABSOLUTE(.);
+		. = ALIGN(8);
+		__bss_start = .;
 		*(.sbss)
 		*(.sbss.*)
 		*(.scommon)
-	}
+	} > ram
 
 	.bss : {
 		*(.bss)
 		*(.bss.*)
 		*(COMMON)
-		__bss_end = ABSOLUTE(.);
-		__bss_length = ABSOLUTE(.) - __bss_start;
-	}
+		. = ALIGN(8);
+		__bss_end = .;
+	} > ram
+	__bss_length = __bss_end - __bss_start;
+
+	end = .;
+
+	ASSERT(end < (CONFIG_RAM_BASE + CONFIG_RAM_SIZE), "ddrinit image has exceeded RAM limit.")
 
 	/DISCARD/ : {
 		*(.reginfo)
