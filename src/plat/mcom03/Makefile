@@ -8,7 +8,14 @@ linkfile := link-aarch64.ld.S
 override CFLAGS += -march=armv8-a -mtune=cortex-a53 -mstrict-align
 override LDFLAGS += -march=armv8-a -mtune=cortex-a53
 else
-obj-y += mcom03.c start-mips32.S
+
+ifeq ($(CONFIG_BOOTLOADER_BOOTROM),y)
+obj-y += start-mips32-bootrom.S
+else
+obj-y += start-mips32-sbl.S
+endif
+
+obj-y += mcom03.c
 linkfile := link-mips32.ld.S
 
 override CFLAGS += -mips32

@@ -17,6 +17,21 @@ config ARCH_AARCH64
 	default n
 	depends on PLATFORM_MCOM03
 
+choice
+	prompt "Bootloader select"
+	depends on PLATFORM_MCOM03
+
+	config BOOTLOADER_SBL
+		bool "SBL/JTAG"
+		help
+		  Load and run ddrinit using SBL or JTAG
+
+	config BOOTLOADER_BOOTROM
+		bool "BootROM"
+		help
+		  Load and run ddrinit using BootROM
+endchoice
+
 config RAM_BASE
 	hex
 	default 0xa0000000 if PLATFORM_MCOM03 && !ARCH_AARCH64

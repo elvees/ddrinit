@@ -74,3 +74,4 @@ repos:
     hooks:
       - id: cppcheck
         args: [--enable=warning, --inline-suppr]
+        exclude: include/plat/mcom03/asm.h

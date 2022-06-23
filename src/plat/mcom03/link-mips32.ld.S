@@ -57,6 +57,10 @@ SECTIONS
 	} > ram
 	__bss_length = __bss_end - __bss_start;
 
+#ifdef CONFIG_BOOTLOADER_BOOTROM
+	_stack = ORIGIN(ram) + LENGTH(ram) - 0x20;
+#endif
+
 	end = .;
 
 	ASSERT(end < (CONFIG_RAM_BASE + CONFIG_RAM_SIZE), "ddrinit image has exceeded RAM limit.")

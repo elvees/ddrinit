@@ -91,3 +91,4 @@ bss_clean_done:
 	.org 0x100
 	nop
 	jr      ra
+	nop
