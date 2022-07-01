@@ -336,15 +336,15 @@ int platform_clk_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	}
 
 #ifdef CONFIG_PHY_PLL_BYPASS
-	ret = ucg_channel_cfg(0, 2 * ctrl_id, 4);
+	ret = ucg_channel_cfg(DDR_SUBS_UCG_BASE(0), 2 * ctrl_id, 4);
 	if (ret)
 		return ret;
 
-	ret = ucg_channel_cfg(0, 2 * ctrl_id + 1, 1);
+	ret = ucg_channel_cfg(DDR_SUBS_UCG_BASE(0), 2 * ctrl_id + 1, 1);
 	if (ret)
 		return ret;
 
-	ucg_bypass_disable(0, 2 * ctrl_id + 1);
+	ucg_bypass_disable(DDR_SUBS_UCG_BASE(0), 2 * ctrl_id + 1);
 #else
 	ret = ucg_channel_cfg(DDR_SUBS_UCG_BASE(0), 2 * ctrl_id, 1);
 	if (ret)
