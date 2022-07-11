@@ -1,7 +1,5 @@
-/* SPDX-License-Identifier: GPL-2.0+
- *
- * Copyright 2020 RnD Center "ELVEES", JSC
- */
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/* Copyright 2020 RnD Center "ELVEES", JSC */
 
 #ifndef _FW_DMEM_1D_H
 #define _FW_DMEM_1D_H

@@ -1,6 +1,5 @@
-/*
- * Copyright 2021-2022 RnD Center "ELVEES", JSC
- */
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/* Copyright 2021-2022 RnD Center "ELVEES", JSC */
 
 #include "machine/asm.h"
 #include "machine/regdef.h"

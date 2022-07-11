@@ -1,5 +1,24 @@
 ---
 repos:
+  - repo: https://github.com/Lucas-C/pre-commit-hooks
+    rev: v1.3.0
+    hooks:
+      # SPDX license headers and comments style should match rules defined in
+      # https://github.com/u-boot/u-boot/commits/master/Licenses/README
+      #
+      # We are specifying "files: ''" so that top-level files are passed to
+      # hook. See https://github.com/Lucas-C/pre-commit-hooks/issues/52.
+      - id: insert-license
+        files: ''
+        types_or: [asm, header]
+        args:
+          - --license-filepath=.license-header-c-comment
+          - --comment-style=
+      - id: insert-license
+        files: ^.*\.c$
+        args:
+          - --license-filepath=.license-header
+          - --comment-style=//
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.2.0
     hooks:

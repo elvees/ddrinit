@@ -1,10 +1,9 @@
-// SPDX-License-Identifier: GPL-2.0+
-/*
- * Copyright 2014-2016 Freescale Semiconductor, Inc.
- * Copyright 2017-2018 NXP Semiconductor
- *
- * Copyright 2020 RnD Center "ELVEES", JSC
- */
+// SPDX-License-Identifier: GPL-2.0-or-later
+
+// Copyright 2014-2016 Freescale Semiconductor, Inc.
+// Copyright 2017-2018 NXP Semiconductor
+
+// Copyright 2020 RnD Center "ELVEES", JSC
 
 #include <string.h>
 #include <common.h>
