@@ -1,4 +1,5 @@
-#Copyright 2020 RnD Center "ELVEES", JSC
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright 2020 RnD Center "ELVEES", JSC
 
 CONFIG_HEADER_PATH := $(CURDIR)/include/config.h
 SRC_DIR := $(CURDIR)/src

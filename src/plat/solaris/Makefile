@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+
 ifeq ($(CONFIG_PLATFORM_SOLARIS),y)
 obj-y += solaris.c start-solaris.S
 linkfile := link-solaris.lds

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+
 ifeq ($(CONFIG_PLATFORM_MCOM03),y)
 ifeq ($(CONFIG_ARCH_AARCH64),y)
 obj-y += mcom03.c start-aarch64.S

@@ -19,6 +19,12 @@ repos:
         args:
           - --license-filepath=.license-header
           - --comment-style=//
+      - id: insert-license
+        types: [makefile]
+        files: ''
+        args:
+          - --license-filepath=.license-header
+          - --comment-style=#
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.2.0
     hooks:
