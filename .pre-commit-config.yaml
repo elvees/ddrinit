@@ -31,6 +31,11 @@ repos:
         args:
           - --license-filepath=.license-header
           - --comment-style=..
+      - id: insert-license
+        files: ^.*\.lds$
+        args:
+          - --license-filepath=.license-header-c-comment
+          - --comment-style=
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.2.0
     hooks:
