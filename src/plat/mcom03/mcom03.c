@@ -12,8 +12,6 @@
 #include <plat/mcom03/vmmu.h>
 #endif
 
-#define DDRMC_SAR_MINSIZE 0x10000000
-
 enum subsystem_reset_lines {
 	CPU_SUBS,
 	SDR_SUBS,
@@ -409,14 +407,14 @@ uint32_t platform_get_timer_count(void)
 	return ~read32(DW_APB_CURRENT_VALUE(0));
 }
 
-static void region_set(struct sysinfo *info, int ctrl_id, int region_id, uint64_t region_start,
-		       uint64_t region_size)
+static void region_set(struct sysinfo *info, int ctrl_id, int region_id)
 {
 	static int free_region_id;
+	uint64_t region_start =
+		read32(DDRMC_SARBASE(ctrl_id, region_id)) * (uint64_t)CONFIG_DDRMC_SAR_MINSIZE;
+	uint64_t region_size = (read32(DDRMC_SARSIZE(ctrl_id, region_id)) + 1) *
+		(uint64_t)CONFIG_DDRMC_SAR_MINSIZE;
 	int i;
-
-	write32(DDRMC_SARBASE(ctrl_id, region_id), region_start / DDRMC_SAR_MINSIZE);
-	write32(DDRMC_SARSIZE(ctrl_id, region_id), region_size / DDRMC_SAR_MINSIZE - 1);
 
 	for (i = free_region_id - 1; i >= 0; i--)
 		if (region_start == info->mem_regions[i].start)
@@ -430,29 +428,16 @@ static void region_set(struct sysinfo *info, int ctrl_id, int region_id, uint64_
 static void mem_regions_set(int init_mask, struct sysinfo *info)
 {
 	int i;
-	uint64_t ddr_low_start[] = { CONFIG_MEM_REGION0_START, CONFIG_MEM_REGION2_START };
-	uint64_t ddr_high_start[] = { CONFIG_MEM_REGION1_START, CONFIG_MEM_REGION3_START };
 
 	for (i = 0; i < CONFIG_DDRMC_MAX_NUMBER; i++) {
 		if (!(init_mask & BIT(i)))
 			continue;
 
-		uint64_t ddr_low_size = min(CONFIG_DDR_LOW_SIZE * 1024 * 1024ULL,
-					    info->dram_size[i]);
-		uint64_t ddr_high_size = info->dram_size[i] - ddr_low_size;
-
-		if (IS_ENABLED(CONFIG_INTERLEAVING)) {
-			ddr_low_size *= 2;
-			ddr_high_size *= 2;
-			ddr_low_start[1] = ddr_low_start[0];
-			ddr_high_start[1] = ddr_high_start[0];
-		}
-
 		if (!IS_ENABLED(CONFIG_LINUX_DDR_HIGH_ONLY))
-			region_set(info, i, 0, ddr_low_start[i], ddr_low_size);
+			region_set(info, i, 0);
 
 		if (!IS_ENABLED(CONFIG_LINUX_DDR_LOW_ONLY))
-			region_set(info, i, 1, ddr_high_start[i], ddr_high_size);
+			region_set(info, i, 1);
 	}
 }
 

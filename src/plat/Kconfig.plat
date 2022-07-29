@@ -96,6 +96,14 @@ config DDRMC_OFFSET
 	help
 	  Offset of DDR controller's registers
 
+config DDRMC_SAR_MINSIZE
+	hex
+	depends on PLATFORM_MCOM03
+	default 0x10000000
+	help
+          Minimal size of system address region (SAR) that DDRMC
+          can map to internal address space.
+
 config PHY_OFFSET
 	hex
 	default 0x0 if PLATFORM_MCOM03
