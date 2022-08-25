@@ -226,6 +226,19 @@ static int pie_cfg_load(int ctrl_id, int tck)
 	return 0;
 }
 
+#ifdef CONFIG_IMPEDANCE_CALIBRATION_PRINT_PARAMS
+static void calibration_params_print(int ctrl_id)
+{
+	printf("PHY_CALCMPR5: 0x%x\n", phy_read32(ctrl_id, PHY_CALCMPR5));
+	printf("PHY_CALNINT: 0x%x\n", phy_read32(ctrl_id, PHY_CALNINT));
+	printf("PHY_CALPEXT: 0x%x\n", phy_read32(ctrl_id, PHY_CALPEXT));
+}
+#else
+static void calibration_params_print(int ctrl_id)
+{
+}
+#endif
+
 int phy_cfg(int ctrl_id, struct ddr_cfg *cfg)
 {
 	int ret;
@@ -269,6 +282,8 @@ int phy_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	ret = pie_cfg_load(ctrl_id, cfg->tck);
 	if (ret)
 		return ret;
+
+	calibration_params_print(ctrl_id);
 
 	phy_write32(ctrl_id, PHY_MICROCONT_MUXSEL, 1);
 

@@ -402,3 +402,30 @@ choice
 		bool "Both DDR Low and High"
 
 endchoice
+
+config IMPEDANCE_CALIBRATION_DISABLE
+	bool "Disable impedance calibration"
+	default false
+	help
+	  Disable automatic impedance calibration. In this case CalPExt and CalNInt
+	  parameters are got from CONFIG_PHY_CALPEXT_OVR and CONFIG_PHY_CALNINT_OVR.
+
+config PHY_CALPEXT_OVR
+	hex "CalPExtOvr value"
+	depends on IMPEDANCE_CALIBRATION_DISABLE
+	default 0x0
+	help
+	  This value will be used as PHY CalPExt parameter
+
+config PHY_CALNINT_OVR
+	hex "CalNIntOvr value"
+	depends on IMPEDANCE_CALIBRATION_DISABLE
+	default 0x0
+	help
+	  This value will be used as PHY CalNInt parameter
+
+config IMPEDANCE_CALIBRATION_PRINT_PARAMS
+	bool "Print impedance calibration parameters"
+	default false
+	help
+	  Print PHY CalPExt and CalNInt parameters

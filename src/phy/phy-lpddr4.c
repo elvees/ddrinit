@@ -120,6 +120,12 @@ static void calibration_init(int ctrl_id, struct ddr_cfg *cfg)
 {
 	uint32_t tmp1, tmp2;
 
+#ifdef CONFIG_IMPEDANCE_CALIBRATION_DISABLE
+	phy_write32_with_dbg(ctrl_id, PHY_CALMISC, 0x6);
+	phy_write32_with_dbg(ctrl_id, PHY_CALPEXT_OVR, CONFIG_PHY_CALPEXT_OVR);
+	phy_write32_with_dbg(ctrl_id, PHY_CALNINT_OVR, CONFIG_PHY_CALNINT_OVR);
+#endif
+
 	/* Set CalDrvStr0 */
 #ifdef CONFIG_PHY_CALIBRATION_EXT_RESISTOR_240
 	tmp2 = 0;
