@@ -72,7 +72,7 @@ $(TARGET).elf: $(TARGET).ld $(objs)
 check-stack: $(TARGET).elf
 	find . -name '*.cgraph' | grep -v stack-usage-log | xargs cat > stack-usage-log.cgraph
 	find . -name '*.su'     | grep -v stack-usage-log | xargs cat > stack-usage-log.su
-	python2 stack-usage.py --csv stack-usage.csv --json stack-usage.json
+	python2 scripts/stack-usage.py --csv stack-usage.csv --json stack-usage.json
 	#TODO: Add desired stack size in defconfig
 	#TODO: Compare stack size with one defined in defconfig
 
