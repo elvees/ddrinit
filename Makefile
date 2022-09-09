@@ -20,6 +20,10 @@ endif
 ## Build artifacts
 all: $(TARGET).bin $(TARGET).dis
 
+ifneq ($(FRAGMENTS),)
+KCONFIG_CONFIG := .config
+endif
+
 ## Run interactive Python based configurator
 menuconfig:
 	menuconfig Kconfig
@@ -35,6 +39,13 @@ savedefconfig:
 ## Apply minimal configuration from configs/<board>_defconfig
 %_defconfig:
 	defconfig $(CURDIR)/configs/$@
+
+ifneq ($(FRAGMENTS),)
+	KCONFIG_CONFIG=$(KCONFIG_CONFIG) scripts/merge_config.sh \
+		-m $(KCONFIG_CONFIG) $(foreach f,$(subst :, ,$(FRAGMENTS)), \
+			$(wildcard $(CURDIR)/fragments/*/$(f).fragment))
+	olddefconfig Kconfig
+endif
 
 $(CONFIG_HEADER_PATH): .config
 	genconfig --header-path $(CONFIG_HEADER_PATH) Kconfig
