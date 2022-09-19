@@ -22,6 +22,9 @@ all: $(TARGET).bin $(TARGET).dis
 
 ifneq ($(FRAGMENTS),)
 KCONFIG_CONFIG := .config
+PLATFORM = $$(grep -Eo '^CONFIG_PLATFORM_.*=y' $(KCONFIG_CONFIG) | \
+		sed 's/CONFIG_PLATFORM_//g;s/=y//g' | \
+		tr '[:upper:]' '[:lower:]')
 endif
 
 ## Run interactive Python based configurator
@@ -43,7 +46,7 @@ savedefconfig:
 ifneq ($(FRAGMENTS),)
 	KCONFIG_CONFIG=$(KCONFIG_CONFIG) scripts/merge_config.sh \
 		-m $(KCONFIG_CONFIG) $(foreach f,$(subst :, ,$(FRAGMENTS)), \
-			$(wildcard $(CURDIR)/fragments/*/$(f).fragment))
+			$(CURDIR)/fragments/$(PLATFORM)/$(f).fragment)
 	olddefconfig Kconfig
 endif
 
