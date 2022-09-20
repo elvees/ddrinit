@@ -22,9 +22,7 @@ all: $(TARGET).bin $(TARGET).dis
 
 ifneq ($(FRAGMENTS),)
 KCONFIG_CONFIG := .config
-PLATFORM = $$(grep -Eo '^CONFIG_PLATFORM_.*=y' $(KCONFIG_CONFIG) | \
-		sed 's/CONFIG_PLATFORM_//g;s/=y//g' | \
-		tr '[:upper:]' '[:lower:]')
+PLATFORM := $$(sed -n 's/^CONFIG_PLATFORM_\(.*\)=y/\L\1/p' $(KCONFIG_CONFIG))
 endif
 
 ## Run interactive Python based configurator
