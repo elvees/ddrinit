@@ -247,7 +247,7 @@ int main(void)
 		if (ret)
 			ddrinit_panic(ret);
 
-		memcpy((void *)CONFIG_MEM_REGIONS_VIRT_ADDR, info.mem_regions, sizeof(info.mem_regions));
+		memcpy((void *)CONFIG_MEM_REGIONS_VIRT_ADDR, &info, sizeof(info));
 
 		printf("Total DDR memory size %d MiB\n", (int)(info.total_dram_size / 1024 / 1024));
 
