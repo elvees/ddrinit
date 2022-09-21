@@ -61,11 +61,8 @@ struct pll_settings pll_settings[2][9] = {
 };
 
 static unsigned long i2c_base_addr[] = {
-	(ARCH_OFFSET + 0x1630000),
-	(ARCH_OFFSET + 0x1710000),
-	(ARCH_OFFSET + 0x1720000),
-	(ARCH_OFFSET + 0x1730000),
-	(ARCH_OFFSET + 0x1f090000),
+	(ARCH_OFFSET + 0x1630000), (ARCH_OFFSET + 0x1710000),  (ARCH_OFFSET + 0x1720000),
+	(ARCH_OFFSET + 0x1730000), (ARCH_OFFSET + 0x1f090000),
 };
 
 void phy_write32(int ctrl_id, unsigned long addr, uint32_t val)
@@ -159,8 +156,7 @@ int platform_power_up(void)
 		subsystem_reset_deassert(reset_lines[i]);
 
 	val = read32(SERVICE_TOP_CLK_GATE);
-	val |= SERVICE_TOP_CLK_GATE_LSPERIPH0 |
-	       SERVICE_TOP_CLK_GATE_LSPERIPH1 |
+	val |= SERVICE_TOP_CLK_GATE_LSPERIPH0 | SERVICE_TOP_CLK_GATE_LSPERIPH1 |
 	       SERVICE_TOP_CLK_GATE_DDR;
 	write32(SERVICE_TOP_CLK_GATE, val);
 
@@ -192,8 +188,7 @@ int platform_reset_ctl(int ctrl_id, enum reset_type reset, enum reset_action act
 		write32(DDR_PRESETN_PPOLICY(ctrl_id), request);
 		ret = read32_poll_timeout(status, status == request, USEC, MSEC,
 					  DDR_PRESETN_PSTATUS(ctrl_id));
-	}
-	else {
+	} else {
 		write32(DDR_RESETN_PPOLICY(ctrl_id), request);
 		ret = read32_poll_timeout(status, status == request, USEC, MSEC,
 					  DDR_RESETN_PSTATUS(ctrl_id));
@@ -207,7 +202,7 @@ unsigned long platform_i2c_base_get(int ctrl_id)
 	if (ctrl_id < 0 || ctrl_id >= ARRAY_SIZE(i2c_base_addr))
 		return 0;
 
-	return i2c_base_addr[ctrl_id];  // cppcheck-suppress arrayIndexOutOfBoundsCond
+	return i2c_base_addr[ctrl_id]; // cppcheck-suppress arrayIndexOutOfBoundsCond
 }
 
 static int pll_settings_get(int pll_id, int tck, struct pll_settings *pll_cfg)
@@ -216,7 +211,7 @@ static int pll_settings_get(int pll_id, int tck, struct pll_settings *pll_cfg)
 
 	for (i = 0; i < ARRAY_SIZE(pll_settings[pll_id]); i++) {
 		if (tck == pll_settings[pll_id][i].tck &&
-		    CONFIG_DDR_XTAL_FREQ == pll_settings[pll_id][i].xtal)  {
+		    CONFIG_DDR_XTAL_FREQ == pll_settings[pll_id][i].xtal) {
 			pll_cfg->nr = pll_settings[pll_id][i].nr;
 			pll_cfg->od = pll_settings[pll_id][i].od;
 			pll_cfg->nf = pll_settings[pll_id][i].nf;
@@ -227,8 +222,8 @@ static int pll_settings_get(int pll_id, int tck, struct pll_settings *pll_cfg)
 	if (i == ARRAY_SIZE(pll_settings[pll_id]))
 		return -ECLOCKCFG;
 
-	print_dbg("pll_settings_get: pll_id %d, tck %d, nr: %d, nf: %d, od: %d,\n",
-		  pll_id, tck, pll_cfg->nr, pll_cfg->nf, pll_cfg->od);
+	print_dbg("pll_settings_get: pll_id %d, tck %d, nr: %d, nf: %d, od: %d,\n", pll_id, tck,
+		  pll_cfg->nr, pll_cfg->nf, pll_cfg->od);
 
 	return 0;
 }
@@ -243,10 +238,8 @@ static int pll_cfg(int pll_id, int tck)
 	if (ret)
 		return ret;
 
-	val = FIELD_PREP(DDR_PLL_CFG_SEL, 1) |
-	      FIELD_PREP(DDR_PLL_CFG_MAN, 1) |
-	      FIELD_PREP(DDR_PLL_CFG_OD, pll_cfg.od) |
-	      FIELD_PREP(DDR_PLL_CFG_NF, pll_cfg.nf) |
+	val = FIELD_PREP(DDR_PLL_CFG_SEL, 1) | FIELD_PREP(DDR_PLL_CFG_MAN, 1) |
+	      FIELD_PREP(DDR_PLL_CFG_OD, pll_cfg.od) | FIELD_PREP(DDR_PLL_CFG_NF, pll_cfg.nf) |
 	      FIELD_PREP(DDR_PLL_CFG_NR, pll_cfg.nr);
 	write32(DDR_PLL_CFG(pll_id), val);
 
@@ -298,7 +291,7 @@ int platform_clk_cfg(int ctrl_id, struct ddr_cfg *cfg)
 		8, /* SERV channel 150 MHz */
 		6, /* HSP channel  200 MHz */
 		12, /* LSP0 channel 100 MHz */
-		12  /* LSP1 channel 100 MHz */
+		12 /* LSP1 channel 100 MHz */
 	};
 
 	if (pll_init_done == 0) {
@@ -354,12 +347,10 @@ int platform_clk_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	ucg_bypass_disable(DDR_SUBS_UCG_BASE(0), 2 * ctrl_id);
 
 	/* Enable all AXI channels */
-	val = DDR_AXI_CHS_ENABLE_SDR | DDR_AXI_CHS_ENABLE_PCIE |
-	      DDR_AXI_CHS_ENABLE_ISP | DDR_AXI_CHS_ENABLE_GPU |
-	      DDR_AXI_CHS_ENABLE_VPU | DDR_AXI_CHS_ENABLE_DP |
-	      DDR_AXI_CHS_ENABLE_CPU | DDR_AXI_CHS_ENABLE_SERVICE |
-	      DDR_AXI_CHS_ENABLE_HSP | DDR_AXI_CHS_ENABLE_LSP0 |
-	      DDR_AXI_CHS_ENABLE_LSP1;
+	val = DDR_AXI_CHS_ENABLE_SDR | DDR_AXI_CHS_ENABLE_PCIE | DDR_AXI_CHS_ENABLE_ISP |
+	      DDR_AXI_CHS_ENABLE_GPU | DDR_AXI_CHS_ENABLE_VPU | DDR_AXI_CHS_ENABLE_DP |
+	      DDR_AXI_CHS_ENABLE_CPU | DDR_AXI_CHS_ENABLE_SERVICE | DDR_AXI_CHS_ENABLE_HSP |
+	      DDR_AXI_CHS_ENABLE_LSP0 | DDR_AXI_CHS_ENABLE_LSP1;
 
 	if (ctrl_id == 0)
 		val = FIELD_PREP(DDR_AXI_CHS_ENABLE_DDR0, val);
@@ -413,7 +404,7 @@ static void region_set(struct sysinfo *info, int ctrl_id, int region_id)
 	uint64_t region_start =
 		read32(DDRMC_SARBASE(ctrl_id, region_id)) * (uint64_t)CONFIG_DDRMC_SAR_MINSIZE;
 	uint64_t region_size = (read32(DDRMC_SARSIZE(ctrl_id, region_id)) + 1) *
-		(uint64_t)CONFIG_DDRMC_SAR_MINSIZE;
+			       (uint64_t)CONFIG_DDRMC_SAR_MINSIZE;
 	int i;
 
 	for (i = free_region_id - 1; i >= 0; i--)

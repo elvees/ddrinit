@@ -611,19 +611,19 @@ typedef struct _PMU_SMB_LPDDR4_1D_t {
 	uint8_t CATerminatingRankChB;
 
 	/* Byte offsets 0x7e - 0x89, CSR Addrs 0x5403f - 0x54044, Direction=N/A */
-	uint8_t  Reserved7E;
-	uint8_t  Reserved7F;
-	uint8_t  Reserved80;
-	uint8_t  Reserved81;
-	uint8_t  Reserved82;
-	uint8_t  Reserved83;
-	uint8_t  Reserved84;
-	uint8_t  Reserved85;
-	uint8_t  Reserved86;
-	uint8_t  Reserved87;
-	uint8_t  Reserved88;
-	uint8_t  Reserved89;
+	uint8_t Reserved7E;
+	uint8_t Reserved7F;
+	uint8_t Reserved80;
+	uint8_t Reserved81;
+	uint8_t Reserved82;
+	uint8_t Reserved83;
+	uint8_t Reserved84;
+	uint8_t Reserved85;
+	uint8_t Reserved86;
+	uint8_t Reserved87;
+	uint8_t Reserved88;
+	uint8_t Reserved89;
 
-} __attribute__ ((packed)) PMU_SMB_LPDDR4_1D_t;
+} __attribute__((packed)) PMU_SMB_LPDDR4_1D_t;
 
 #endif

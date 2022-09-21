@@ -4,7 +4,7 @@
 #include <stdarg.h>
 
 #define PAD_RIGHT 1
-#define PAD_ZERO 2
+#define PAD_ZERO  2
 
 /* The following should be enough for 32 bit int */
 #define PRINT_BUF_LEN 12
@@ -83,7 +83,7 @@ static int printi(char **out, int i, int b, int sg, int width, int pad, int letb
 	*s = '\0';
 
 	while (u) {
-		t = u % b;  // cppcheck-suppress zerodivcond
+		t = u % b; // cppcheck-suppress zerodivcond
 		if (t >= 10)
 			t += letbase - '0' - 10;
 		*--s = t + '0';
@@ -158,7 +158,7 @@ static int print(char **out, const char *format, va_list args)
 				continue;
 			}
 		} else {
-		out:
+out:
 			printchar(out, *format);
 			++pc;
 		}

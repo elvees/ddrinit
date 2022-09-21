@@ -10,13 +10,13 @@
 #include <regs.h>
 #include <uart.h>
 
-#define ddrinit_panic(ret) \
-({ \
+#define ddrinit_panic(ret)                                                    \
+	({                                                                    \
 		printf("Failed to initialize DDR: %s\n", errcode2str((ret))); \
-		while (1) { \
-			/* ... */ \
-		} \
-})
+		while (1) {                                                   \
+			/* ... */                                             \
+		}                                                             \
+	})
 
 /* Initialize DDRMC, PHY and DRAM as descibed in DWC_UMCTL2 databook:
  * Step 1:  Follow the PHYs power up procedure.
@@ -100,7 +100,8 @@ int ddr_init(int ctrl_id, struct ddr_cfg *cfg)
 
 	/* Step 7 */
 	write32_with_dbg(DDRMC_SWCTL(ctrl_id), 1);
-	ret = read32_poll_timeout(val, val & DDRMC_SWSTAT_SWDONE_ACK, USEC, 100 * USEC, DDRMC_SWSTAT(ctrl_id));
+	ret = read32_poll_timeout(val, val & DDRMC_SWSTAT_SWDONE_ACK, USEC, 100 * USEC,
+				  DDRMC_SWSTAT(ctrl_id));
 	if (ret)
 		return ret;
 
@@ -119,12 +120,14 @@ int ddr_init(int ctrl_id, struct ddr_cfg *cfg)
 
 	/* Step 17 */
 	write32_with_dbg(DDRMC_SWCTL(ctrl_id), 1);
-	ret = read32_poll_timeout(val, val & DDRMC_SWSTAT_SWDONE_ACK, USEC, 100 * USEC, DDRMC_SWSTAT(ctrl_id));
+	ret = read32_poll_timeout(val, val & DDRMC_SWSTAT_SWDONE_ACK, USEC, 100 * USEC,
+				  DDRMC_SWSTAT(ctrl_id));
 	if (ret)
 		return ret;
 
 	/* Step 18 */
-	ret = read32_poll_timeout(val, val & DDRMC_DFISTAT_INIT_COMPLETE, USEC, 100 * USEC, DDRMC_DFISTAT(ctrl_id));
+	ret = read32_poll_timeout(val, val & DDRMC_DFISTAT_INIT_COMPLETE, USEC, 100 * USEC,
+				  DDRMC_DFISTAT(ctrl_id));
 	if (ret)
 		return ret;
 
@@ -150,12 +153,14 @@ int ddr_init(int ctrl_id, struct ddr_cfg *cfg)
 
 	/* Step 24 */
 	write32_with_dbg(DDRMC_SWCTL(ctrl_id), 1);
-	ret = read32_poll_timeout(val, val & DDRMC_SWSTAT_SWDONE_ACK, USEC, 100 * USEC, DDRMC_SWSTAT(ctrl_id));
+	ret = read32_poll_timeout(val, val & DDRMC_SWSTAT_SWDONE_ACK, USEC, 100 * USEC,
+				  DDRMC_SWSTAT(ctrl_id));
 	if (ret)
 		return ret;
 
 	/* Step 25 */
-	ret = read32_poll_timeout(val, (val & DDRMC_STAT_OPER_MODE) == 1, USEC, 100 * USEC, DDRMC_STAT(ctrl_id));
+	ret = read32_poll_timeout(val, (val & DDRMC_STAT_OPER_MODE) == 1, USEC, 100 * USEC,
+				  DDRMC_STAT(ctrl_id));
 	if (ret)
 		return ret;
 
@@ -174,20 +179,34 @@ int ddr_init(int ctrl_id, struct ddr_cfg *cfg)
 char *errcode2str(int id)
 {
 	switch (-id) {
-		case EDDRMC0INITFAIL: return "Required DDRMCs have not been initialized";
-		case EPOWERUP: return "Failed to power up";
-		case ECLOCKCFG: return "Failed to configure clock";
-		case EI2CXFER: return "Failed to communicate over I2C";
-		case ESPDCHECKSUM: return "Incorrect SPD checksum";
-		case EDIMMCFG: return "Failed to configure DIMM";
-		case EFWTYPE: return "Unknown firmware type";
-		case ETRAINFAIL: return "PHY training error";
-		case EI2CCFG: return "Failed to configure I2C controller";
-		case ETIMEDOUT: return "Event timed out";
-		case ETRAINTIMEOUT: return "PHY training timed out";
-		case EUARTCFG: return "Failed to configure UART";
-		case EVMMUCFG: return "Failed to configure VMMU";
-		default: return "Unknown error";
+	case EDDRMC0INITFAIL:
+		return "Required DDRMCs have not been initialized";
+	case EPOWERUP:
+		return "Failed to power up";
+	case ECLOCKCFG:
+		return "Failed to configure clock";
+	case EI2CXFER:
+		return "Failed to communicate over I2C";
+	case ESPDCHECKSUM:
+		return "Incorrect SPD checksum";
+	case EDIMMCFG:
+		return "Failed to configure DIMM";
+	case EFWTYPE:
+		return "Unknown firmware type";
+	case ETRAINFAIL:
+		return "PHY training error";
+	case EI2CCFG:
+		return "Failed to configure I2C controller";
+	case ETIMEDOUT:
+		return "Event timed out";
+	case ETRAINTIMEOUT:
+		return "PHY training timed out";
+	case EUARTCFG:
+		return "Failed to configure UART";
+	case EVMMUCFG:
+		return "Failed to configure VMMU";
+	default:
+		return "Unknown error";
 	}
 }
 
@@ -230,10 +249,9 @@ int main(void)
 		ret = ddr_init(i, &cfg);
 		timer_end = timer_get_usec();
 		if (ret != 0) {
-			printf("DDRMC%d: Failed to initialize, time elapsed: %d us: %s\n",
-			       i, timer_end - timer_start, errcode2str(ret));
-		}
-		else {
+			printf("DDRMC%d: Failed to initialize, time elapsed: %d us: %s\n", i,
+			       timer_end - timer_start, errcode2str(ret));
+		} else {
 			printf("DDRMC%d: Initialized successfully within %d us, %d ranks, speed %d MT/s\n",
 			       i, timer_end - timer_start, cfg.ranks, info.speed[i]);
 			init_mask |= BIT(i);

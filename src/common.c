@@ -61,7 +61,7 @@ void delay_usec(int usec)
 
 	/* Loop till event */
 	while (get_ticks() < tmp + 1)
-		 /*NOP*/;
+		/*NOP*/;
 }
 
 int timer_get_usec(void)

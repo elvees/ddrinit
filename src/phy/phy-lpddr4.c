@@ -150,7 +150,7 @@ static void calibration_init(int ctrl_id, struct ddr_cfg *cfg)
 
 static void dfifreq_xlat_cfg(int ctrl_id)
 {
-	uint16_t vals[] = {0, 0, 0x4444, 0x8888, 0x5555, 0, 0, 0xf000};
+	uint16_t vals[] = { 0, 0, 0x4444, 0x8888, 0x5555, 0, 0, 0xf000 };
 	int i;
 
 /* According to phyinit code DFI_FREQ_XLAT0 and DFI_FREQ_XLAT4 must be increased
@@ -215,15 +215,11 @@ void phy_init(int ctrl_id, struct ddr_cfg *cfg)
 	phy_write32_with_dbg(ctrl_id, PHY_SEQ0BGPR4, 0x0);
 
 	/* Set DqsPreambleControl */
-	tmp1 = PREP_FIELD3(PHY_DQS_PREAMBLE_CTL,
-			   TWOTCK_RX_DQSPRE, 1,
-			   TWOTCK_TX_DQSPRE, 1,
+	tmp1 = PREP_FIELD3(PHY_DQS_PREAMBLE_CTL, TWOTCK_RX_DQSPRE, 1, TWOTCK_TX_DQSPRE, 1,
 			   LP4_TGL_TWOTCK_TXDQS_PRE, 1);
 
-	tmp1 |= PREP_FIELD3(PHY_DQS_PREAMBLE_CTL,
-			   LP4_POSTAMLE_EXT, 1,
-			   LP4_STTC_PREBRIDGE_RXEN, 1,
-			   WDQS_EXT, 0);
+	tmp1 |= PREP_FIELD3(PHY_DQS_PREAMBLE_CTL, LP4_POSTAMLE_EXT, 1, LP4_STTC_PREBRIDGE_RXEN, 1,
+			    WDQS_EXT, 0);
 	phy_write32_with_dbg(ctrl_id, PHY_DQS_PREAMBLE_CTL, tmp1);
 
 	dll_init(ctrl_id);
@@ -277,9 +273,9 @@ void phy_training_params_load(int ctrl_id, struct ddr_cfg *cfg)
 #endif
 
 #ifdef CONFIG_DISABLE_CA_TRAINING
-	params.SequenceCtrl =  0x31f;
+	params.SequenceCtrl = 0x31f;
 #else
-	params.SequenceCtrl =  0x131f;
+	params.SequenceCtrl = 0x131f;
 #endif
 	params.PhyConfigOverride = 0;
 

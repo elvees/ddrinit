@@ -46,11 +46,8 @@ enum pdci_reset_lines {
 };
 
 static unsigned long i2c_base_addr[] = {
-	0xffffffffbcc60000,
-	0xffffffffbcc70000,
-	0xffffffffbd060000,
-	0xffffffffbd070000,
-	0xffffffffbf970000,
+	0xffffffffbcc60000, 0xffffffffbcc70000, 0xffffffffbd060000,
+	0xffffffffbd070000, 0xffffffffbf970000,
 };
 
 void phy_write32(int ctrl_id, unsigned long addr, uint32_t val)
@@ -132,8 +129,7 @@ int platform_reset_ctl(int ctrl_id, enum reset_type reset, enum reset_action act
 	return 0;
 }
 
-static int pll_cfg(enum ddr_ucg_id ucg_id, int pll_id, uint32_t freq, uint32_t xtal,
-		   uint32_t div)
+static int pll_cfg(enum ddr_ucg_id ucg_id, int pll_id, uint32_t freq, uint32_t xtal, uint32_t div)
 {
 	int ret;
 	uint16_t fbdiv;
@@ -142,8 +138,8 @@ static int pll_cfg(enum ddr_ucg_id ucg_id, int pll_id, uint32_t freq, uint32_t x
 	fbdiv = freq / xtal;
 	frac = (freq % xtal) * 16777216ULL / xtal;
 
-	print_dbg("PLL%d: XTAL: %d, PLL VCO/2: %d, PLL FOUTPOSTDIV: %d\n", pll_id, xtal,
-		  freq, freq / div);
+	print_dbg("PLL%d: XTAL: %d, PLL VCO/2: %d, PLL FOUTPOSTDIV: %d\n", pll_id, xtal, freq,
+		  freq / div);
 	print_dbg("PLL%d: fbdiv: %d, frac: %d\n", pll_id, fbdiv, frac);
 
 	/* Enable Bypass */
@@ -162,8 +158,7 @@ static int pll_cfg(enum ddr_ucg_id ucg_id, int pll_id, uint32_t freq, uint32_t x
 	/* Set POSTDIV1 and POSTDIV2 */
 	val = read32(UCG_UFG_REG10(ucg_id, pll_id));
 	val &= ~UCG_UFG_REG10_POSTDIV1 & ~UCG_UFG_REG10_POSTDIV2;
-	val |= FIELD_PREP(UCG_UFG_REG10_POSTDIV1, div) |
-	       FIELD_PREP(UCG_UFG_REG10_POSTDIV2, 1);
+	val |= FIELD_PREP(UCG_UFG_REG10_POSTDIV1, div) | FIELD_PREP(UCG_UFG_REG10_POSTDIV2, 1);
 	write32(UCG_UFG_REG10(ucg_id, pll_id), val);
 
 	/* Set FBDIV */
@@ -186,13 +181,14 @@ static int pll_cfg(enum ddr_ucg_id ucg_id, int pll_id, uint32_t freq, uint32_t x
 
 	/* Wait for locking */
 
-	ret = read32_poll_timeout(val, val & UCG_UFG_REG0_LOCKSTAT, USEC, MSEC, UCG_UFG_REG0(ucg_id, pll_id));
+	ret = read32_poll_timeout(val, val & UCG_UFG_REG0_LOCKSTAT, USEC, MSEC,
+				  UCG_UFG_REG0(ucg_id, pll_id));
 	if (ret)
 		return ret;
 
-	print_dbg("PLL%d: UFG0 REGS 0, 3, 5: 0x%x, 0x%x, 0x%x\n",
-		  pll_id, read32(UCG_UFG_REG0(ucg_id, pll_id)),
-		  read32(UCG_UFG_REG3(ucg_id, pll_id)), read32(UCG_UFG_REG5(ucg_id, pll_id)));
+	print_dbg("PLL%d: UFG0 REGS 0, 3, 5: 0x%x, 0x%x, 0x%x\n", pll_id,
+		  read32(UCG_UFG_REG0(ucg_id, pll_id)), read32(UCG_UFG_REG3(ucg_id, pll_id)),
+		  read32(UCG_UFG_REG5(ucg_id, pll_id)));
 
 	return 0;
 }
@@ -277,41 +273,41 @@ static void uart0_pads_cfg(void)
 static void i2c_pads_cfg(int i2c_ctrl_id)
 {
 	switch (i2c_ctrl_id) {
-		case 0:
-			write32(MFIO_NX_FUNCTION_CTRL(54), 0xfa);
-			write32(MFIO_CR_GPION_BIT_EN(3), 0x400000);
+	case 0:
+		write32(MFIO_NX_FUNCTION_CTRL(54), 0xfa);
+		write32(MFIO_CR_GPION_BIT_EN(3), 0x400000);
 
-			write32(MFIO_NX_FUNCTION_CTRL(55), 0xfa);
-			write32(MFIO_CR_GPION_BIT_EN(3), 0x800000);
-			break;
-		case 1:
-			write32(MFIO_NX_FUNCTION_CTRL(56), 0xfa);
-			write32(MFIO_CR_GPION_BIT_EN(3), 0x1000000);
+		write32(MFIO_NX_FUNCTION_CTRL(55), 0xfa);
+		write32(MFIO_CR_GPION_BIT_EN(3), 0x800000);
+		break;
+	case 1:
+		write32(MFIO_NX_FUNCTION_CTRL(56), 0xfa);
+		write32(MFIO_CR_GPION_BIT_EN(3), 0x1000000);
 
-			write32(MFIO_NX_FUNCTION_CTRL(57), 0xfa);
-			write32(MFIO_CR_GPION_BIT_EN(3), 0x2000000);
-			break;
-		case 2:
-			write32(MFIO_SX_FUNCTION_CTRL(8), 0xfa);
-			write32(MFIO_CR_GPIOS_BIT_EN(0), 0x1000000);
+		write32(MFIO_NX_FUNCTION_CTRL(57), 0xfa);
+		write32(MFIO_CR_GPION_BIT_EN(3), 0x2000000);
+		break;
+	case 2:
+		write32(MFIO_SX_FUNCTION_CTRL(8), 0xfa);
+		write32(MFIO_CR_GPIOS_BIT_EN(0), 0x1000000);
 
-			write32(MFIO_SX_FUNCTION_CTRL(9), 0xfa);
-			write32(MFIO_CR_GPIOS_BIT_EN(0), 0x2000000);
-			break;
-		case 3:
-			write32(MFIO_SX_FUNCTION_CTRL(10), 0xfa);
-			write32(MFIO_CR_GPIOS_BIT_EN(0), 0x4000000);
+		write32(MFIO_SX_FUNCTION_CTRL(9), 0xfa);
+		write32(MFIO_CR_GPIOS_BIT_EN(0), 0x2000000);
+		break;
+	case 3:
+		write32(MFIO_SX_FUNCTION_CTRL(10), 0xfa);
+		write32(MFIO_CR_GPIOS_BIT_EN(0), 0x4000000);
 
-			write32(MFIO_SX_FUNCTION_CTRL(11), 0xfa);
-			write32(MFIO_CR_GPIOS_BIT_EN(0), 0x8000000);
-			break;
-		case 4:
-			write32(MFIO_NX_FUNCTION_CTRL(35), 0xfa);
-			write32(MFIO_CR_GPION_BIT_EN(2), 0x80000);
+		write32(MFIO_SX_FUNCTION_CTRL(11), 0xfa);
+		write32(MFIO_CR_GPIOS_BIT_EN(0), 0x8000000);
+		break;
+	case 4:
+		write32(MFIO_NX_FUNCTION_CTRL(35), 0xfa);
+		write32(MFIO_CR_GPION_BIT_EN(2), 0x80000);
 
-			write32(MFIO_NX_FUNCTION_CTRL(36), 0xfa);
-			write32(MFIO_CR_GPION_BIT_EN(2), 0x100000);
-			break;
+		write32(MFIO_NX_FUNCTION_CTRL(36), 0xfa);
+		write32(MFIO_CR_GPION_BIT_EN(2), 0x100000);
+		break;
 	}
 }
 
@@ -333,7 +329,7 @@ unsigned long platform_i2c_base_get(int ctrl_id)
 	if (ctrl_id < 0 || ctrl_id >= ARRAY_SIZE(i2c_base_addr))
 		return 0;
 
-	return i2c_base_addr[ctrl_id];  // cppcheck-suppress arrayIndexOutOfBoundsCond
+	return i2c_base_addr[ctrl_id]; // cppcheck-suppress arrayIndexOutOfBoundsCond
 }
 
 int platform_i2c_cfg(int ctrl_id)
@@ -352,13 +348,13 @@ int platform_i2c_cfg(int ctrl_id)
 #ifdef CONFIG_INTERLEAVING
 static void interleaving_enable(int init_mask, struct sysinfo *info)
 {
-	uint32_t hash_func[4] = {0, 0, 0, 0};
+	uint32_t hash_func[4] = { 0, 0, 0, 0 };
 
 	/* Enable memory interleaving only if all 4 DDRMC have been initialized */
 	if ((init_mask & 0xf) != 0xf)
 		return;
 
-	switch(CONFIG_INTERLEAVING_SIZE) {
+	switch (CONFIG_INTERLEAVING_SIZE) {
 	case 0:
 		hash_func[2] = 0x400;
 		hash_func[0] = 0x800;
@@ -381,8 +377,9 @@ static void interleaving_enable(int init_mask, struct sysinfo *info)
 	info->interleaving.enable = true;
 	info->interleaving.channels = 4;
 
-	uint32_t tmp = FIELD_PREP(DDRSUBS_REGBANK_SOC_INTERLEAVE_BOUNDARY, CONFIG_INTERLEAVING_SIZE) |
-		       FIELD_PREP(DDRSUBS_REGBANK_SOC_INTERLEAVE_ENABLE, 1);
+	uint32_t tmp =
+		FIELD_PREP(DDRSUBS_REGBANK_SOC_INTERLEAVE_BOUNDARY, CONFIG_INTERLEAVING_SIZE) |
+		FIELD_PREP(DDRSUBS_REGBANK_SOC_INTERLEAVE_ENABLE, 1);
 
 	for (int i = 0; i < CONFIG_DDRMC_MAX_NUMBER; i++)
 		write32(DDRSUBS_REGBANK_SOC_INTERLEAVE(i), tmp);
@@ -555,7 +552,7 @@ static int south_ultrasoc_disable(void)
 	int i, ret;
 	uint32_t data0[] = { 0x1452108, 0x1452308, 0x1452f08, 0x1453308,
 			     0x5453308, 0x1453508, 0x3453708 };
-	uint32_t data1[] = { 0x3452108,  0x3452308, 0x3452f08, 0x3453308,
+	uint32_t data1[] = { 0x3452108, 0x3452308, 0x3452f08, 0x3453308,
 			     0x7453308, 0x1453708, 0x1453b08 };
 	uint32_t val = 0;
 
@@ -595,18 +592,16 @@ static void mem_regions_set(int init_mask, struct sysinfo *info)
 	info->mem_regions[1].size = dsize[0] - CONFIG_MEM_REGION0_SIZE;
 	int free_region_idx = 2;
 	for (int i = 1; i < CONFIG_DDRMC_MAX_NUMBER; i++) {
-		uint64_t cfg_size[] = { CONFIG_MEM_REGION2_SIZE,
-					CONFIG_MEM_REGION3_SIZE,
+		uint64_t cfg_size[] = { CONFIG_MEM_REGION2_SIZE, CONFIG_MEM_REGION3_SIZE,
 					CONFIG_MEM_REGION4_SIZE };
-		unsigned long cfg_start[] = { CONFIG_MEM_REGION2_START,
-					      CONFIG_MEM_REGION3_START,
+		unsigned long cfg_start[] = { CONFIG_MEM_REGION2_START, CONFIG_MEM_REGION3_START,
 					      CONFIG_MEM_REGION4_START };
 		if (!(init_mask & BIT(i)))
 			continue;
 		if (dsize[i] > cfg_size[i - 1]) {
 			dsize[i] = cfg_size[i - 1];
-			printf("DDRMC%d: Memory size truncated to %lu MiB\n",
-			       i, dsize[i] / 1024 / 1024);
+			printf("DDRMC%d: Memory size truncated to %lu MiB\n", i,
+			       dsize[i] / 1024 / 1024);
 		}
 		if (info->interleaving.enable) {
 			info->mem_regions[1].size += dsize[i];
@@ -683,7 +678,6 @@ int platform_ddrcfg_get(int ctrl_id, struct ddr_cfg *cfg)
 uint32_t platform_get_timer_count()
 {
 	uint32_t res;
-	__asm__ __volatile__("mfc0 %0, $9"
-			     : "=r" (res));
+	__asm__ __volatile__("mfc0 %0, $9" : "=r"(res));
 	return res;
 }

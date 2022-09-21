@@ -9,11 +9,16 @@
 int i2c_ctrl_id_get(int ddr_ctrl_id)
 {
 	switch (ddr_ctrl_id) {
-		case 0: return CONFIG_DDR0_I2C;
-		case 1: return CONFIG_DDR1_I2C;
-		case 2: return CONFIG_DDR2_I2C;
-		case 3: return CONFIG_DDR3_I2C;
-		default: return -EI2CCFG;
+	case 0:
+		return CONFIG_DDR0_I2C;
+	case 1:
+		return CONFIG_DDR1_I2C;
+	case 2:
+		return CONFIG_DDR2_I2C;
+	case 3:
+		return CONFIG_DDR3_I2C;
+	default:
+		return -EI2CCFG;
 	}
 }
 
@@ -114,7 +119,7 @@ int i2c_spd_read(int i2c_ctrl_id, uint8_t *buf, int len)
 {
 	int i, ret, max_byte = 256;
 
-	for (i = 0; (i < len) && (i < max_byte); i++){
+	for (i = 0; (i < len) && (i < max_byte); i++) {
 		ret = i2c_read_reg(i2c_ctrl_id, i, buf);
 		if (ret)
 			return ret;

@@ -6,39 +6,39 @@
 #include <regs.h>
 
 /* DRAM timings from JESD79-4B standard that are common for all DDR4 devices. */
-#define DRAM_TIMING_TWR_PS 15000
-#define DRAM_TIMING_TREFI_PS 7800000
+#define DRAM_TIMING_TWR_PS     15000
+#define DRAM_TIMING_TREFI_PS   7800000
 #define DRAM_TIMING_TRASMAX_PS (9 * DRAM_TIMING_TREFI_PS)
-#define DRAM_TIMING_TRTP_PS 7500
-#define DRAM_TIMING_TXP_PS 6000
-#define DRAM_TIMING_TWTRL_PS 7500
-#define DRAM_TIMING_TMOD_PS 15000
-#define DRAM_TIMING_TCKE_PS 5000
-#define DRAM_TIMING_TCKSRE_PS 10000
-#define DRAM_TIMING_TCKSRX_PS 10000
-#define DRAM_TIMING_TWTRS_PS 2500
+#define DRAM_TIMING_TRTP_PS    7500
+#define DRAM_TIMING_TXP_PS     6000
+#define DRAM_TIMING_TWTRL_PS   7500
+#define DRAM_TIMING_TMOD_PS    15000
+#define DRAM_TIMING_TCKE_PS    5000
+#define DRAM_TIMING_TCKSRE_PS  10000
+#define DRAM_TIMING_TCKSRX_PS  10000
+#define DRAM_TIMING_TWTRS_PS   2500
 
 #define DRAM_TIMING_TZQINIT 1024
-#define DRAM_TIMING_TZQCS 128
+#define DRAM_TIMING_TZQCS   128
 #define DRAM_TIMING_TZQOPER 512
-#define DRAM_TIMING_TMRD 8
-#define DRAM_TIMING_TDLLK 1024
-#define DRAM_TIMING_TCCDS 4
+#define DRAM_TIMING_TMRD    8
+#define DRAM_TIMING_TDLLK   1024
+#define DRAM_TIMING_TCCDS   4
 
-#define DRAM_TIMING_TRASMAX(tck) (ps2clk_jedec(DRAM_TIMING_TRASMAX_PS, (tck)))
-#define DRAM_TIMING_TWR(tck) (ps2clk_jedec(DRAM_TIMING_TWR_PS, (tck)))
-#define DRAM_TIMING_TRTP(tck) (max(ps2clk_jedec(DRAM_TIMING_TRTP_PS, (tck)), 4))
-#define DRAM_TIMING_TXP(tck) (max(ps2clk_jedec(DRAM_TIMING_TXP_PS, (tck)), 4))
-#define DRAM_TIMING_TWTRL(tck) (max(ps2clk_jedec(DRAM_TIMING_TWTRL_PS, (tck)), 4))
-#define DRAM_TIMING_TMOD(tck) (max(ps2clk_jedec(DRAM_TIMING_TMOD_PS, (tck)), 24))
-#define DRAM_TIMING_TCKE(tck) (max(ps2clk_jedec(DRAM_TIMING_TCKE_PS, (tck)), 3))
-#define DRAM_TIMING_TCKSRE(tck) (max(ps2clk_jedec(DRAM_TIMING_TCKSRE_PS, (tck)), 5))
-#define DRAM_TIMING_TCKSRX(tck) (max(ps2clk_jedec(DRAM_TIMING_TCKSRX_PS, (tck)), 5))
-#define DRAM_TIMING_TWTRS(tck) (max(ps2clk_jedec(DRAM_TIMING_TWTRS_PS, (tck)), 2))
-#define DRAM_TIMING_TXS(trfc1, tck) (ps2clk_jedec(10000, (tck)) + (trfc1))
+#define DRAM_TIMING_TRASMAX(tck)	  (ps2clk_jedec(DRAM_TIMING_TRASMAX_PS, (tck)))
+#define DRAM_TIMING_TWR(tck)		  (ps2clk_jedec(DRAM_TIMING_TWR_PS, (tck)))
+#define DRAM_TIMING_TRTP(tck)		  (max(ps2clk_jedec(DRAM_TIMING_TRTP_PS, (tck)), 4))
+#define DRAM_TIMING_TXP(tck)		  (max(ps2clk_jedec(DRAM_TIMING_TXP_PS, (tck)), 4))
+#define DRAM_TIMING_TWTRL(tck)		  (max(ps2clk_jedec(DRAM_TIMING_TWTRL_PS, (tck)), 4))
+#define DRAM_TIMING_TMOD(tck)		  (max(ps2clk_jedec(DRAM_TIMING_TMOD_PS, (tck)), 24))
+#define DRAM_TIMING_TCKE(tck)		  (max(ps2clk_jedec(DRAM_TIMING_TCKE_PS, (tck)), 3))
+#define DRAM_TIMING_TCKSRE(tck)		  (max(ps2clk_jedec(DRAM_TIMING_TCKSRE_PS, (tck)), 5))
+#define DRAM_TIMING_TCKSRX(tck)		  (max(ps2clk_jedec(DRAM_TIMING_TCKSRX_PS, (tck)), 5))
+#define DRAM_TIMING_TWTRS(tck)		  (max(ps2clk_jedec(DRAM_TIMING_TWTRS_PS, (tck)), 2))
+#define DRAM_TIMING_TXS(trfc1, tck)	  (ps2clk_jedec(10000, (tck)) + (trfc1))
 #define DRAM_TIMING_TXS_ABORT(trfc4, tck) (ps2clk_jedec(10000, (tck)) + (trfc4))
-#define DRAM_TIMING_TXS_FAST(trfc4, tck) (ps2clk_jedec(10000, (tck)) + (trfc4))
-#define DRAM_TIMING_TREFI(tck) (DIV_ROUND_UP(DRAM_TIMING_TREFI_PS, (tck)))
+#define DRAM_TIMING_TXS_FAST(trfc4, tck)  (ps2clk_jedec(10000, (tck)) + (trfc4))
+#define DRAM_TIMING_TREFI(tck)		  (DIV_ROUND_UP(DRAM_TIMING_TREFI_PS, (tck)))
 
 static uint8_t ddr4_cwl_get(uint32_t tck)
 {
@@ -404,8 +404,8 @@ void ddrmc_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	      FIELD_PREP(DDRMC_INIT0_SKIP_DRAM_INIT, 3);
 	write32(DDRMC_INIT0(ctrl_id), val);
 
-	write32(DDRMC_INIT1(ctrl_id), FIELD_PREP(DDRMC_INIT1_DRAM_RSTN,
-						 DIV_ROUND_UP(200000000, tck * 2048)));
+	write32(DDRMC_INIT1(ctrl_id),
+		FIELD_PREP(DDRMC_INIT1_DRAM_RSTN, DIV_ROUND_UP(200000000, tck * 2048)));
 
 	val = FIELD_PREP(DDRMC_INIT3_MR, ddr4_mr0_get(cfg)) |
 	      FIELD_PREP(DDRMC_INIT3_EMR, ddr4_mr1_get(cfg));

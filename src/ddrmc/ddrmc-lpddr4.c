@@ -5,15 +5,15 @@
 #include <ddrmc.h>
 #include <regs.h>
 
-#define LPDDR4_MR1_BL GENMASK(1, 0)
+#define LPDDR4_MR1_BL	  GENMASK(1, 0)
 #define LPDDR4_MR1_WR_PRE BIT(2)
 #define LPDDR4_MR1_RD_PRE BIT(3)
-#define LPDDR4_MR1_NWR GENMASK(6, 4)
-#define LPDDR4_MR1_RPST BIT(7)
+#define LPDDR4_MR1_NWR	  GENMASK(6, 4)
+#define LPDDR4_MR1_RPST	  BIT(7)
 
-#define LPDDR4_MR2_RL GENMASK(2, 0)
-#define LPDDR4_MR2_WL GENMASK(5, 3)
-#define LPDDR4_MR2_WLS BIT(6)
+#define LPDDR4_MR2_RL	 GENMASK(2, 0)
+#define LPDDR4_MR2_WL	 GENMASK(5, 3)
+#define LPDDR4_MR2_WLS	 BIT(6)
 #define LPDDR4_MR2_WRLEV BIT(7)
 
 #define LPDDR4_MR11_DQ_ODT GENMASK(2, 0)
@@ -171,7 +171,7 @@ static int dramtmg2_rd2wr_get(struct ddr_cfg *cfg)
 #else
 	ret += 1 - odtlon_get(cfg->tck) - DIV_ROUND_UP(CONFIG_DRAM_TIMING_TODTON_MIN, cfg->tck);
 #endif
-	return DIV_ROUND_UP(ret, 2)  * 13 / 10;
+	return DIV_ROUND_UP(ret, 2) * 13 / 10;
 }
 
 static int dramtmg3_tmod_get(struct ddr_cfg *cfg)
@@ -333,10 +333,8 @@ uint8_t lpddr4_mr1_get(struct ddr_cfg *cfg)
 		break;
 	}
 
-	mr1 = FIELD_PREP(LPDDR4_MR1_BL, bl) |
-	      FIELD_PREP(LPDDR4_MR1_WR_PRE, 1) |
-	      FIELD_PREP(LPDDR4_MR1_RD_PRE, 0) |
-	      FIELD_PREP(LPDDR4_MR1_NWR, nwr) |
+	mr1 = FIELD_PREP(LPDDR4_MR1_BL, bl) | FIELD_PREP(LPDDR4_MR1_WR_PRE, 1) |
+	      FIELD_PREP(LPDDR4_MR1_RD_PRE, 0) | FIELD_PREP(LPDDR4_MR1_NWR, nwr) |
 	      FIELD_PREP(LPDDR4_MR1_RPST, rpst);
 
 	return mr1;
@@ -373,10 +371,8 @@ uint8_t lpddr4_mr2_get(struct ddr_cfg *cfg)
 		break;
 	}
 
-	mr2 = FIELD_PREP(LPDDR4_MR2_RL, rl) |
-	      FIELD_PREP(LPDDR4_MR2_WL, cwl_get(cfg->tck) / 2 - 2) |
-	      FIELD_PREP(LPDDR4_MR2_WLS, 0) |
-	      FIELD_PREP(LPDDR4_MR2_WRLEV, 0);
+	mr2 = FIELD_PREP(LPDDR4_MR2_RL, rl) | FIELD_PREP(LPDDR4_MR2_WL, cwl_get(cfg->tck) / 2 - 2) |
+	      FIELD_PREP(LPDDR4_MR2_WLS, 0) | FIELD_PREP(LPDDR4_MR2_WRLEV, 0);
 
 	return mr2;
 }
@@ -415,8 +411,7 @@ uint8_t lpddr4_mr11_get(struct ddr_cfg *cfg)
 	ca_odt = 1;
 #endif
 
-	mr11 = FIELD_PREP(LPDDR4_MR11_DQ_ODT, dq_odt) |
-	       FIELD_PREP(LPDDR4_MR11_CA_ODT, ca_odt);
+	mr11 = FIELD_PREP(LPDDR4_MR11_DQ_ODT, dq_odt) | FIELD_PREP(LPDDR4_MR11_CA_ODT, ca_odt);
 
 	return mr11;
 }
@@ -480,16 +475,14 @@ void dram_timings_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	write32_with_dbg(DDRMC_DRAMTMG5(ctrl_id), val);
 
 	val = FIELD_PREP(DDRMC_DRAMTMG6_TCKCSX, DIV_ROUND_UP(txp_get(cfg) + 2, 2)) |
-	      FIELD_PREP(DDRMC_DRAMTMG6_TCKDPDX, 1) |
-	      FIELD_PREP(DDRMC_DRAMTMG6_TCKDPDE, 1);
+	      FIELD_PREP(DDRMC_DRAMTMG6_TCKDPDX, 1) | FIELD_PREP(DDRMC_DRAMTMG6_TCKDPDE, 1);
 	write32_with_dbg(DDRMC_DRAMTMG6(ctrl_id), val);
 
 	val = FIELD_PREP(DDRMC_DRAMTMG7_TCKPDX, dramtmg7_tckpdx_get(cfg)) |
 	      FIELD_PREP(DDRMC_DRAMTMG7_TCKPDE, dramtmg7_tckpde_get(cfg));
 	write32_with_dbg(DDRMC_DRAMTMG7(ctrl_id), val);
 
-	val = FIELD_PREP(DDRMC_DRAMTMG13_TPPD, 2) |
-	      FIELD_PREP(DDRMC_DRAMTMG13_TCCDMW, 16) |
+	val = FIELD_PREP(DDRMC_DRAMTMG13_TPPD, 2) | FIELD_PREP(DDRMC_DRAMTMG13_TCCDMW, 16) |
 	      FIELD_PREP(DDRMC_DRAMTMG13_ODTLOFF, DIV_ROUND_UP(odtloff_get(cfg->tck), 2));
 	write32_with_dbg(DDRMC_DRAMTMG13(ctrl_id), val);
 
@@ -506,7 +499,7 @@ static void addrmap_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	write32_with_dbg(DDRMC_ADDRMAP2(ctrl_id), 0);
 	write32_with_dbg(DDRMC_ADDRMAP3(ctrl_id), 0);
 	write32_with_dbg(DDRMC_ADDRMAP4(ctrl_id), FIELD_PREP(DDRMC_ADDRMAP4_COL_B10, 31) |
-						  FIELD_PREP(DDRMC_ADDRMAP4_COL_B11, 31));
+							  FIELD_PREP(DDRMC_ADDRMAP4_COL_B11, 31));
 
 	next_bit = cfg->col_addr_bits;
 
@@ -590,8 +583,7 @@ static void dfi_timings_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	uint8_t ctrl_delay = 4;
 
 	/* TODO: Some DFI timings should be moved to Kconfig */
-	val = FIELD_PREP(DDRMC_DFITMG0_WRLAT, cwl + 1 - 5) |
-	      FIELD_PREP(DDRMC_DFITMG0_WRDATA, 2) |
+	val = FIELD_PREP(DDRMC_DFITMG0_WRLAT, cwl + 1 - 5) | FIELD_PREP(DDRMC_DFITMG0_WRDATA, 2) |
 	      FIELD_PREP(DDRMC_DFITMG0_WRDATA_DFICLK, 1) |
 	      FIELD_PREP(DDRMC_DFITMG0_RDDATAEN, cl - 5) |
 	      FIELD_PREP(DDRMC_DFITMG0_RDDATA_DFI_CLK, 1) |
@@ -601,7 +593,8 @@ static void dfi_timings_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	/* TODO: Verification of DFITMG1_WRDATA_DELAY is needed */
 	val = FIELD_PREP(DDRMC_DFITMG1_DRAM_CLK_EN, ctrl_delay - 2) |
 	      FIELD_PREP(DDRMC_DFITMG1_DRAM_CLK_DIS, ctrl_delay - 2) |
-	      FIELD_PREP(DDRMC_DFITMG1_WRDATA_DELAY, DIV_ROUND_UP(ctrl_delay + 6 + CONFIG_BURST_LEN / 2, 2) + 1);
+	      FIELD_PREP(DDRMC_DFITMG1_WRDATA_DELAY,
+			 DIV_ROUND_UP(ctrl_delay + 6 + CONFIG_BURST_LEN / 2, 2) + 1);
 	write32_with_dbg(DDRMC_DFITMG1(ctrl_id), val);
 
 	val = FIELD_PREP(DDRMC_DFITMG2_WRCSLAT, cwl + 1 - 5) |

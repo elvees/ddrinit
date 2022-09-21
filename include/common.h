@@ -10,8 +10,8 @@
 #include <config.h>
 #include <printf.h>
 
-#define DRAM_TCK_266 7504
-#define DRAM_TCK_533 3748
+#define DRAM_TCK_266  7504
+#define DRAM_TCK_533  3748
 #define DRAM_TCK_1066 1876
 #define DRAM_TCK_1250 1600
 #define DRAM_TCK_1333 1500
@@ -31,10 +31,10 @@
  * When CONFIG_BOOGER is not defined, we generate a (... 1, 0) pair, and when
  * the last step cherry picks the 2nd arg, we get a zero.
  */
-#define __ARG_PLACEHOLDER_1 0,
-#define config_enabled(cfg) _config_enabled(cfg)
-#define _config_enabled(value) __config_enabled(__ARG_PLACEHOLDER_##value)
-#define __config_enabled(arg1_or_junk) ___config_enabled(arg1_or_junk 1, 0)
+#define __ARG_PLACEHOLDER_1		       0,
+#define config_enabled(cfg)		       _config_enabled(cfg)
+#define _config_enabled(value)		       __config_enabled(__ARG_PLACEHOLDER_##value)
+#define __config_enabled(arg1_or_junk)	       ___config_enabled(arg1_or_junk 1, 0)
 #define ___config_enabled(__ignored, val, ...) val
 
 /*
@@ -46,16 +46,14 @@
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
 #define DIV_ROUND_UP(n, d) (((n) + (d)-1) / (d))
-#define DIV_ROUND_CLOSEST(x, divisor)(			\
-{							\
-	typeof(x) __x = x;				\
-	typeof(divisor) __d = divisor;			\
-	(((typeof(x))-1) > 0 ||				\
-	 ((typeof(divisor))-1) > 0 || (__x) > 0) ?	\
-		(((__x) + ((__d) / 2)) / (__d)) :	\
-		(((__x) - ((__d) / 2)) / (__d));	\
-}							\
-)
+#define DIV_ROUND_CLOSEST(x, divisor)                                             \
+	({                                                                        \
+		typeof(x) __x = x;                                                \
+		typeof(divisor) __d = divisor;                                    \
+		(((typeof(x))-1) > 0 || ((typeof(divisor))-1) > 0 || (__x) > 0) ? \
+			(((__x) + ((__d) / 2)) / (__d)) :                         \
+			(((__x) - ((__d) / 2)) / (__d));                          \
+	})
 
 #define ps2clk_rd(t, tck) ((t) / (tck))
 #define ps2clk_ru(t, tck) DIV_ROUND_UP((t), (tck))
@@ -64,24 +62,24 @@
 
 #define USEC 1ULL
 #define MSEC 1000ULL
-#define SEC 1000000ULL
+#define SEC  1000000ULL
 
-#define read_poll_timeout(op, val, cond, sleep_us, timeout_us, args...)	\
-({ \
-	int timeout = timer_get_usec() + timeout_us; \
-	for (;;) { \
-		(val) = op(args); \
-		if (cond) \
-			break; \
-		if (timer_get_usec() > timeout) { \
-			(val) = op(args); \
-			break; \
-		} \
-		if (sleep_us) \
-			delay_usec(sleep_us); \
-	} \
-	(cond) ? 0 : -ETIMEDOUT; \
-})
+#define read_poll_timeout(op, val, cond, sleep_us, timeout_us, args...) \
+	({                                                              \
+		int timeout = timer_get_usec() + timeout_us;            \
+		for (;;) {                                              \
+			(val) = op(args);                               \
+			if (cond)                                       \
+				break;                                  \
+			if (timer_get_usec() > timeout) {               \
+				(val) = op(args);                       \
+				break;                                  \
+			}                                               \
+			if (sleep_us)                                   \
+				delay_usec(sleep_us);                   \
+		}                                                       \
+		(cond) ? 0 : -ETIMEDOUT;                                \
+	})
 
 #define read32_poll_timeout(val, cond, sleep_us, timeout_us, addr) \
 	read_poll_timeout(read32, val, cond, sleep_us, timeout_us, addr)
@@ -89,19 +87,21 @@
 #define phy_read32_poll_timeout(val, cond, sleep_us, timeout_us, args...) \
 	read_poll_timeout(phy_read32, val, cond, sleep_us, timeout_us, args)
 
-#define max(x, y) \
-	({ \
-		typeof(x) _max1 = (x); \
-		typeof(y) _max2 = (y); \
-		(void)(&_max1 == &_max2); \
+#define max(x, y)                              \
+	({                                     \
+		typeof(x) _max1 = (x);         \
+		typeof(y) _max2 = (y);         \
+		(void)(&_max1 == &_max2);      \
 		_max1 > _max2 ? _max1 : _max2; \
 	})
 
-#define min(x, y) ({ \
-	typeof(x) _min1 = (x); \
-	typeof(y) _min2 = (y); \
-	(void) (&_min1 == &_min2); \
-	_min1 < _min2 ? _min1 : _min2; })
+#define min(x, y)                              \
+	({                                     \
+		typeof(x) _min1 = (x);         \
+		typeof(y) _min2 = (y);         \
+		(void)(&_min1 == &_min2);      \
+		_min1 < _min2 ? _min1 : _min2; \
+	})
 
 extern unsigned long ddrcfg_override_start __attribute__((section(".text")));
 

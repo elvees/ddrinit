@@ -9,10 +9,10 @@ int printf(const char *str, ...);
 #ifdef CONFIG_DEBUG
 #define print_dbg(fmt, ...) printf((fmt), ##__VA_ARGS__)
 #else
-#define print_dbg(fmt, ...)                                                                        \
-	({                                                                                         \
-		if (0)                                                                             \
-			printf((fmt), ##__VA_ARGS__);                                              \
+#define print_dbg(fmt, ...)                           \
+	({                                            \
+		if (0)                                \
+			printf((fmt), ##__VA_ARGS__); \
 	})
 #endif
 

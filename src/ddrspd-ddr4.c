@@ -16,19 +16,24 @@ static uint8_t i2c_addr_get(int ctrl_id)
 {
 	uint8_t i2c_addr[2];
 	switch (ctrl_id) {
-		case 0: i2c_addr[0] = CONFIG_DIMM0_I2C_ADDR;
-			i2c_addr[1] = CONFIG_DIMM1_I2C_ADDR;
-			break;
-		case 1: i2c_addr[0] = CONFIG_DIMM2_I2C_ADDR;
-			i2c_addr[1] = CONFIG_DIMM3_I2C_ADDR;
-			break;
-		case 2: i2c_addr[0] = CONFIG_DIMM4_I2C_ADDR;
-			i2c_addr[1] = CONFIG_DIMM5_I2C_ADDR;
-			break;
-		case 3: i2c_addr[0] = CONFIG_DIMM6_I2C_ADDR;
-			i2c_addr[1] = CONFIG_DIMM7_I2C_ADDR;
-			break;
-		default: return 0;
+	case 0:
+		i2c_addr[0] = CONFIG_DIMM0_I2C_ADDR;
+		i2c_addr[1] = CONFIG_DIMM1_I2C_ADDR;
+		break;
+	case 1:
+		i2c_addr[0] = CONFIG_DIMM2_I2C_ADDR;
+		i2c_addr[1] = CONFIG_DIMM3_I2C_ADDR;
+		break;
+	case 2:
+		i2c_addr[0] = CONFIG_DIMM4_I2C_ADDR;
+		i2c_addr[1] = CONFIG_DIMM5_I2C_ADDR;
+		break;
+	case 3:
+		i2c_addr[0] = CONFIG_DIMM6_I2C_ADDR;
+		i2c_addr[1] = CONFIG_DIMM7_I2C_ADDR;
+		break;
+	default:
+		return 0;
 	}
 	/* TODO: Use all DIMM slots for every controller */
 	return i2c_addr[0];
@@ -367,9 +372,9 @@ int spd_dump(uint8_t *buf)
 {
 	uint8_t read_val;
 
-	for (int i = 0; i < 16; i++){
+	for (int i = 0; i < 16; i++) {
 		printf("\n%03x  ", 16 * i);
-		for (int j = 0; j < 16; j++){
+		for (int j = 0; j < 16; j++) {
 			read_val = *(buf)++;
 			printf("%02x ", read_val);
 		}

@@ -18,9 +18,9 @@
 #endif
 
 #define PHY_TRAIN_COMPLETE 0x07
-#define PHY_MESSAGE 0x08
-#define PHY_TRAIN_FAIL 0xff
-#define PHY_TIMEOUT_MAGIC 0xffffffff
+#define PHY_MESSAGE	   0x08
+#define PHY_TRAIN_FAIL	   0xff
+#define PHY_TIMEOUT_MAGIC  0xffffffff
 
 enum firmware_type {
 	FW_IMEM_1D,
@@ -30,15 +30,17 @@ enum firmware_type {
 };
 
 #ifdef CONFIG_DQ_MAPPING
-#define DQ_MAPPING(CTRL_ID, BYTE) \
-	{ CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE & 0xf, \
-	  CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 4 & 0xf, \
-	  CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 8 & 0xf, \
-	  CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 12 & 0xf, \
-	  CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 16 & 0xf, \
-	  CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 20 & 0xf, \
-	  CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 24 & 0xf, \
-	  CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 28 & 0xf }
+#define DQ_MAPPING(CTRL_ID, BYTE)                                         \
+	{                                                                 \
+		CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE & 0xf,               \
+			CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 4 & 0xf,  \
+			CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 8 & 0xf,  \
+			CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 12 & 0xf, \
+			CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 16 & 0xf, \
+			CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 20 & 0xf, \
+			CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 24 & 0xf, \
+			CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 28 & 0xf  \
+	}
 
 static const uint8_t ddrmc0_dq_mapping[CONFIG_PHY_DBYTE_NUM][8] = {
 	DQ_MAPPING(DDRMC0, BYTE0),
@@ -56,8 +58,7 @@ static const uint8_t ddrmc1_dq_mapping[CONFIG_PHY_DBYTE_NUM][8] = {
 
 static void dq_mapping_set(int ctrl_id)
 {
-	const uint8_t (*dq_mapping)[8] =
-		(ctrl_id == 0) ? ddrmc0_dq_mapping : ddrmc1_dq_mapping;
+	const uint8_t(*dq_mapping)[8] = (ctrl_id == 0) ? ddrmc0_dq_mapping : ddrmc1_dq_mapping;
 	int i, j;
 
 	for (i = 0; i < CONFIG_PHY_DBYTE_NUM; i++)
@@ -127,7 +128,8 @@ static uint32_t mail_get(int ctrl_id)
 	uint32_t mail, val = 0;
 
 	/*  Poll the UctWriteProtShadow, looking for 0 */
-	ret = phy_read32_poll_timeout(val, !(val & 0x1), USEC, 500 * MSEC, ctrl_id, PHY_UCT_SHADOW_REGS);
+	ret = phy_read32_poll_timeout(val, !(val & 0x1), USEC, 500 * MSEC, ctrl_id,
+				      PHY_UCT_SHADOW_REGS);
 	if (ret)
 		return PHY_TIMEOUT_MAGIC;
 
@@ -137,7 +139,8 @@ static uint32_t mail_get(int ctrl_id)
 	phy_write32(ctrl_id, PHY_DCT_WRITE_PROT, 0);
 
 	/*  Poll the UctWriteProtShadow, looking for 1 */
-	ret = phy_read32_poll_timeout(val, val & 0x1, USEC, 500 * MSEC, ctrl_id, PHY_UCT_SHADOW_REGS);
+	ret = phy_read32_poll_timeout(val, val & 0x1, USEC, 500 * MSEC, ctrl_id,
+				      PHY_UCT_SHADOW_REGS);
 	if (ret)
 		return PHY_TIMEOUT_MAGIC;
 
@@ -152,7 +155,8 @@ static uint32_t stream_message_get(int ctrl_id)
 	int ret;
 	uint32_t lower, upper, val = 0;
 
-	ret = phy_read32_poll_timeout(val, !(val & 0x1), USEC, 500 * MSEC, ctrl_id, PHY_UCT_SHADOW_REGS);
+	ret = phy_read32_poll_timeout(val, !(val & 0x1), USEC, 500 * MSEC, ctrl_id,
+				      PHY_UCT_SHADOW_REGS);
 	if (ret)
 		return PHY_TIMEOUT_MAGIC;
 
@@ -163,7 +167,8 @@ static uint32_t stream_message_get(int ctrl_id)
 	phy_write32(ctrl_id, PHY_DCT_WRITE_PROT, 0);
 
 	/*  Poll the UctWriteProtShadow, looking for 1 */
-	ret = phy_read32_poll_timeout(val, val & 0x1, USEC, 500 * MSEC, ctrl_id, PHY_UCT_SHADOW_REGS);
+	ret = phy_read32_poll_timeout(val, val & 0x1, USEC, 500 * MSEC, ctrl_id,
+				      PHY_UCT_SHADOW_REGS);
 	if (ret)
 		return PHY_TIMEOUT_MAGIC;
 
