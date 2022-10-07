@@ -460,8 +460,10 @@ int platform_system_init(int init_mask, struct sysinfo *info)
 			return ret;
 
 		if (IS_ENABLED(CONFIG_BOOTLOADER_SBL)) {
-			ret = vmmu_map_64bit_address(vmmu_reg, CONFIG_DDRHIGH_MAP_REGION0_VIRT,
-						     CONFIG_DDRHIGH_MAP_REGION0_PHYS);
+			ret = vmmu_map_range_64bit_address(vmmu_reg,
+							   CONFIG_DDRHIGH_MAP_REGION0_VIRT,
+							   CONFIG_DDRHIGH_MAP_REGION0_SIZE,
+							   CONFIG_DDRHIGH_MAP_REGION0_PHYS);
 			if (ret)
 				return ret;
 		}
