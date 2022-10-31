@@ -192,14 +192,14 @@ config MAX_MEM_REGIONS
 config MEM_REGIONS_PHYS_ADDR
 	hex "Memory info physical address"
 	depends on PLATFORM_MCOM03
-	default 0x882400000
+	default 0x890400000
 	help
 	  Physical address to write info on initialized DDR
 	  to be passed to U-Boot.
 
 config MEM_REGIONS_VIRT_ADDR
 	hex "Memory info virtual address"
-	default 0xC2000000 if PLATFORM_MCOM03 && ARCH_MIPS32
+	default 0xC0000000 if PLATFORM_MCOM03 && ARCH_MIPS32
 	default 0xA0000000 if PLATFORM_MCOM03 && ARCH_AARCH64
 	default 0xffffffffa4000000 if PLATFORM_SOLARIS
 	help
@@ -232,7 +232,7 @@ config VMMU_VIRT_SLOT_COUNT
 config DDRHIGH_MAP_REGION0_PHYS
 	hex
 	depends on PLATFORM_MCOM03 && ARCH_MIPS32
-	default 0x880300000
+	default 0x880200000
 	help
 	  Physical address of mapped region in DDR High. ddrinit maps this area into a 32-bit
 	  address space accessible from RISC0. This is done so that whoever runs after ddrinit
@@ -242,14 +242,14 @@ config DDRHIGH_MAP_REGION0_PHYS
 config DDRHIGH_MAP_REGION0_VIRT
 	hex
 	depends on PLATFORM_MCOM03 && ARCH_MIPS32
-	default 0xC0000000
+	default 0xC0200000
 	help
 	  Virtual 32-bit address to map CONFIG_DDRHIGH_MAP_REGION0_PHYS to
 
 config DDRHIGH_MAP_REGION0_SIZE
 	hex
 	depends on PLATFORM_MCOM03 && ARCH_MIPS32
-	default 0x200000
+	default 0xFE00000
 	help
 	  Size of memory region which is mapped to DDR High. It must be a multiple of 2MiB.
 
