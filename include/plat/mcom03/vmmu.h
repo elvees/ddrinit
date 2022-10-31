@@ -105,5 +105,7 @@ void vmmu_deinit(vmmu_t *dev);
 
 /* Function shall be used with critical section */
 int vmmu_map_64bit_address(vmmu_t *dev, uintptr_t desired_addr32, uint64_t base_address64);
+int vmmu_map_range_64bit_address(vmmu_t *dev, uintptr_t base32_start, ptrdiff_t base32_size,
+				 uint64_t base64_start);
 
 #endif /* _VMMU_H_ */

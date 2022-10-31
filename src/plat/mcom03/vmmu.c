@@ -55,6 +55,15 @@ static uintptr_t convert_pa_to_va(uintptr_t addr)
 }
 
 /**
+ * @brief Get supported VMMU slot size
+ * @return                   VMMU slot size
+ */
+static ptrdiff_t vmmu_map_get_slot_size(void)
+{
+	return (ptrdiff_t)VMMU_2MB;
+}
+
+/**
  * @brief Initialize VMMU
  *
  * @param dev                pointer to struct of VMMU registers
@@ -211,6 +220,25 @@ int vmmu_map_64bit_address(vmmu_t *dev, uintptr_t desired_addr32, uint64_t base_
 	unsigned int reg_val = dev->PTW_CFG;
 	reg_val |= (0x1UL << VMMU_PTW_CFG_INVALIDATE_OFFSET);
 	dev->PTW_CFG = reg_val;
+
+	return 0;
+}
+
+int vmmu_map_range_64bit_address(vmmu_t *dev, uintptr_t base32_start, ptrdiff_t base32_size,
+				 uint64_t base64_start)
+{
+	uintptr_t p32;
+	uint64_t p64;
+	int ret;
+
+	ptrdiff_t size = vmmu_map_get_slot_size();
+
+	for (p32 = base32_start, p64 = base64_start; p32 < (base32_start + base32_size);
+	     p32 += size, p64 += size) {
+		ret = vmmu_map_64bit_address(dev, p32, p64);
+		if (ret)
+			return ret;
+	}
 
 	return 0;
 }
