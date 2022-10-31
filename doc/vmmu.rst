@@ -40,7 +40,17 @@
 .. function:: int vmmu_map_64bit_address(vmmu_t* dev, uintptr_t vAddr32, uint64_t pAddr64)
 
    Функция отображения адресов. Функция создает отображение базового физического адреса pAddr64 на
-   желаемый базовый виртуальный адрес vAddr32. pAddr64 должен быть выровнен на границу 4K.
+   желаемый базовый виртуальный адрес vAddr32. vAddr32 должен быть выровнен на границу 2MiB.
+   pAddr64 должен быть выровнен на границу 4K.
+   Возвращает код ошибки: (0) - в случае успеха; (-EVMMUCFG) - в случае ошибки;
+
+.. function:: int vmmu_map_range_64bit_address(vmmu_t* dev, uintptr_t vAddrStart32,
+      ptrdiff_t vAddrSize32, uint64_t pAddrStart64)
+
+   Функция отображения диапазона адресов. Функция создает отображение диапазона физических адресов,
+   начиная с pAddrStart64, на желаемый диапазон виртуальных адресов, начиная с vAddrStart32,
+   размером vAddrSize32. vAddrStart32 должен быть выровнен на границу 2MiB. pAddrStart64 должен
+   быть выровнен на границу 4K. vAddrSize32 должен быть кратен 2MiB.
    Возвращает код ошибки: (0) - в случае успеха; (-EVMMUCFG) - в случае ошибки;
 
 .. function:: void vmmu_deinit(vmmu_t* dev)
