@@ -348,7 +348,7 @@ static void addrmap_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	next_bit += cfg->bank_addr_bits;
 
 	val = FIELD_PREP(DDRMC_ADDRMAP8_BG_B0, (cfg->bank_group_bits == 0) ? 63 : next_bit - 2) |
-	      FIELD_PREP(DDRMC_ADDRMAP8_BG_B1, (cfg->bank_addr_bits == 2) ? next_bit - 2 : 63);
+	      FIELD_PREP(DDRMC_ADDRMAP8_BG_B1, (cfg->bank_group_bits == 2) ? next_bit - 2 : 63);
 	write32(DDRMC_ADDRMAP8(ctrl_id), val);
 	next_bit += cfg->bank_group_bits;
 
