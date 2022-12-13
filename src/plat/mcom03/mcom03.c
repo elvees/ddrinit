@@ -115,24 +115,48 @@ static int ucg_channel_cfg(unsigned long ucg_addr, int chan_id, int div)
 }
 
 #ifdef CONFIG_I2C
-int platform_i2c_cfg(int ctrl_id)
+int platform_i2c_cfg(int ctrl_id, uint32_t *clk_rate)
 {
-	uint32_t div;
-	int ret;
+	uint32_t pll_freq;
+	uint32_t pll_mult;
+	uint32_t i2c_div;
+	uint32_t pll;
+	uint32_t nf_value;
+	uint32_t nr_value;
+	uint32_t od_value;
 
 	switch (ctrl_id) {
-	/* TODO: Init subsystem, pads and clocks for other I2C */
+	/* TODO: Get clocks for other I2C */
 	case 4:
-		div = FIELD_GET(DDR_PLL_CFG_SEL, read32(SERVICE_SUBS_URB_PLL)) + 1;
-		div = DIV_ROUND_UP(div * CONFIG_DDR_XTAL_FREQ, CONFIG_I2C_FREQ);
-		/* Set dividers for clocks CLK_I2C4 and CLK_I2C4_EXT and enable them */
-		ret = ucg_channel_cfg(SERVICE_SUBS_UCG_BASE, 9, div);
-		if (ret)
-			return ret;
+		if (FIELD_GET(UCG_CTR_CLK_EN, read32(UCG_CTR(SERVICE_SUBS_UCG_BASE, 9))) == 0x0)
+			return -ECLOCKCFG;
 
-		ret = ucg_channel_cfg(SERVICE_SUBS_UCG_BASE, 12, div);
-		if (ret)
-			return ret;
+		if (FIELD_GET(BIT(9), read32(UCG_BP(SERVICE_SUBS_UCG_BASE))) == 0x1)
+			return -ECLOCKCFG;
+
+		pll = read32(SERVICE_SUBS_URB_PLL);
+
+		if ((FIELD_GET(DDR_PLL_CFG_MAN, pll) == 1) &&
+		    (FIELD_GET(DDR_PLL_CFG_SEL, pll) > 0)) {
+			nf_value = FIELD_GET(DDR_PLL_CFG_NF, pll);
+			nr_value = FIELD_GET(DDR_PLL_CFG_NR, pll);
+			od_value = FIELD_GET(DDR_PLL_CFG_OD, pll);
+			pll_freq = CONFIG_DDR_XTAL_FREQ * (nf_value + 1) / (nr_value + 1) /
+				   (od_value + 1);
+		} else {
+			pll_mult = FIELD_GET(DDR_PLL_CFG_SEL, pll);
+			if (pll_mult >= 0x73)
+				pll_mult = 116;
+			else
+				pll_mult += 1;
+			pll_freq = CONFIG_DDR_XTAL_FREQ * pll_mult;
+		}
+
+		i2c_div = FIELD_GET(UCG_CTR_DIV_COEFF, read32(UCG_CTR(SERVICE_SUBS_UCG_BASE, 9)));
+		if (i2c_div == 0)
+			i2c_div = 1;
+
+		*clk_rate = pll_freq / i2c_div;
 
 		return 0;
 	default:
@@ -140,7 +164,7 @@ int platform_i2c_cfg(int ctrl_id)
 	}
 }
 #else
-int platform_i2c_cfg(int ctrl_id)
+int platform_i2c_cfg(int ctrl_id, uint32_t *clk_rate)
 {
 	return 0;
 }

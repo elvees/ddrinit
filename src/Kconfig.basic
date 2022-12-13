@@ -213,8 +213,8 @@ if I2C
 
 config I2C_FREQ
 	int "I2C input frequency"
-	default 40000000 if PLATFORM_SOLARIS
-	default 27000000 if PLATFORM_MCOM03
+	depends on PLATFORM_SOLARIS
+	default 40000000
 	help
 	  I2C input frequency in Hz
 

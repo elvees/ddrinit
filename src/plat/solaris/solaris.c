@@ -332,7 +332,7 @@ unsigned long platform_i2c_base_get(int ctrl_id)
 	return i2c_base_addr[ctrl_id]; // cppcheck-suppress arrayIndexOutOfBoundsCond
 }
 
-int platform_i2c_cfg(int ctrl_id)
+int platform_i2c_cfg(int ctrl_id, uint32_t *clk_rate)
 {
 	int ret;
 
@@ -341,6 +341,8 @@ int platform_i2c_cfg(int ctrl_id)
 		return -EI2CCFG;
 
 	i2c_pads_cfg(ctrl_id);
+
+	*clk_rate = CONFIG_I2C_FREQ;
 
 	return 0;
 }

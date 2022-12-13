@@ -27,11 +27,12 @@ int i2c_cfg(int i2c_ctrl_id, uint8_t addr)
 	unsigned long base = platform_i2c_base_get(i2c_ctrl_id);
 	int ret;
 	uint32_t val;
+	uint32_t clk_rate;
 
 	if (!base)
 		return -EI2CCFG;
 
-	ret = platform_i2c_cfg(i2c_ctrl_id);
+	ret = platform_i2c_cfg(i2c_ctrl_id, &clk_rate);
 	if (ret)
 		return ret;
 
@@ -44,7 +45,7 @@ int i2c_cfg(int i2c_ctrl_id, uint8_t addr)
 #endif
 	write32(I2C_CON(base), val);
 
-	val = CONFIG_I2C_FREQ / CONFIG_I2C_SPEED / 2;
+	val = clk_rate / CONFIG_I2C_SPEED / 2;
 #ifdef CONFIG_I2C_SPEED_100
 	write32(I2C_SS_HCNT(base), val);
 	write32(I2C_SS_LCNT(base), val);
