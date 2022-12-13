@@ -114,7 +114,7 @@ static int ucg_channel_cfg(unsigned long ucg_addr, int chan_id, int div)
 	return 0;
 }
 
-#ifdef CONFIG_I2C_FREQ
+#ifdef CONFIG_I2C
 int platform_i2c_cfg(int ctrl_id)
 {
 	uint32_t div;
