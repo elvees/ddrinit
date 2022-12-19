@@ -22,7 +22,8 @@
 СнК Solaris:
 
 * Solaris BuB r1.0;
-* RoboDeus SHB r1.5.
+* RoboDeus SHB r1.5;
+* B3-V3U r1.0.
 
 СнК MCom-03:
 
