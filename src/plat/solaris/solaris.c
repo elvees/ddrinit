@@ -269,6 +269,7 @@ static void uart0_pads_cfg(void)
 	write32(MFIO_CR_GPION_BIT_EN(3), 0x30000);
 }
 
+#ifdef CONFIG_I2C
 /* Switch MFIO PADs to I2C mode */
 static void i2c_pads_cfg(int i2c_ctrl_id)
 {
@@ -310,6 +311,7 @@ static void i2c_pads_cfg(int i2c_ctrl_id)
 		break;
 	}
 }
+#endif
 
 int platform_uart_cfg(void)
 {
@@ -332,6 +334,7 @@ unsigned long platform_i2c_base_get(int ctrl_id)
 	return i2c_base_addr[ctrl_id]; // cppcheck-suppress arrayIndexOutOfBoundsCond
 }
 
+#ifdef CONFIG_I2C
 int platform_i2c_cfg(int ctrl_id, uint32_t *clk_rate)
 {
 	int ret;
@@ -346,6 +349,7 @@ int platform_i2c_cfg(int ctrl_id, uint32_t *clk_rate)
 
 	return 0;
 }
+#endif
 
 #ifdef CONFIG_INTERLEAVING
 static void interleaving_enable(int init_mask, struct sysinfo *info)
