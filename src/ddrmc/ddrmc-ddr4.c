@@ -187,24 +187,11 @@ uint16_t ddr4_mr5_get(struct ddr_cfg *cfg)
 	return mr5;
 }
 
-static uint8_t ddr4_ccdl_get(struct ddr_cfg *cfg)
-{
-	if (cfg->tck >= DRAM_TCK_1333)
-		return 4;
-	else if (cfg->tck < DRAM_TCK_1333 && cfg->tck >= DRAM_TCK_1866)
-		return 5;
-	else if (cfg->tck < DRAM_TCK_1866 && cfg->tck >= DRAM_TCK_2400)
-		return 6;
-	else
-		return ps2clk_jedec(cfg->tccdl, cfg->tckmin);
-}
-
 uint16_t ddr4_mr6_get(struct ddr_cfg *cfg)
 {
 	uint16_t mr6 = 0;
-	uint8_t ccdl = ddr4_ccdl_get(cfg);
 
-	switch (ccdl) {
+	switch (cfg->tccdl) {
 	case 5:
 		mr6 = BIT(10);
 		break;
@@ -288,7 +275,7 @@ static void dram_timings_cfg(int ctrl_id, struct ddr_cfg *cfg)
 
 	val = FIELD_PREP(DDRMC_DRAMTMG4_TRP, cfg->trp / 2 + 1) |
 	      FIELD_PREP(DDRMC_DRAMTMG4_TRRD, DIV_ROUND_UP(cfg->trrdl, 2)) |
-	      FIELD_PREP(DDRMC_DRAMTMG4_TCCD, DIV_ROUND_UP(ddr4_ccdl_get(cfg), 2)) |
+	      FIELD_PREP(DDRMC_DRAMTMG4_TCCD, DIV_ROUND_UP(cfg->tccdl, 2)) |
 	      FIELD_PREP(DDRMC_DRAMTMG4_TRCD, DIV_ROUND_UP(cfg->trcd, 2));
 	write32(DDRMC_DRAMTMG4(ctrl_id), val);
 

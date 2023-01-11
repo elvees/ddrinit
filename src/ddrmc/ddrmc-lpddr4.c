@@ -130,14 +130,6 @@ static int dramtmg0_trasmax_get(struct ddr_cfg *cfg)
 	return max(trasmax, 1);
 }
 
-static int dramtmg0_tfaw_get(struct ddr_cfg *cfg)
-{
-	if ((cfg->bank_addr_bits > 2) || (cfg->bank_addr_bits * cfg->bank_group_bits > 2))
-		return DIV_ROUND_UP(cfg->tfaw, 2);
-	else
-		return 1;
-}
-
 static int dramtmg0_wr2pre_get(struct ddr_cfg *cfg)
 {
 	int ret = cwl_get(cfg->tck) + CONFIG_BURST_LEN / 2 + twr_get(cfg->tck);
@@ -206,37 +198,6 @@ static int dramtmg3_tmrw_get(struct ddr_cfg *cfg)
 	tmrwckel = max(tmrwckel, 10);
 
 	return DIV_ROUND_UP(max(tmrw, tmrwckel), 2);
-}
-
-static int dramtmg4_trcd_get(struct ddr_cfg *cfg)
-{
-	int trcd;
-
-	trcd = ps2clk_jedec(CONFIG_DRAM_TIMING_TRCD, cfg->tck);
-	trcd = max(trcd, 4);
-	return DIV_ROUND_UP(trcd, 2);
-}
-
-static int dramtmg4_trrd_get(struct ddr_cfg *cfg)
-{
-	int trrd;
-
-	trrd = ps2clk_jedec(CONFIG_DRAM_TIMING_TRRD, cfg->tck);
-	trrd = max(trrd, 4);
-	return DIV_ROUND_UP(trrd, 2);
-}
-
-static int dramtmg4_tccd_get(struct ddr_cfg *cfg)
-{
-	return DIV_ROUND_UP(8, 2);
-}
-
-static int dramtmg4_trp_get(struct ddr_cfg *cfg)
-{
-	int trp = DIV_ROUND_UP(CONFIG_DRAM_TIMING_TRP, cfg->tck);
-
-	trp = max(trp, 4);
-	return DIV_ROUND_UP(trp, 2);
 }
 
 static int dramtmg5_tcke_get(struct ddr_cfg *cfg)
@@ -461,7 +422,7 @@ void dram_timings_cfg(int ctrl_id, struct ddr_cfg *cfg)
 
 	val = FIELD_PREP(DDRMC_DRAMTMG0_TRASMIN, dramtmg0_trasmin_get(cfg)) |
 	      FIELD_PREP(DDRMC_DRAMTMG0_TRASMAX, dramtmg0_trasmax_get(cfg)) |
-	      FIELD_PREP(DDRMC_DRAMTMG0_TFAW, dramtmg0_tfaw_get(cfg)) |
+	      FIELD_PREP(DDRMC_DRAMTMG0_TFAW, DIV_ROUND_UP(cfg->tfaw, 2)) |
 	      FIELD_PREP(DDRMC_DRAMTMG0_WR2PRE, dramtmg0_wr2pre_get(cfg));
 	write32_with_dbg(DDRMC_DRAMTMG0(ctrl_id), val);
 
@@ -481,10 +442,10 @@ void dram_timings_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	      FIELD_PREP(DDRMC_DRAMTMG3_TMRW, dramtmg3_tmrw_get(cfg));
 	write32_with_dbg(DDRMC_DRAMTMG3(ctrl_id), val);
 
-	val = FIELD_PREP(DDRMC_DRAMTMG4_TRP, dramtmg4_trp_get(cfg)) |
-	      FIELD_PREP(DDRMC_DRAMTMG4_TRRD, dramtmg4_trrd_get(cfg)) |
-	      FIELD_PREP(DDRMC_DRAMTMG4_TCCD, dramtmg4_tccd_get(cfg)) |
-	      FIELD_PREP(DDRMC_DRAMTMG4_TRCD, dramtmg4_trcd_get(cfg));
+	val = FIELD_PREP(DDRMC_DRAMTMG4_TRP, DIV_ROUND_UP(cfg->trp, 2)) |
+	      FIELD_PREP(DDRMC_DRAMTMG4_TRRD, DIV_ROUND_UP(cfg->trrds, 2)) |
+	      FIELD_PREP(DDRMC_DRAMTMG4_TCCD, DIV_ROUND_UP(8, 2)) |
+	      FIELD_PREP(DDRMC_DRAMTMG4_TRCD, DIV_ROUND_UP(cfg->trcd, 2));
 	write32_with_dbg(DDRMC_DRAMTMG4(ctrl_id), val);
 
 	val = FIELD_PREP(DDRMC_DRAMTMG5_TCKE, dramtmg5_tcke_get(cfg)) |
