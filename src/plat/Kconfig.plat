@@ -104,6 +104,13 @@ config DDRMC_SAR_MINSIZE
           Minimal size of system address region (SAR) that DDRMC
           can map to internal address space.
 
+config DDRMC_DQ_BUS_WIDTH
+	int
+	default 32 if PLATFORM_MCOM03
+	default 64 if PLATFORM_SOLARIS
+	help
+	  Width of DDRMC DQ bus connected to DRAM.
+
 config PHY_OFFSET
 	hex
 	default 0x0 if PLATFORM_MCOM03

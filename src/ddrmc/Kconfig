@@ -1,3 +1,86 @@
+menuconfig DRAM_CONFIGURATION
+	bool "DRAM configuration"
+	default y
+	depends on !SPD_EEPROM
+
+if DRAM_CONFIGURATION
+
+choice
+	prompt "DRAM page size select"
+	depends on DRAM_TYPE_DDR4
+	help
+	  DRAM page size. Set it according to SDRAM datasheet.
+
+	config DRAM_PAGE_SIZE_0_5K
+		bool "1/2K"
+
+	config DRAM_PAGE_SIZE_1K
+		bool "1K"
+
+	config DRAM_PAGE_SIZE_2K
+		bool "2K"
+endchoice
+
+choice
+	prompt "Device width select"
+	help
+	  Device width. Set it according to SDRAM datasheet.
+
+	config DRAM_DEVICE_WIDTH_X8
+		bool "x8"
+
+	config DRAM_DEVICE_WIDTH_X16
+		bool "x16"
+endchoice
+
+config DRAM_DEVICE_WIDTH
+	int
+	default 8 if DRAM_DEVICE_WIDTH_X8
+	default 16 if DRAM_DEVICE_WIDTH_X16
+
+config DRAM_ROW_ADDR_BITS
+	int "Row address bits"
+	help
+	  Number of SDRAM row address bits. Set it according to SDRAM datasheet.
+
+config DRAM_COLUMN_ADDR_BITS
+	int "Column address bits"
+	help
+	  Number of SDRAM column address bits. Set it according to SDRAM datasheet.
+
+config DRAM_BANK_ADDR_BITS
+	int "Bank address bits"
+	help
+	  Number of SDRAM bank address bits. Set it according to SDRAM datasheet.
+
+config DRAM_BANK_GROUP_ADDR_BITS
+	int "Bank group address bits"
+	depends on DRAM_TYPE_DDR4
+	help
+	  Number of SDRAM bank group address bits. Set it according to SDRAM datasheet.
+
+config DRAM_TIMING_TRCD
+	int "tRCD"
+	default 120064 if DRAM_TYPE_LPDDR4 && DRAM_RATE_66
+	default 60032 if DRAM_TYPE_LPDDR4 && DRAM_RATE_133
+	default 30016 if DRAM_TYPE_LPDDR4 && DRAM_RATE_266
+	default 18000 if DRAM_TYPE_LPDDR4 && !DRAM_RATE_66 && !DRAM_RATE_133 && !DRAM_RATE_266
+	help
+	  DDR4: Minimal ACT to internal read or write delay time. Set it according to SDRAM datasheet.
+	  LPDDR4: RAS-to-CAS delay. Leave default value.
+
+config DRAM_TIMING_TRP
+	int "tRP"
+	default 120064 if DRAM_TYPE_LPDDR4 && DRAM_RATE_66
+	default 60032 if DRAM_TYPE_LPDDR4 && DRAM_RATE_133
+	default 30016 if DRAM_TYPE_LPDDR4 && DRAM_RATE_266
+	default 21000 if DRAM_TYPE_LPDDR4 && !DRAM_RATE_66 && !DRAM_RATE_133 && !DRAM_RATE_266
+	help
+	  DDR4: tRP - minimal PRE command period. Set it according to SDRAM datasheet.
+	  LPDDR4: tRPab - minimal Row precharge time for all banks. Leave default value.
+
+endif
+
 config DRAM_TIMING_TMOD
 	int
 	depends on DRAM_TYPE_DDR4
@@ -37,27 +120,6 @@ config DRAM_TIMING_TRTP
 	default 7500 if DRAM_TYPE_LPDDR4
 	help
 	  Internal READ to PRECHARGE command delay
-
-config DRAM_TIMING_TRCD
-	int
-	depends on DRAM_TYPE_LPDDR4
-	default 18000 if DRAM_TYPE_LPDDR4
-	help
-	  RAS-to-CAS delay
-
-config DRAM_TIMING_TRRD
-	int
-	depends on DRAM_TYPE_LPDDR4
-	default 10000 if DRAM_TYPE_LPDDR4
-	help
-	  Active bank A to active bank B
-
-config DRAM_TIMING_TRP
-	int
-	depends on DRAM_TYPE_LPDDR4
-	default 18000 if DRAM_TYPE_LPDDR4
-	help
-	  Row precharge time (all banks)
 
 config DRAM_TIMING_TCKE
 	int
@@ -200,3 +262,149 @@ config DRAM_TIMING_TZQRESET
 	int
 	depends on DRAM_TYPE_LPDDR4
 	default 50000
+
+config DRAM_TIMING_TFAW
+	int
+	default 40000 if DRAM_TYPE_LPDDR4
+
+	default 44800 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_2K && DRAM_RATE_1250
+	default 42000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_2K && DRAM_RATE_1333
+	default 35000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_2K && DRAM_RATE_1600
+	default 30000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_2K && DRAM_RATE_1866
+	default 30000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_2K && DRAM_RATE_2133
+	default 30000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_2K && DRAM_RATE_2400
+	default 30000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_2K && DRAM_RATE_2666
+	default 30000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_2K && DRAM_RATE_2933
+	default 30000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_2K && DRAM_RATE_3200
+
+	default 32000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_1K && DRAM_RATE_1250
+	default 30000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_1K && DRAM_RATE_1333
+	default 25000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_1K && DRAM_RATE_1600
+	default 23000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_1K && DRAM_RATE_1866
+	default 21000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_1K && DRAM_RATE_2133
+	default 21000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_1K && DRAM_RATE_2400
+	default 21000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_1K && DRAM_RATE_2666
+	default 21000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_1K && DRAM_RATE_2933
+	default 21000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_1K && DRAM_RATE_3200
+
+	default 25600 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_0_5K && DRAM_RATE_1250
+	default 24000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_0_5K && DRAM_RATE_1333
+	default 20000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_0_5K && DRAM_RATE_1600
+	default 17200 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_0_5K && DRAM_RATE_1866
+	default 15000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_0_5K && DRAM_RATE_2133
+	default 13500 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_0_5K && DRAM_RATE_2400
+	default 12000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_0_5K && DRAM_RATE_2666
+	default 11000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_0_5K && DRAM_RATE_2933
+	default 10000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_0_5K && DRAM_RATE_3200
+	help
+	  Four bank activate window.
+
+config DRAM_TIMING_TRASMIN
+	int
+	default 91000 if DRAM_TYPE_LPDDR4 && DRAM_RATE_66
+	default 45100 if DRAM_TYPE_LPDDR4 && DRAM_RATE_133
+	default 42000 if DRAM_TYPE_LPDDR4 && !DRAM_RATE_66 && !DRAM_RATE_133
+
+	default 37000 if DRAM_TYPE_DDR4 && DRAM_RATE_1250
+	default 36000 if DRAM_TYPE_DDR4 && DRAM_RATE_1333
+	default 35000 if DRAM_TYPE_DDR4 && DRAM_RATE_1600
+	default 34000 if DRAM_TYPE_DDR4 && DRAM_RATE_1866
+	default 33000 if DRAM_TYPE_DDR4 && DRAM_RATE_2133
+	default 32000 if DRAM_TYPE_DDR4 && DRAM_RATE_2400
+	default 32000 if DRAM_TYPE_DDR4 && DRAM_RATE_2666
+	default 32000 if DRAM_TYPE_DDR4 && DRAM_RATE_2933
+	default 32000 if DRAM_TYPE_DDR4 && DRAM_RATE_3200
+	help
+	  ACT to PRE command period.
+
+config DRAM_TIMING_TRRD
+	int
+	default 120064 if DRAM_TYPE_LPDDR4 && DRAM_RATE_66
+	default 60032 if DRAM_TYPE_LPDDR4 && DRAM_RATE_133
+	default 30016 if DRAM_TYPE_LPDDR4 && DRAM_RATE_266
+	default 15008 if DRAM_TYPE_LPDDR4 && DRAM_RATE_533
+	default 10000 if DRAM_TYPE_LPDDR4 && !DRAM_RATE_66 && !DRAM_RATE_133 && !DRAM_RATE_266 && !DRAM_RATE_533
+
+	default 6400 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_2K && DRAM_RATE_1250
+	default 6000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_2K && DRAM_RATE_1333
+	default 6000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_2K && DRAM_RATE_1600
+	default 5300 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_2K && DRAM_RATE_1866
+	default 5300 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_2K && DRAM_RATE_2133
+	default 5300 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_2K && DRAM_RATE_2400
+	default 5300 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_2K && DRAM_RATE_2666
+	default 5300 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_2K && DRAM_RATE_2933
+	default 5300 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_2K && DRAM_RATE_3200
+
+	default 6400 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_1K && DRAM_RATE_1250
+	default 6000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_1K && DRAM_RATE_1333
+	default 5000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_1K && DRAM_RATE_1600
+	default 4300 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_1K && DRAM_RATE_1866
+	default 3800 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_1K && DRAM_RATE_2133
+	default 3400 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_1K && DRAM_RATE_2400
+	default 3000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_1K && DRAM_RATE_2666
+	default 2800 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_1K && DRAM_RATE_2933
+	default 2500 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_1K && DRAM_RATE_3200
+
+	default 6400 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_0_5K && DRAM_RATE_1250
+	default 6000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_0_5K && DRAM_RATE_1333
+	default 5000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_0_5K && DRAM_RATE_1600
+	default 4300 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_0_5K && DRAM_RATE_1866
+	default 3800 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_0_5K && DRAM_RATE_2133
+	default 3400 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_0_5K && DRAM_RATE_2400
+	default 3000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_0_5K && DRAM_RATE_2666
+	default 2800 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_0_5K && DRAM_RATE_2933
+	default 2500 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_0_5K && DRAM_RATE_3200
+	help
+	  DDR4: tRRD_S - activate to activate command delay to different bank group.
+	  LPDDR4: tRRD - active bank A to active bank B.
+
+config DRAM_TIMING_TRRDL
+	int
+	depends on DRAM_TYPE_DDR4
+
+	default 7500 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_2K && DRAM_RATE_1250
+	default 7500 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_2K && DRAM_RATE_1333
+	default 7500 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_2K && DRAM_RATE_1600
+	default 6400 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_2K && DRAM_RATE_1866
+	default 6400 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_2K && DRAM_RATE_2133
+	default 6400 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_2K && DRAM_RATE_2400
+	default 6400 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_2K && DRAM_RATE_2666
+	default 6400 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_2K && DRAM_RATE_2933
+	default 6400 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_2K && DRAM_RATE_3200
+
+	default 6400 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_1K && DRAM_RATE_1250
+	default 6000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_1K && DRAM_RATE_1333
+	default 6000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_1K && DRAM_RATE_1600
+	default 5300 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_1K && DRAM_RATE_1866
+	default 5300 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_1K && DRAM_RATE_2133
+	default 4900 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_1K && DRAM_RATE_2400
+	default 4900 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_1K && DRAM_RATE_2666
+	default 4900 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_1K && DRAM_RATE_2933
+	default 4900 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_1K && DRAM_RATE_3200
+
+	default 6400 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_0_5K && DRAM_RATE_1250
+	default 6000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_0_5K && DRAM_RATE_1333
+	default 6000 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_0_5K && DRAM_RATE_1600
+	default 5300 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_0_5K && DRAM_RATE_1866
+	default 5300 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_0_5K && DRAM_RATE_2133
+	default 4900 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_0_5K && DRAM_RATE_2400
+	default 4900 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_0_5K && DRAM_RATE_2666
+	default 4900 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_0_5K && DRAM_RATE_2933
+	default 4900 if DRAM_TYPE_DDR4 && DRAM_PAGE_SIZE_0_5K && DRAM_RATE_3200
+	help
+	  Activate to activate command delay to same bank group.
+
+config DRAM_TIMING_TCCDL
+	int
+	depends on DRAM_TYPE_DDR4
+	default 6400 if DRAM_RATE_1250
+	default 6000 if DRAM_RATE_1333
+	default 6250 if DRAM_RATE_1600
+	default 5355 if DRAM_RATE_1866
+	default 5355 if DRAM_RATE_2133
+	default 5000 if DRAM_RATE_2400
+	default 5000 if DRAM_RATE_2666
+	default 5000 if DRAM_RATE_2933
+	default 5000 if DRAM_RATE_3200
+	help
+	  CAS_n to CAS_n command delay for same bank group.

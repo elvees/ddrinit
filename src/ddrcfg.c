@@ -64,6 +64,80 @@ void ddrcfg_print(struct ddr_cfg *cfg)
 }
 #endif
 
+#ifndef CONFIG_SPD_EEPROM
+static int _ddrcfg_get(int ctrl_id, struct ddr_cfg *cfg)
+{
+	uint64_t sdram_size = 1ULL * BIT(CONFIG_DRAM_COLUMN_ADDR_BITS) *
+			      BIT(CONFIG_DRAM_ROW_ADDR_BITS) * BIT(CONFIG_DRAM_BANK_ADDR_BITS) *
+			      CONFIG_DRAM_DEVICE_WIDTH;
+#ifdef CONFIG_DRAM_TYPE_DDR4
+	sdram_size *= BIT(CONFIG_DRAM_BANK_GROUP_ADDR_BITS);
+#endif
+
+	if (!(BIT(ctrl_id) & CONFIG_DDRMC_ACTIVE_MASK))
+		return -EDIMMCFG;
+
+	/* Common parameters for all SDRAM types */
+	cfg->ranks = CONFIG_DRAM_RANKS;
+	cfg->rank_size = sdram_size * CONFIG_DDRMC_DQ_BUS_WIDTH / CONFIG_DRAM_DEVICE_WIDTH / 8;
+	cfg->full_size = cfg->ranks * cfg->rank_size;
+	cfg->device_width = CONFIG_DRAM_DEVICE_WIDTH;
+
+	cfg->row_addr_bits = CONFIG_DRAM_ROW_ADDR_BITS;
+	cfg->col_addr_bits = CONFIG_DRAM_COLUMN_ADDR_BITS;
+	cfg->bank_addr_bits = CONFIG_DRAM_BANK_ADDR_BITS;
+
+	cfg->tck = CONFIG_DRAM_TCK;
+	cfg->taa = CONFIG_DRAM_CAS_LATENCY;
+
+	cfg->tfaw = ps2clk_jedec(CONFIG_DRAM_TIMING_TFAW, cfg->tck);
+	cfg->trasmin = ps2clk_jedec(CONFIG_DRAM_TIMING_TRASMIN, cfg->tck);
+	cfg->trp = ps2clk_jedec(CONFIG_DRAM_TIMING_TRP, cfg->tck);
+	cfg->trrds = ps2clk_jedec(CONFIG_DRAM_TIMING_TRRD, cfg->tck);
+	cfg->trcd = ps2clk_jedec(CONFIG_DRAM_TIMING_TRCD, cfg->tck);
+	cfg->trc = ps2clk_jedec(CONFIG_DRAM_TIMING_TRP + CONFIG_DRAM_TIMING_TRASMIN, cfg->tck);
+
+#ifdef CONFIG_DRAM_TYPE_DDR4
+	uint32_t trfc1, trfc2, trfc4;
+
+	cfg->bank_group_bits = CONFIG_DRAM_BANK_GROUP_ADDR_BITS;
+	cfg->trrdl = ps2clk_jedec(CONFIG_DRAM_TIMING_TRRDL, cfg->tck);
+	cfg->tccdl = ps2clk_jedec(CONFIG_DRAM_TIMING_TCCDL, cfg->tck);
+
+	switch (sdram_size / 1024 / 1024 / 1024) {
+	case 2:
+		trfc1 = 160000;
+		trfc2 = 110000;
+		trfc4 = 90000;
+		break;
+	case 4:
+		trfc1 = 260000;
+		trfc2 = 160000;
+		trfc4 = 110000;
+		break;
+	case 8:
+		trfc1 = 350000;
+		trfc2 = 260000;
+		trfc4 = 160000;
+		break;
+	case 16:
+		trfc1 = 550000;
+		trfc2 = 350000;
+		trfc4 = 260000;
+		break;
+	default:
+		return -EDIMMCFG;
+	}
+
+	cfg->trfc1 = ps2clk_jedec(trfc1, cfg->tck);
+	cfg->trfc2 = ps2clk_jedec(trfc2, cfg->tck);
+	cfg->trfc4 = ps2clk_jedec(trfc4, cfg->tck);
+#endif
+
+	return 0;
+}
+#endif
+
 int ddrcfg_get(int ctrl_id, struct ddr_cfg *cfg)
 {
 	int ret;
@@ -83,7 +157,7 @@ int ddrcfg_get(int ctrl_id, struct ddr_cfg *cfg)
 #endif
 
 #else
-	ret = platform_ddrcfg_get(ctrl_id, cfg);
+	ret = _ddrcfg_get(ctrl_id, cfg);
 #endif
 
 #ifdef CONFIG_DEBUG_DDRCFG_PRINT

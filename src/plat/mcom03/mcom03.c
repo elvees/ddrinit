@@ -387,32 +387,6 @@ int platform_clk_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	return 0;
 }
 
-#ifndef CONFIG_SPD_EEPROM
-int platform_ddrcfg_get(int ctrl_id, struct ddr_cfg *cfg)
-{
-	if (!(BIT(ctrl_id) & CONFIG_DDRMC_ACTIVE_MASK))
-		return -EDIMMCFG;
-
-	cfg->ranks = CONFIG_DRAM_RANKS;
-	cfg->rank_size = 1ULL << 31;
-	cfg->full_size = cfg->ranks * cfg->rank_size;
-	cfg->device_width = 16;
-
-	cfg->row_addr_bits = 16;
-	cfg->col_addr_bits = 10;
-	cfg->bank_addr_bits = 3;
-	cfg->bank_group_bits = 0;
-
-	cfg->tck = CONFIG_DRAM_TCK;
-	cfg->taa = CONFIG_DRAM_CAS_LATENCY;
-	cfg->trasmin = ps2clk_jedec(42000, cfg->tck);
-	cfg->tfaw = ps2clk_jedec(40000, cfg->tck);
-	cfg->trc = cfg->trasmin + ps2clk_jedec(21000, cfg->tck);
-
-	return 0;
-}
-#endif
-
 uint32_t platform_get_timer_count(void)
 {
 	/* The DW APB counter counts down, but this function
