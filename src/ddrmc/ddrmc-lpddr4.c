@@ -534,11 +534,6 @@ static void addrmap_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	write32_with_dbg(DDRMC_ADDRMAP1(ctrl_id), val);
 	next_bit += cfg->bank_addr_bits;
 
-	val = FIELD_PREP(DDRMC_ADDRMAP8_BG_B0, (cfg->bank_group_bits == 0) ? 63 : next_bit - 2) |
-	      FIELD_PREP(DDRMC_ADDRMAP8_BG_B1, (cfg->bank_addr_bits == 2) ? next_bit - 2 : 63);
-	write32_with_dbg(DDRMC_ADDRMAP8(ctrl_id), val);
-	next_bit += cfg->bank_group_bits;
-
 	val = FIELD_PREP(DDRMC_ADDRMAP5_ROW_B0, next_bit - 6) |
 	      FIELD_PREP(DDRMC_ADDRMAP5_ROW_B1, next_bit - 6) |
 	      FIELD_PREP(DDRMC_ADDRMAP5_ROW_B2_B10, next_bit - 6) |
