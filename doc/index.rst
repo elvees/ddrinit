@@ -24,6 +24,7 @@
 * Solaris BuB r1.0;
 * RoboDeus SHB r1.5;
 * B3-V3U r1.0.
+* AURORA_MB v1.2.
 
 СнК MCom-03:
 
