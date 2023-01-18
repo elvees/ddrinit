@@ -21,17 +21,17 @@
 
 СнК Solaris:
 
-* Solaris BuB r1.0;
+* AURORA_MB v1.2;
+* B3-V3U r1.0;
 * RoboDeus SHB r1.5;
-* B3-V3U r1.0.
-* AURORA_MB v1.2.
+* Solaris BuB r1.0.
 
 СнК MCom-03:
 
-* MCom-03 BuB r1.3, MCom-03 BuB r1.5;
-* ELV-MC03-SMARC r1.0, ELV-MC03-SMARC r1.1;
-* ECAM03DM r1.0, ECAM03BL 1.0;
+* ECAM03BL 1.0, ECAM03DM r1.0;
 * EGW-PM r1.0;
+* ELV-MC03-SMARC r1.0, ELV-MC03-SMARC r1.1;
+* MCom-03 BuB r1.3, MCom-03 BuB r1.5;
 * Trustphone PM r1.5.
 
 Возможности
