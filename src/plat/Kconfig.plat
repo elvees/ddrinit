@@ -328,3 +328,10 @@ config DDRINIT_RETURN_ADDRESS
 	help
 	  An address to jump to once a special value 0xdeadc0de
 	  has been read from CONFIG_DDRINIT_JTAG_MAGIC_ADDRESS.
+
+config LLC_AS_RAM
+	bool "Use LLC2 and LLC3 as scratchpad RAM"
+	depends on PLATFORM_SOLARIS
+	default false
+	help
+	  Use 4 MB Last level caches connected to DDRMC2 and DDRMC3 as scratchpad RAM.

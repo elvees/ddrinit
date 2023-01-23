@@ -467,6 +467,17 @@ static void llc_enable(int init_mask)
 			write32(NOC_AGENT_LLC_X_0_LLC_CACHE_WAY_ENABLE(i), 0xFFFFFFFF);
 		}
 	}
+
+	for (i = 2; i < CONFIG_DDRMC_MAX_NUMBER; i++) {
+		if ((BIT(i) & init_mask) || !IS_ENABLED(CONFIG_LLC_AS_RAM))
+			continue;
+
+		write32(NOC_AGENT_LLC_X_0_LLC_RAM_ADDRESS_BASE(i), LLC_RAM_BASE_ADDR(i));
+		write32(NOC_AGENT_LLC_X_0_LLC_GLOBAL_ALLOC(i), 0x0);
+		write32(NOC_AGENT_LLC_X_0_LLC_CACHE_WAY_ENABLE(i), 0x0);
+		write32(NOC_AGENT_LLC_X_0_LLC_RAM_WAY_SECURE(i), 0x0);
+		write32(NOC_AGENT_LLC_X_0_LLC_RAM_WAY_ENABLE(i), 0xFFFFFFFF);
+	}
 }
 
 /*
