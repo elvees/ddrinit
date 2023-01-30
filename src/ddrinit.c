@@ -217,6 +217,7 @@ int main(void)
 	int ret, i, init_mask = 0;
 	int timer_start, timer_end;
 
+	memset(&cfg, 0, sizeof(struct ddr_cfg));
 	memset(&info, 0, sizeof(info));
 	cfg.sysinfo = &info;
 
