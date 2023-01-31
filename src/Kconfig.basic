@@ -370,6 +370,7 @@ config TIMER_FREQ
 config DEBUG_DDRCFG_PRINT
 	bool "Print DDR configuration"
 	default n
+	depends on SPD_EEPROM
 
 menuconfig DQ_MAPPING
 	bool "DQ mapping"
