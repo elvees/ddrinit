@@ -1,3 +1,4 @@
+.. Copyright 2023 RnD Center "ELVEES", JSC
 .. SPDX-License-Identifier: GPL-2.0-or-later
 
 :orphan:

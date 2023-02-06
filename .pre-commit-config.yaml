@@ -89,3 +89,13 @@ repos:
       - id: cppcheck
         args: [--enable=warning, --inline-suppr]
         exclude: include/plat/mcom03/asm.h
+  - repo: https://review.elvees.com/pre-commit-hooks
+    rev: 5e556bab8720f7abec4889bcef60e489095276ce
+    hooks:
+      - id: check-copyright
+        # exclude imported scripts
+        exclude: |
+          (?x)^(
+            scripts/stack-usage.py|
+            scripts/merge_config.sh|
+          )$
