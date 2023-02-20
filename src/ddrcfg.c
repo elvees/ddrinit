@@ -152,6 +152,8 @@ int ddrcfg_get(int ctrl_id, struct ddr_cfg *cfg)
 		return ret;
 
 	ret = spd_parse(&spd, cfg);
+	if (ret)
+		return ret;
 
 #ifdef CONFIG_DEBUG_SPD_DUMP
 	spd_dump((uint8_t *)&spd);

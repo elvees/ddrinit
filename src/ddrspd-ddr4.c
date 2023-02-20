@@ -254,6 +254,10 @@ int spd_parse(struct ddr4_spd *spd, struct ddr_cfg *cfg)
 	cfg->full_size = cfg->ranks * cfg->rank_size;
 	cfg->die_size = (spd->density_banks & 0xf) + 28;
 	cfg->primary_sdram_width = 1 << (3 + (spd->bus_width & 0x7));
+	if (cfg->primary_sdram_width != CONFIG_DDRMC_DQ_BUS_WIDTH) {
+		print_dbg("DDRMC_DQ_BUS_WIDTH does not match Primary SDRAM Width\n");
+		return -EDIMMCFG;
+	}
 
 	if ((spd->bus_width >> 3) & 0x3)
 		cfg->ecc_sdram_width = 8;
