@@ -40,7 +40,7 @@ endchoice
 
 config RAM_BASE
 	hex
-	default 0xa0000000 if PLATFORM_MCOM03 && ARCH_MIPS32
+	default 0x80000000 if PLATFORM_MCOM03 && ARCH_MIPS32
 	default 0x00000000 if PLATFORM_MCOM03 && ARCH_AARCH64
 	default 0xffffffff9ff14000 if PLATFORM_SOLARIS
 	help
