@@ -305,7 +305,7 @@ int platform_clk_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	uint32_t val;
 	uint8_t axi_chan_divs[] = {
 		12, /* SYS channel  100 MHz */
-		4, /* SDR channel  300 MHz */
+		2, /* SDR channel  600 MHz */
 		4, /* PCIe channel 300 MHz */
 		12, /* ISP channel  100 MHz */
 		4, /* GPU channel  300 MHz */
