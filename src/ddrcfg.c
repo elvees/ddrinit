@@ -75,9 +75,6 @@ static int _ddrcfg_get(int ctrl_id, struct ddr_cfg *cfg)
 	sdram_size *= BIT(CONFIG_DRAM_BANK_GROUP_ADDR_BITS);
 #endif
 
-	if (!(BIT(ctrl_id) & CONFIG_DDRMC_ACTIVE_MASK))
-		return -EDIMMCFG;
-
 	/* Common parameters for all SDRAM types */
 	cfg->ranks = CONFIG_DRAM_RANKS;
 	cfg->rank_size = sdram_size * CONFIG_DDRMC_DQ_BUS_WIDTH / CONFIG_DRAM_DEVICE_WIDTH / 8;
@@ -142,6 +139,10 @@ static int _ddrcfg_get(int ctrl_id, struct ddr_cfg *cfg)
 int ddrcfg_get(int ctrl_id, struct ddr_cfg *cfg)
 {
 	int ret;
+
+	if (!(BIT(ctrl_id) & CONFIG_DDRMC_ACTIVE_MASK))
+		return -EDIMMCFG;
+
 #ifdef CONFIG_SPD_EEPROM
 #ifdef CONFIG_DRAM_TYPE_DDR4
 	struct ddr4_spd spd;

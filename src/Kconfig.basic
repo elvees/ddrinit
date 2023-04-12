@@ -349,8 +349,8 @@ config DRAM_RANKS
 
 config DDRMC_ACTIVE_MASK
         int "Mask of active DDRMCs"
-        default 1
-        depends on !SPD_EEPROM
+        default 3 if PLATFORM_MCOM03
+        default 15 if PLATFORM_SOLARIS
         help
           If bit N is set DDRMC N will be initialized.
 
