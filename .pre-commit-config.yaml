@@ -73,7 +73,7 @@ repos:
     hooks:
       - id: rstcheck
         args: [--ignore-directives=uml, --report-level=warning]
-        additional_dependencies: [sphinx]
+        additional_dependencies: [sphinx, urllib3<2]
   - repo: https://github.com/jorisroovers/gitlint
     rev: v0.12.0
     hooks:
