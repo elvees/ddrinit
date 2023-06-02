@@ -7,7 +7,5 @@
     experimental:
       jobs:
         - ecam03-buildroot-build
-        - mcom03-buildroot-build
-        - mcom03-priv-buildroot-build
-        - mcom03-trustphone2-buildroot-build
+        - mcom03-linux510-buildroot-build
         - solaris-buildroot-build
