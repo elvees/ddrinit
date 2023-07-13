@@ -35,6 +35,7 @@
 * ELV-MC03-Q7 r1.0;
 * ELV-MC03-SMARC r1.0, ELV-MC03-SMARC r1.1, ELV-MC03-SMARC r2.2;
 * MCom-03 BuB r1.3, MCom-03 BuB r1.5;
+* SKIF-MP v1.0;
 * Trustphone PM r1.5.
 
 Возможности
