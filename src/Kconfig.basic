@@ -11,12 +11,6 @@ choice
 		help
 		  DDR4 DRAM type
 
-	config DRAM_TYPE_LPDDR3
-		bool "LPDDR3"
-		depends on !PLATFORM_SOLARIS
-		help
-		  LPDDR3 DRAM type
-
 	config DRAM_TYPE_LPDDR4
 		bool "LPDDR4"
 		depends on !PLATFORM_SOLARIS
@@ -86,22 +80,22 @@ choice
 	depends on SPD_EEPROM && DRAM_RATE_CUSTOM || !SPD_EEPROM
 
 	config DRAM_RATE_66
-		depends on DRAM_TYPE_LPDDR4 || DRAM_TYPE_LPDDR3
+		depends on DRAM_TYPE_LPDDR4
 		select PHY_PLL_BYPASS
 		bool "66 MT/s"
 
 	config DRAM_RATE_133
-		depends on DRAM_TYPE_LPDDR4 || DRAM_TYPE_LPDDR3
+		depends on DRAM_TYPE_LPDDR4
 		select PHY_PLL_BYPASS
 		bool "133 MT/s"
 
 	config DRAM_RATE_266
-		depends on DRAM_TYPE_LPDDR4 || DRAM_TYPE_LPDDR3
+		depends on DRAM_TYPE_LPDDR4
 		select PHY_PLL_BYPASS
 		bool "266 MT/s"
 
 	config DRAM_RATE_533
-		depends on DRAM_TYPE_LPDDR4 || DRAM_TYPE_LPDDR3
+		depends on DRAM_TYPE_LPDDR4
 		select PHY_PLL_BYPASS
 		bool "533 MT/s"
 
