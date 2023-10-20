@@ -95,30 +95,42 @@ static int _ddrcfg_get(int ctrl_id, struct ddr_cfg *cfg)
 	cfg->trcd = ps2clk_jedec(CONFIG_DRAM_TIMING_TRCD, cfg->tck);
 	cfg->trc = ps2clk_jedec(CONFIG_DRAM_TIMING_TRP + CONFIG_DRAM_TIMING_TRASMIN, cfg->tck);
 
-#ifdef CONFIG_DRAM_TYPE_DDR4
+#if defined(CONFIG_DRAM_TYPE_DDR4) || defined(CONFIG_DRAM_TYPE_DDR3)
 	uint32_t trfc1, trfc2, trfc4;
 
+#ifdef CONFIG_DRAM_TYPE_DDR4
 	cfg->bank_group_bits = CONFIG_DRAM_BANK_GROUP_ADDR_BITS;
 	cfg->trrdl = ps2clk_jedec(CONFIG_DRAM_TIMING_TRRDL, cfg->tck);
 	cfg->tccdl = ps2clk_jedec(CONFIG_DRAM_TIMING_TCCDL, cfg->tck);
+#endif
 
-	switch (sdram_size / 1024 / 1024 / 1024) {
-	case 2:
+	switch (sdram_size / 1024 / 1024) {
+	case 512: /* used only for DDR3 */
+		trfc1 = 90000;
+		trfc2 = 0;
+		trfc4 = 0;
+		break;
+	case 1024: /* used only for DDR3 */
+		trfc1 = 110000;
+		trfc2 = 0;
+		trfc4 = 0;
+		break;
+	case 2048:
 		trfc1 = 160000;
 		trfc2 = 110000;
 		trfc4 = 90000;
 		break;
-	case 4:
+	case 4096:
 		trfc1 = 260000;
 		trfc2 = 160000;
 		trfc4 = 110000;
 		break;
-	case 8:
+	case 8192:
 		trfc1 = 350000;
 		trfc2 = 260000;
 		trfc4 = 160000;
 		break;
-	case 16:
+	case 16384:
 		trfc1 = 550000;
 		trfc2 = 350000;
 		trfc4 = 260000;

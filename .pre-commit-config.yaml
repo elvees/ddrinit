@@ -55,6 +55,7 @@ repos:
           - --style=file:.clang-format
         exclude: |
           (?x)^(
+            include/dram/ddr3/pie-cfg.h|
             include/dram/ddr4/pie-cfg.h|
             include/dram/lpddr4/pie-cfg.h|
             include/plat/mcom03/asm.h

@@ -208,7 +208,7 @@ int platform_clk_cfg(int ctrl_id, struct ddr_cfg *cfg)
 		if (cfg_o->magic == DDRCFG_OVERRIDE_MAGIC)
 			xtal = cfg_o->xtal_freq;
 
-		if (cfg->tck <= DRAM_TCK_1250 && cfg->tck > DRAM_TCK_1600)
+		if (cfg->tck <= DRAM_TCK_1066 && cfg->tck > DRAM_TCK_1600)
 			div = 5;
 		else if (cfg->tck <= DRAM_TCK_1600 && cfg->tck > DRAM_TCK_2133)
 			div = 4;

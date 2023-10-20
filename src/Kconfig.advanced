@@ -230,7 +230,14 @@ choice
 		help
 		  TBD
 
+	config DRAM_TX_IMPEDANCE_40
+		bool "40 Ohms"
+		depends on DRAM_TYPE_DDR3
+		help
+		  TBD
+
 	config DRAM_TX_IMPEDANCE_48
+		depends on !DRAM_TYPE_DDR3
 		bool "48 Ohms"
 		help
 		  TBD

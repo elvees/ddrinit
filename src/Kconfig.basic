@@ -104,6 +104,7 @@ choice
 		bool "1066 MT/s"
 
 	config DRAM_RATE_1250
+		depends on !DRAM_TYPE_DDR3
 		bool "1250 MT/s"
 
 	config DRAM_RATE_1333

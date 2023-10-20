@@ -13,6 +13,7 @@
 #define PHY_BASE(i)    (DDRSUB_BASE(i) + CONFIG_PHY_OFFSET)
 
 #define DDRMC_MSTR(i)	      (DDRMC_BASE(i) + 0x0)
+#define DDRMC_MSTR_DDR3	      BIT(0)
 #define DDRMC_MSTR_DDR4	      BIT(4)
 #define DDRMC_MSTR_LPDDR4     BIT(5)
 #define DDRMC_MSTR_BURST_RDWR GENMASK(19, 16)

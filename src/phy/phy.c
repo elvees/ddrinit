@@ -1,9 +1,15 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-// Copyright 2020 RnD Center "ELVEES", JSC
+// Copyright 2020-2023 RnD Center "ELVEES", JSC
 
 #include <phy.h>
 #include <regs.h>
 #include <plat/plat.h>
+
+#ifdef CONFIG_DRAM_TYPE_DDR3
+#include <dram/ddr3/fw-imem-1d.h>
+#include <dram/ddr3/fw-dmem-1d.h>
+#include <dram/ddr3/pie-cfg.h>
+#endif
 
 #ifdef CONFIG_DRAM_TYPE_DDR4
 #include <dram/ddr4/fw-imem-1d.h>

@@ -7,6 +7,10 @@
 #include <ddrcfg.h>
 #include <regs.h>
 
+uint16_t ddr3_mr0_get(struct ddr_cfg *cfg);
+uint16_t ddr3_mr1_get(struct ddr_cfg *cfg);
+uint16_t ddr3_mr2_get(struct ddr_cfg *cfg);
+
 uint16_t ddr4_mr0_get(struct ddr_cfg *cfg);
 uint16_t ddr4_mr1_get(struct ddr_cfg *cfg);
 uint16_t ddr4_mr2_get(struct ddr_cfg *cfg);
