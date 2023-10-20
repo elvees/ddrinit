@@ -25,7 +25,8 @@
 * AURORA_MB v1.2;
 * B3-V3U r1.0;
 * RoboDeus SHB r1.5;
-* Solaris BuB r1.0.
+* Solaris BuB r1.0;
+* Solaris DDR3 r1.0.
 
 СнК MCom-03:
 
