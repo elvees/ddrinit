@@ -39,6 +39,7 @@
 * MCom-03 BuB r1.3, MCom-03 BuB r1.5;
 * IQCAM_proc r1.0;
 * PM03CAM-OSM r1.04;
+* ROKIROVKA r1.0.1;
 * SKIF-MP v1.0;
 * Trustphone PM r1.5.
 
