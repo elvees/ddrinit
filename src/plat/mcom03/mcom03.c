@@ -307,11 +307,11 @@ int platform_clk_cfg(int ctrl_id, struct ddr_cfg *cfg)
 		12, /* SYS channel  100 MHz */
 		2, /* SDR channel  600 MHz */
 		4, /* PCIe channel 300 MHz */
-		12, /* ISP channel  100 MHz */
+		6, /* ISP channel  200 MHz */
 		4, /* GPU channel  300 MHz */
-		8, /* VPU channel  150 MHz */
+		4, /* VPU channel  300 MHz */
 		6, /* DP channel   200 MHz */
-		4, /* CPU channel  300 MHz */
+		2, /* CPU channel  600 MHz */
 		8, /* SERV channel 150 MHz */
 		6, /* HSP channel  200 MHz */
 		12, /* LSP0 channel 100 MHz */
