@@ -436,3 +436,25 @@ config IMPEDANCE_CALIBRATION_PRINT_PARAMS
 	default false
 	help
 	  Print PHY CalPExt and CalNInt parameters
+
+config DDRMC_HPR_PORT_MASK
+	hex "HPR port mask"
+	depends on PLATFORM_MCOM03
+	default 0x20
+	help
+	  If bit i is set in the mask, all read transactions from AXI port i will be marked
+	  as High Priority Read (HPR) transactions in DDRMC.
+
+	  Bit mapping (see MCom-03 user guide chapter 8.3, Table 8.2 for details):
+	  Bit in the mask   DDRMC AXI port
+	         0              SDR
+	         1              PCIe
+	         2              ISP
+	         3              GPU
+	         4              VPU
+	         5              DP
+	         6              CPU
+	         7              SERVICE
+	         8              HSPERIPH
+	         9              LSPERIPH0
+	         10             LSPERIPH1

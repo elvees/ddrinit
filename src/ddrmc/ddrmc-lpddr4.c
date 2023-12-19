@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-// Copyright 2021 RnD Center "ELVEES", JSC
+// Copyright 2021-2023 RnD Center "ELVEES", JSC
 
 #include <common.h>
 #include <ddrmc.h>
@@ -584,6 +584,21 @@ static void dfi_timings_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	write32_with_dbg(DDRMC_DFIUPD1(ctrl_id), val);
 }
 
+static void port_priority_cfg(int ctrl_id)
+{
+	uint32_t val;
+	int i;
+
+	for (i = 0; i < CONFIG_DDRMC_AXI_PORTS; i++) {
+		if (CONFIG_DDRMC_HPR_PORT_MASK & BIT(i)) {
+			val = read32(DDRMC_PCFGQOS0(ctrl_id, i));
+			val &= ~DDRMC_PCFGQOS0_RQOS_MAP_REGION0;
+			val |= FIELD_PREP(DDRMC_PCFGQOS0_RQOS_MAP_REGION0, 2);
+			write32_with_dbg(DDRMC_PCFGQOS0(ctrl_id, i), val);
+		}
+	}
+}
+
 void ddrmc_cfg(int ctrl_id, struct ddr_cfg *cfg)
 {
 	uint32_t val;
@@ -627,4 +642,5 @@ void ddrmc_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	dfi_timings_cfg(ctrl_id, cfg);
 	addrmap_cfg(ctrl_id, cfg);
 	sar_cfg(ctrl_id, cfg);
+	port_priority_cfg(ctrl_id);
 }

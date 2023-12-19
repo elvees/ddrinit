@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-/* Copyright 2020 RnD Center "ELVEES", JSC */
+/* Copyright 2020-2023 RnD Center "ELVEES", JSC */
 
 #ifndef _REGS_H
 #define _REGS_H
@@ -218,7 +218,11 @@
 #define DDRMC_STAT(i)	     (DDRMC_BASE(i) + 0x4)
 #define DDRMC_STAT_OPER_MODE GENMASK(2, 0)
 
-#define DDRMC_PCTRL(i, j)   (DDRMC_BASE(i) + 0x490 + 0xb0 * (j))
+#define DDRMC_PCTRL(i, j) (DDRMC_BASE(i) + 0x490 + 0xb0 * (j))
+
+#define DDRMC_PCFGQOS0(i, j)		(DDRMC_BASE(i) + 0x494 + 0xb0 * (j))
+#define DDRMC_PCFGQOS0_RQOS_MAP_REGION0 GENMASK(17, 16)
+
 #define DDRMC_SARBASE(i, j) (DDRMC_BASE(i) + 0xf04 + 8 * (j))
 #define DDRMC_SARSIZE(i, j) (DDRMC_BASE(i) + 0xf08 + 8 * (j))
 
