@@ -458,3 +458,47 @@ config DDRMC_HPR_PORT_MASK
 	         8              HSPERIPH
 	         9              LSPERIPH0
 	         10             LSPERIPH1
+
+config DDRMC_PORT_READ_TIMEOUT_MASK
+	hex "Port read timeout mask"
+	depends on PLATFORM_MCOM03
+	default 0x4
+	help
+	  If bit i is set in the mask, all read transactions from AXI port i will have the port
+	  read timeout set to 1. It means that read requests from port i will have highest priority
+	  in the DDRMC.
+	  Bit mapping (see MCom-03 user guide chapter 8.3, Table 8.2 for details):
+	  Bit in the mask   DDRMC AXI port
+	         0              SDR
+	         1              PCIe
+	         2              ISP
+	         3              GPU
+	         4              VPU
+	         5              DP
+	         6              CPU
+	         7              SERVICE
+	         8              HSPERIPH
+	         9              LSPERIPH0
+	         10             LSPERIPH1
+
+config DDRMC_PORT_WRITE_TIMEOUT_MASK
+	hex "Port write timeout mask"
+	depends on PLATFORM_MCOM03
+	default 0x4
+	help
+	  If bit i is set in the mask, all write transactions from AXI port i will have the port
+	  write timeout set to 1. It means that write requests from port i will have highest
+	  priority in the DDRMC.
+	  Bit mapping (see MCom-03 user guide chapter 8.3, Table 8.2 for details):
+	  Bit in the mask   DDRMC AXI port
+	         0              SDR
+	         1              PCIe
+	         2              ISP
+	         3              GPU
+	         4              VPU
+	         5              DP
+	         6              CPU
+	         7              SERVICE
+	         8              HSPERIPH
+	         9              LSPERIPH0
+	         10             LSPERIPH1

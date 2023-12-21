@@ -596,6 +596,22 @@ static void port_priority_cfg(int ctrl_id)
 			val |= FIELD_PREP(DDRMC_PCFGQOS0_RQOS_MAP_REGION0, 2);
 			write32_with_dbg(DDRMC_PCFGQOS0(ctrl_id, i), val);
 		}
+
+		if (CONFIG_DDRMC_PORT_READ_TIMEOUT_MASK & BIT(i)) {
+			val = read32(DDRMC_PCFGR(ctrl_id, i));
+			val &= ~DDRMC_PCFGR_RD_PORT_PRIORITY;
+			val |= FIELD_PREP(DDRMC_PCFGR_RD_PORT_PRIORITY, 0x1) |
+			       DDRMC_PCFGR_RD_PORT_AGING_EN;
+			write32_with_dbg(DDRMC_PCFGR(ctrl_id, i), val);
+		}
+
+		if (CONFIG_DDRMC_PORT_WRITE_TIMEOUT_MASK & BIT(i)) {
+			val = read32(DDRMC_PCFGW(ctrl_id, i));
+			val &= ~DDRMC_PCFGW_WR_PORT_PRIORITY;
+			val |= FIELD_PREP(DDRMC_PCFGW_WR_PORT_PRIORITY, 0x1) |
+			       DDRMC_PCFGW_WR_PORT_AGING_EN;
+			write32_with_dbg(DDRMC_PCFGW(ctrl_id, i), val);
+		}
 	}
 }
 

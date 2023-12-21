@@ -218,6 +218,14 @@
 #define DDRMC_STAT(i)	     (DDRMC_BASE(i) + 0x4)
 #define DDRMC_STAT_OPER_MODE GENMASK(2, 0)
 
+#define DDRMC_PCFGR(i, j)	     (DDRMC_BASE(i) + 0x404 + 0xb0 * (j))
+#define DDRMC_PCFGR_RD_PORT_PRIORITY GENMASK(9, 0)
+#define DDRMC_PCFGR_RD_PORT_AGING_EN BIT(12)
+
+#define DDRMC_PCFGW(i, j)	     (DDRMC_BASE(i) + 0x408 + 0xb0 * (j))
+#define DDRMC_PCFGW_WR_PORT_PRIORITY GENMASK(9, 0)
+#define DDRMC_PCFGW_WR_PORT_AGING_EN BIT(12)
+
 #define DDRMC_PCTRL(i, j) (DDRMC_BASE(i) + 0x490 + 0xb0 * (j))
 
 #define DDRMC_PCFGQOS0(i, j)		(DDRMC_BASE(i) + 0x494 + 0xb0 * (j))
