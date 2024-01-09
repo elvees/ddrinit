@@ -267,9 +267,9 @@ TBD
 
 * ``bootrom.fragment`` --- фрагмент для загрузки СнК с помощью BootROM
 
-Пример установки конфигурации для модуля ELV-MC03-SMARC с загрузкой с помощью BootROM::
+Пример установки конфигурации для модуля ELV-MC03-SMARC r1.0 с загрузкой с помощью BootROM::
 
-  make elvmc03smarc_defconfig FRAGMENTS="bootrom"
+  make elvmc03smarc-r1.0_defconfig FRAGMENTS="bootrom"
 
 Если для модуля не существует конфигурации, необходимо ее создать
 (подробнее см. `Портирование на модуль`_).
