@@ -39,6 +39,7 @@
 * MCom-03 BuB r1.3, MCom-03 BuB r1.5;
 * MONO-BOARD r1.1.1;
 * IQCAM_proc r1.0;
+* Pico-ITX r2;
 * PM03CAM-OSM r1.04;
 * ROKIROVKA r1.0.1;
 * SKIF-MP v1.0;
