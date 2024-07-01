@@ -35,7 +35,7 @@
 * ELV-MC03 r2.2;
 * ELV-MC03-CE r2.4.0, ELV-MC03-CE r2.5.0;
 * ELV-MC03-Q7 r1.0, ELV-MC03-Q7 r2.1.1;
-* ELV-MC03-SMARC r1.0, r1.1, r2.2, r2.6.1, r2.7.1;
+* ELV-MC03-SMARC r1.0, r1.1, r2.2, r2.6.1, r2.7.1, r2.9.1;
 * MCom-03 BuB r1.3, MCom-03 BuB r1.5;
 * MONO-BOARD r1.1.1;
 * IQCAM_proc r1.0;
