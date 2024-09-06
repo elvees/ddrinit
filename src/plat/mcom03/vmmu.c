@@ -19,7 +19,7 @@
 
 #define VMMU_2MB_MASK (0x1FFFFFULL)
 
-#define VMMU_Ith_GB(x) ((x)*VMMU_1GB)
+#define VMMU_Ith_GB(x) ((x) * VMMU_1GB)
 
 #define VMMU_1GB_SLOT_IDX  (CONFIG_VMMU_VIRT_BASE_START / VMMU_1GB)
 #define VMMU_1GB_SLOT_ADDR (VMMU_Ith_GB(VMMU_1GB_SLOT_IDX))

@@ -229,7 +229,7 @@ static void spd_error_fix(struct ddr4_spd *spd)
 	}
 }
 
-#define spd2ps(mtb, ftb) ((mtb)*mtb_ps + (ftb)*ftb_ps)
+#define spd2ps(mtb, ftb) ((mtb) * mtb_ps + (ftb) * ftb_ps)
 
 int spd_parse(struct ddr4_spd *spd, struct ddr_cfg *cfg)
 {

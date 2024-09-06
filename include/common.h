@@ -45,7 +45,7 @@
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
-#define DIV_ROUND_UP(n, d) (((n) + (d)-1) / (d))
+#define DIV_ROUND_UP(n, d) (((n) + (d) - 1) / (d))
 #define DIV_ROUND_CLOSEST(x, divisor)                                             \
 	({                                                                        \
 		typeof(x) __x = x;                                                \

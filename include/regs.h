@@ -8,7 +8,7 @@
 
 /* DDR controller registers */
 
-#define DDRSUB_BASE(i) (CONFIG_DDRSUB0_BASE + (i)*CONFIG_DDRSUB_GAP)
+#define DDRSUB_BASE(i) (CONFIG_DDRSUB0_BASE + (i) * CONFIG_DDRSUB_GAP)
 #define DDRMC_BASE(i)  (DDRSUB_BASE(i) + CONFIG_DDRMC_OFFSET)
 #define PHY_BASE(i)    (DDRSUB_BASE(i) + CONFIG_PHY_OFFSET)
 
@@ -278,7 +278,7 @@
 #define PHY_DQDQS_RCV_CNTRL_B0(i) PHYREG(DBYTE, (i), 0x43)
 #define PHY_DQDQS_RCV_CNTRL_B1(i) PHYREG(DBYTE, (i), 0x143)
 
-#define PHY_DQN_LN_SEL(i, j) (PHYREG(DBYTE, (i), 0xA0) + (j)*4)
+#define PHY_DQN_LN_SEL(i, j) (PHYREG(DBYTE, (i), 0xA0) + (j) * 4)
 
 #define PHY_ATX_SLEW_RATE(i)		    PHYREG(ANIB, i, 0x55)
 #define PHY_ATX_SLEW_RATE_ATXPRE_P	    GENMASK(3, 0)

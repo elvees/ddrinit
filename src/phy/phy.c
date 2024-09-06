@@ -36,17 +36,15 @@ enum firmware_type {
 };
 
 #ifdef CONFIG_DQ_MAPPING
-#define DQ_MAPPING(CTRL_ID, BYTE)                                         \
-	{                                                                 \
-		CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE & 0xf,               \
-			CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 4 & 0xf,  \
-			CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 8 & 0xf,  \
-			CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 12 & 0xf, \
-			CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 16 & 0xf, \
-			CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 20 & 0xf, \
-			CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 24 & 0xf, \
-			CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 28 & 0xf  \
-	}
+#define DQ_MAPPING(CTRL_ID, BYTE)                           \
+	{ CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE & 0xf,       \
+	  CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 4 & 0xf,  \
+	  CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 8 & 0xf,  \
+	  CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 12 & 0xf, \
+	  CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 16 & 0xf, \
+	  CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 20 & 0xf, \
+	  CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 24 & 0xf, \
+	  CONFIG_##CTRL_ID##_DQ_MAPPING_##BYTE >> 28 & 0xf }
 
 static const uint8_t ddrmc0_dq_mapping[CONFIG_PHY_DBYTE_NUM][8] = {
 	DQ_MAPPING(DDRMC0, BYTE0),
