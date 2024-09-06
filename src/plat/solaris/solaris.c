@@ -564,7 +564,7 @@ static void iommu_bypass_enable(void)
  * Disable the UltraSoC probes in South Partition as timing is not met
  * for the probe flops in the 800MHz NoC clock domain. See SBM88645.
  */
-static int south_ultrasoc_disable(void)
+__attribute__((unused)) static int south_ultrasoc_disable(void)
 {
 	int i, ret;
 	uint32_t data0[] = { 0x1452108, 0x1452308, 0x1452f08, 0x1453308,
