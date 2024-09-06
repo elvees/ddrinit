@@ -1,0 +1,16 @@
+- job:
+    name: ddrinit-build
+    run: zuul.d/playbooks/build.yaml
+    irrelevant-files:
+      - doc/
+
+- project:
+    check:
+      jobs:
+        - ddrinit-build
+        - pre-commit
+
+    experimental:
+      jobs:
+        - ecam03-buildroot-build
+        - solaris-buildroot-build

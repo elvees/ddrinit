@@ -1,9 +1,0 @@
-- project:
-    check:
-      jobs:
-        - mcom03-linux510-buildroot-build
-
-    experimental:
-      jobs:
-        - ecam03-buildroot-build
-        - solaris-buildroot-build

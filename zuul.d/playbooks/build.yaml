@@ -1,0 +1,18 @@
+- hosts: all
+  tasks:
+    # 30 defconfigs are buildings in under 3 minutes so build them all.
+    # It's okay to optimize number of defconfigs in future: e.g. we can
+    # build only defconfigs modified in commit or always build one defconfig
+    # per architecture/chip.
+
+    - name: Find all configs
+      args:
+        chdir: "{{ zuul.project.src_dir }}"
+      command: ls -1 configs
+      register: configs
+
+    - name: Build defconfigs
+      args:
+        chdir: "{{ zuul.project.src_dir }}"
+      command: bash -x zuul.d/playbooks/build.sh configs/{{ item }}
+      loop: "{{ configs.stdout_lines }}"
