@@ -170,7 +170,7 @@ static int pll_cfg(enum ddr_ucg_id ucg_id, int pll_id, uint32_t freq, uint32_t x
 	/* Set FRAC */
 	write32(UCG_UFG_REG4(ucg_id, pll_id), frac);
 
-	/* Propogate changes */
+	/* Propagate changes */
 	write32(UCG_UFG_REG6(ucg_id, pll_id), UCG_UFG_REG6_UPDATE);
 
 	/* Deassert power down */

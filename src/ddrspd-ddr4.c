@@ -123,7 +123,7 @@ int spd_get(int ctrl_id, struct ddr4_spd *spd)
  *	bit[1:0]	Signal loading
  *	00		Not specified
  *	01		Multi load stack
- *	10		Sigle load stack (3DS)
+ *	10		Single load stack (3DS)
  *	11		Reserved
  */
 static uint64_t ranksize_get(struct ddr4_spd *spd)

@@ -31,7 +31,7 @@ typedef struct _PMU_SMB_DDR4U_1D_t {
 		// MsgMisc[1] = SimulationOnlyReset
 		//      0x1 = Verilog only simulation option to shorten duration of DRAM reset pulse length to 1ns.
 		//                Must never be set to 1 in silicon.
-		//      0x0 = Use reset pulse length specifed by JEDEC standard
+		//      0x0 = Use reset pulse length specified by JEDEC standard
 		//
 		// MsgMisc[2] = SimulationOnlyTraining
 		//      0x1 = Verilog only simulation option to shorten the duration of the training steps by performing fewer iterations.
@@ -78,7 +78,7 @@ typedef struct _PMU_SMB_DDR4U_1D_t {
 		// DDR data rate for the target Pstate in units of MT/s.
 		// For example enter 0x0640 for DDR1600.
 	uint8_t DfiFreqRatio; // Byte offset 0x08, CSR Addr 0x54004, Direction=In
-		// Frequency ratio betwen DfiCtlClk and SDRAM memclk.
+		// Frequency ratio between DfiCtlClk and SDRAM memclk.
 		//    0x1 = 1:1
 		//    0x2 = 1:2
 		//    0x4 = 1:4

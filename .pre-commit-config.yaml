@@ -35,6 +35,12 @@ repos:
         args:
           - --license-filepath=.license-header-c-comment
           - --comment-style=
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.3.0
+    hooks:
+      - id: codespell
+        args:
+          - --ignore-words=.codespell.ignore
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:

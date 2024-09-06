@@ -18,7 +18,7 @@
 		}                                                             \
 	})
 
-/* Initialize DDRMC, PHY and DRAM as descibed in DWC_UMCTL2 databook:
+/* Initialize DDRMC, PHY and DRAM as described in DWC_UMCTL2 databook:
  * Step 1:  Follow the PHYs power up procedure.
  * Step 2:  Program the DWC_ddr_umctl2 registers.
  * Step 3:  De-assert reset signal core_ddrc_rstn.

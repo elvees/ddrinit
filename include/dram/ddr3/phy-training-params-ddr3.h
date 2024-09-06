@@ -79,7 +79,7 @@ typedef struct _PMU_SMB_DDR3U_1D_t {
 
 	/* Byte offset 0x08, CSR Addr 0x54004, Direction=In
 	 *
-	 * Frequency ratio betwen DfiCtlClk and SDRAM memclk.
+	 * Frequency ratio between DfiCtlClk and SDRAM memclk.
 	 *   0x1 - 1:1
 	 *   0x2 - 1:2
 	 *   0x4 - 1:4
