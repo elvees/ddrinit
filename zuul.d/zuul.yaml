@@ -4,11 +4,45 @@
     irrelevant-files:
       - doc/
 
+- job:
+    name: ddrinit-build-docs
+    parent: build-docs
+    files: &doc-files
+      - doc/
+      - Pipfile$
+    vars:
+      build_cmd: |
+        set -ex
+        module use -a /usr/corp/Projects/ipcam-vip1/modules
+        module load plantuml
+        pipenv install --skip-lock
+        SPHINXFLAGS=-W pipenv run make -C doc html
+        pipenv run make -C doc check
+      build_items:
+        - title: ddrinit HTML docs
+          basename: ddrinit-docs-html  # HTML archive is createad as <basename>.tar.gz
+          build_dir: doc/build/html
+
+- job:
+    name: ddrinit-publish-docs
+    parent: publish-docs
+    dependencies: [ddrinit-build-docs]
+    files: *doc-files
+    vars:
+      publish_docs_artifact_basename: ddrinit-docs-html
+      publish_docs_dest_dir: /usr/corpneo/pdist/docs/ddrinit
+
 - project:
     check:
       jobs:
         - ddrinit-build
+        - ddrinit-build-docs
         - pre-commit
+
+    deploy:
+      jobs:
+        - ddrinit-build-docs
+        - ddrinit-publish-docs
 
     experimental:
       jobs:
