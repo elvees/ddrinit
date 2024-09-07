@@ -1,0 +1,14 @@
+extends: default
+rules:
+  comments-indentation:
+    level: error
+  comments:
+    level: error
+  line-length:
+    max: 100
+    allow-non-breakable-inline-mappings: true
+  document-start:
+    present: false
+    level: error
+  truthy:
+    level: error
