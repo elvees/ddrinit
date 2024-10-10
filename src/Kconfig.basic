@@ -336,7 +336,8 @@ config DRAM_TCK
 
 config DRAM_RANKS
 	int "Active DRAM ranks"
-	range 1 4
+	range 1 4 if PLATFORM_SOLARIS
+	range 1 2 if PLATFORM_MCOM03
 	default 1
 	depends on !SPD_EEPROM
 	help
