@@ -508,7 +508,7 @@ static void addrmap_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	write32_with_dbg(DDRMC_ADDRMAP6(ctrl_id), val);
 
 	val = FIELD_PREP(DDRMC_ADDRMAP7_ROW_B16, (cfg->row_addr_bits <= 16) ? 15 : next_bit - 6) |
-	      FIELD_PREP(DDRMC_ADDRMAP7_ROW_B17, (cfg->row_addr_bits <= 17) ? 15 : next_bit - 6);
+	      FIELD_PREP(DDRMC_ADDRMAP7_ROW_B17, 15);
 	write32_with_dbg(DDRMC_ADDRMAP7(ctrl_id), val);
 	next_bit += cfg->row_addr_bits;
 

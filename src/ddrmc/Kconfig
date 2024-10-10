@@ -41,16 +41,19 @@ config DRAM_DEVICE_WIDTH
 
 config DRAM_ROW_ADDR_BITS
 	int "Row address bits"
+	range 13 17 if DRAM_TYPE_LPDDR4
 	help
 	  Number of SDRAM row address bits. Set it according to SDRAM datasheet.
 
 config DRAM_COLUMN_ADDR_BITS
 	int "Column address bits"
+	range 10 10 if DRAM_TYPE_LPDDR4
 	help
 	  Number of SDRAM column address bits. Set it according to SDRAM datasheet.
 
 config DRAM_BANK_ADDR_BITS
 	int "Bank address bits"
+	range 3 3 if DRAM_TYPE_LPDDR4
 	help
 	  Number of SDRAM bank address bits. Set it according to SDRAM datasheet.
 
