@@ -116,5 +116,7 @@ help: Makefile
 install:
 	install -D -m 0755 $(TARGET).bin $(DESTDIR)/ddrinit.bin
 	install -D -m 0755 $(TARGET).elf $(DESTDIR)/ddrinit.elf
+	install -D -m 0755 $(TARGET).map $(DESTDIR)/ddrinit.map
+	install -D -m 0755 $(TARGET).ld $(DESTDIR)/ddrinit.ld
 
 .PHONY: all help clean clean-all menuconfig oldconfig savedefconfig install check-stack
