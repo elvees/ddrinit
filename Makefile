@@ -57,6 +57,7 @@ include $(shell find $(SRC_DIR) -name Makefile)
 srcs := $(shell for f in $(obj-y); do find $(SRC_DIR) -name $$f; done)
 objs := $(srcs:.c=.o)
 objs := $(objs:.S=.o)
+objs := $(sort $(objs))
 
 ifneq ($(linkfile),)
 linkfile := $(shell find $(SRC_DIR) -name '$(linkfile)')
