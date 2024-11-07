@@ -239,6 +239,9 @@ int main(void)
 #endif
 
 	for (i = 0; i < CONFIG_DDRMC_MAX_NUMBER; i++) {
+		if (!(BIT(i) & CONFIG_DDRMC_ACTIVE_MASK))
+			continue;
+
 		timer_start = timer_get_usec();
 		ret = ddrcfg_get(i, &cfg);
 		if (ret) {
