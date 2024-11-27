@@ -30,6 +30,7 @@
 
 СнК MCom-03:
 
+* 1892ВА018_ИП_КУ_DDR4 r1.0
 * ECAM03BL 1.0, ECAM03DM r1.0;
 * EGW-PM r1.0;
 * ELV-MC03 r2.2;
