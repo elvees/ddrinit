@@ -363,6 +363,39 @@ static void addrmap_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	/* TODO: Add 3DS support */
 }
 
+/* TODO: Make the code below platform independent */
+#ifdef CONFIG_PLATFORM_MCOM03
+static void sar_cfg(int ctrl_id, struct ddr_cfg *cfg)
+{
+	uint64_t ddr_low_size = min(CONFIG_DDR_LOW_SIZE * 1024 * 1024ULL, cfg->full_size);
+	uint64_t ddr_high_size = cfg->full_size - ddr_low_size;
+	uint64_t ddr_low_start = (ctrl_id == 0) ? CONFIG_MEM_REGION0_START :
+						  CONFIG_MEM_REGION2_START;
+	uint64_t ddr_high_start = (ctrl_id == 0) ? CONFIG_MEM_REGION1_START :
+						   CONFIG_MEM_REGION3_START;
+
+	if (IS_ENABLED(CONFIG_INTERLEAVING)) {
+		ddr_low_start = CONFIG_MEM_REGION0_START;
+		ddr_high_start = CONFIG_MEM_REGION1_START;
+		ddr_low_size *= 2;
+		ddr_high_size *= 2;
+	}
+
+	write32_with_dbg(DDRMC_SARBASE(ctrl_id, 0), ddr_low_start / CONFIG_DDRMC_SAR_MINSIZE);
+	write32_with_dbg(DDRMC_SARSIZE(ctrl_id, 0), ddr_low_size / CONFIG_DDRMC_SAR_MINSIZE - 1);
+	write32_with_dbg(DDRMC_SARBASE(ctrl_id, 1), ddr_high_start / CONFIG_DDRMC_SAR_MINSIZE);
+	write32_with_dbg(DDRMC_SARSIZE(ctrl_id, 1), ddr_high_size / CONFIG_DDRMC_SAR_MINSIZE - 1);
+	write32_with_dbg(DDRMC_SARBASE(ctrl_id, 2), 256);
+	write32_with_dbg(DDRMC_SARSIZE(ctrl_id, 2), 0);
+	write32_with_dbg(DDRMC_SARBASE(ctrl_id, 3), 257);
+	write32_with_dbg(DDRMC_SARSIZE(ctrl_id, 3), 0);
+}
+#else
+static void sar_cfg(int ctrl_id, struct ddr_cfg *cfg)
+{
+}
+#endif
+
 static void dimm_cfg(int ctrl_id, struct ddr_cfg *cfg)
 {
 	/* TODO: */
@@ -429,6 +462,7 @@ void ddrmc_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	dram_timings_cfg(ctrl_id, cfg);
 	dfi_timings_cfg(ctrl_id, cfg);
 	addrmap_cfg(ctrl_id, cfg);
+	sar_cfg(ctrl_id, cfg);
 	dimm_cfg(ctrl_id, cfg);
 	ecc_cfg(ctrl_id, cfg);
 }

@@ -365,6 +365,13 @@ config PHY_D4TX_PREAMBLE_LEN
 	help
 	  TBD
 
+config PHY_ADDR_MIRROR
+	hex "ADDR_MIRROR"
+	default 0 if PLATFORM_MCOM03
+	default 0xa if PLATFORM_SOLARIS
+	help
+	  TBD
+
 choice
 	prompt "Read postamble"
 	config READ_POSTAMBLE_0_5T

@@ -238,12 +238,12 @@ void phy_training_params_load(int ctrl_id, struct ddr_cfg *cfg)
 	mb_DDR4U_1D.CsPresent = BIT(cfg->ranks) - 1;
 	mb_DDR4U_1D.CsPresentD0 = BIT(cfg->ranks) - 1;
 	mb_DDR4U_1D.CsPresentD1 = 0;
-	mb_DDR4U_1D.AddrMirror = 0xa;
+	mb_DDR4U_1D.AddrMirror = CONFIG_PHY_ADDR_MIRROR;
 
 	mb_DDR4U_1D.AcsmOdtCtrl0 = 0x21; /* Needs to be verified */
 	mb_DDR4U_1D.AcsmOdtCtrl1 = 0x12;
 
-	mb_DDR4U_1D.EnabledDQs = 64;
+	mb_DDR4U_1D.EnabledDQs = CONFIG_DDRMC_DQ_BUS_WIDTH;
 	mb_DDR4U_1D.PhyCfg = 0;
 	mb_DDR4U_1D.X16Present = 0;
 	mb_DDR4U_1D.D4Misc = 1;
@@ -269,8 +269,8 @@ void phy_training_params_load(int ctrl_id, struct ddr_cfg *cfg)
 	/* Load training firmware parameters */
 	for (i = 0; i < 254; i++) {
 		val = read32(read_offset);
-		phy_write16(ctrl_id, write_offset, val & 0x0000ffff);
-		phy_write16(ctrl_id, write_offset + 4, (val >> 16) & 0x0000ffff);
+		phy_write32(ctrl_id, write_offset, val & 0x0000ffff);
+		phy_write32(ctrl_id, write_offset + 4, (val >> 16) & 0x0000ffff);
 		write_offset += 8;
 		read_offset += 4;
 	}
