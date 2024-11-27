@@ -188,8 +188,7 @@ config PHY_REG_INSTANCE_OFFSET
 
 config PHY_DFI1_EXIST
 	bool
-	default true if PLATFORM_MCOM03
-	default false if PLATFORM_SOLARIS
+	default y if PLATFORM_MCOM03
 
 config MAX_MEM_REGIONS
 	int
