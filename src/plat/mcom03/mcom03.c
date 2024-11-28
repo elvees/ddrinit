@@ -43,11 +43,13 @@ struct pll_settings {
 	uint8_t od;
 };
 
-struct pll_settings pll_settings[2][9] = {
+struct pll_settings pll_settings[2][11] = {
 	{
 		{ 27000000, DRAM_TCK_266, 0, 38, 15 },
 		{ 27000000, DRAM_TCK_533, 0, 67, 13 },
 		{ 27000000, DRAM_TCK_1066, 0, 117, 11 },
+		{ 27000000, DRAM_TCK_1250, 0, 91, 7 },
+		{ 27000000, DRAM_TCK_1333, 0, 73, 5 },
 		{ 27000000, DRAM_TCK_1600, 0, 87, 5 },
 		{ 27000000, DRAM_TCK_1866, 0, 102, 5 },
 		{ 27000000, DRAM_TCK_2133, 0, 77, 3 },
