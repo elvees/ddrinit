@@ -85,7 +85,7 @@ $(TARGET).elf: $(TARGET).ld $(objs)
 check-stack: $(TARGET).elf
 	find . -name '*.cgraph' | grep -v stack-usage-log | xargs cat > stack-usage-log.cgraph
 	find . -name '*.su'     | grep -v stack-usage-log | xargs cat > stack-usage-log.su
-	python2 scripts/stack-usage.py --csv stack-usage.csv --json stack-usage.json
+	python2 scripts/stack-usage.py --csv stack-usage.csv --json stack-usage.json > $(TARGET).su
 	#TODO: Add desired stack size in defconfig
 	#TODO: Compare stack size with one defined in defconfig
 
@@ -118,5 +118,8 @@ install:
 	install -D -m 0755 $(TARGET).elf $(DESTDIR)/ddrinit.elf
 	install -D -m 0755 $(TARGET).map $(DESTDIR)/ddrinit.map
 	install -D -m 0755 $(TARGET).ld $(DESTDIR)/ddrinit.ld
+ifneq ($(wildcard $(TARGET).su),)
+	install -D -m 0755 $(TARGET).su $(DESTDIR)/ddrinit.su
+endif
 
 .PHONY: all help clean clean-all menuconfig oldconfig savedefconfig install check-stack
