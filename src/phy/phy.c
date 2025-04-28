@@ -18,9 +18,16 @@
 #endif
 
 #ifdef CONFIG_DRAM_TYPE_LPDDR4
-#include <dram/lpddr4/fw-imem-1d.h>
-#include <dram/lpddr4/fw-dmem-1d.h>
-#include <dram/lpddr4/pie-cfg.h>
+#ifdef CONFIG_FIRMWARE_VERSION_202309
+#include <dram/lpddr4/fw-imem-1d-202309.h>
+#include <dram/lpddr4/fw-dmem-1d-202309.h>
+#include <dram/lpddr4/pie-cfg-202309.h>
+#endif
+#ifdef CONFIG_FIRMWARE_VERSION_201810
+#include <dram/lpddr4/fw-imem-1d-201810.h>
+#include <dram/lpddr4/fw-dmem-1d-201810.h>
+#include <dram/lpddr4/pie-cfg-201810.h>
+#endif
 #endif
 
 #define PHY_TRAIN_COMPLETE 0x07

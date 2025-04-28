@@ -1,4 +1,14 @@
 choice
+	prompt "Firmware version select"
+
+	config FIRMWARE_VERSION_202309
+		bool "2023.09"
+
+	config FIRMWARE_VERSION_201810
+		bool "2018.10"
+endchoice
+
+choice
 	prompt "DRAM type select"
 
 	config DRAM_TYPE_DDR3
