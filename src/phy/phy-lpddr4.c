@@ -300,7 +300,12 @@ void phy_training_params_load(int ctrl_id, struct ddr_cfg *cfg)
 	params.CATerminatingRankChA = 0;
 	params.CATerminatingRankChB = 0;
 	params.Lp4Quickboot = 0;
-	params.CATrainOpt = 0;
+
+	if (IS_ENABLED(CONFIG_ENABLE_CA_VREF_TRAINING))
+		params.CATrainOpt = 1;
+	else
+		params.CATrainOpt = 0;
+
 	params.X8Mode = 0;
 
 	params.MR1_A0 = lpddr4_mr1_get(cfg);
