@@ -8,6 +8,11 @@ choice
 		bool "2018.10"
 endchoice
 
+config FIRMWARE_VERSION_STRING
+	string
+	default "2018.10" if FIRMWARE_VERSION_201810
+	default "2023.09" if FIRMWARE_VERSION_202309
+
 choice
 	prompt "DRAM type select"
 

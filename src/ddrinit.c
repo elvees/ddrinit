@@ -237,6 +237,7 @@ int main(void)
 #if defined(VERSION)
 	printf("ddrinit: %s\n", VERSION);
 #endif
+	printf("ddrinit: PHY firmware version: %s\n", CONFIG_FIRMWARE_VERSION_STRING);
 
 	for (i = 0; i < CONFIG_DDRMC_MAX_NUMBER; i++) {
 		if (!(BIT(i) & CONFIG_DDRMC_ACTIVE_MASK))
