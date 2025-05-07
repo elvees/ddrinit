@@ -33,7 +33,8 @@ LEAF(_start)
 	RESTORE_REGS
 
 	/* Allocate address for a JTAG breakpoint */
-	.org    0x188
+jtag:
+	.align 4
 	nop
 
 3:	lui     $k0, 0x9fa0

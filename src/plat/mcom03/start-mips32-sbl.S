@@ -60,8 +60,11 @@ bss_clean_done:
 	lw      s7, 72(sp)
 	lw      s8, 80(sp)
 	addiu   sp, sp, 88
+
 	/* Allocate address for a JTAG breakpoint */
-	.org 0x100
+jtag:
+	.align 4
 	nop
+
 	jr      ra
 	nop
