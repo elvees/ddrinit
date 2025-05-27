@@ -374,6 +374,16 @@ static void sar_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	uint64_t ddr_high_start = (ctrl_id == 0) ? CONFIG_MEM_REGION1_START :
 						   CONFIG_MEM_REGION3_START;
 
+	/* DDR High memory region was shifted by 2GiB for workaround #MCOM03-1880.
+	 * For each channel remains 14GiB of address space. We need to cut off last 2GiB on each
+	 * channel if used DDR with 16GiB per channel.
+	 */
+	if (ctrl_id == 0 && ddr_high_size > CONFIG_MEM_REGION1_SIZE)
+		ddr_high_size = CONFIG_MEM_REGION1_SIZE;
+
+	if (ctrl_id == 1 && ddr_high_size > CONFIG_MEM_REGION3_SIZE)
+		ddr_high_size = CONFIG_MEM_REGION3_SIZE;
+
 	if (IS_ENABLED(CONFIG_INTERLEAVING)) {
 		ddr_low_start = CONFIG_MEM_REGION0_START;
 		ddr_high_start = CONFIG_MEM_REGION1_START;
