@@ -325,7 +325,7 @@ config PHY_CALIBRATION_INTERVAL
 
 config PHY_TXSLEW_FALL_DQ
 	hex "TXSLEW_FALL_DQ"
-	default 0xf if PLATFORM_MCOM03
+	default 0x7 if PLATFORM_MCOM03
 	default 0xf if PLATFORM_SOLARIS
 	help
 	  TBD
@@ -339,7 +339,7 @@ config PHY_TXSLEW_RISE_DQ
 
 config PHY_TXSLEW_FALL_AC
 	hex "TXSLEW_FALL_AC"
-	default 0xf if PLATFORM_MCOM03
+	default 0x9 if PLATFORM_MCOM03
 	default 0xf if PLATFORM_SOLARIS
 	help
 	  TBD
