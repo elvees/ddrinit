@@ -33,9 +33,41 @@ choice
 		  LPDDR4 DRAM type
 endchoice
 
+choice
+	prompt "DDRMCs select"
+
+	config DDRMC_ACTIVE_0
+		bool "DDRMC0"
+
+	config DDRMC_ACTIVE_0_1
+		bool "DDRMC0, DDRMC1"
+
+	config DDRMC_ACTIVE_0_2
+		bool "DDRMC0 - DDRMC2"
+		depends on PLATFORM_SOLARIS
+
+	config DDRMC_ACTIVE_0_3
+		bool "DDRMC0 - DDRMC3"
+		depends on PLATFORM_SOLARIS
+endchoice
+
+config DDRMC_ACTIVE_MASK
+	int
+	default 1 if DDRMC_ACTIVE_0
+	default 3 if DDRMC_ACTIVE_0_1
+	default 7 if DDRMC_ACTIVE_0_2
+	default 15 if DDRMC_ACTIVE_0_3
+
+config DDRMC_INIT_REQUIRED_MASK
+	hex
+	default 0x1 if PLATFORM_SOLARIS
+	default 0x1 if PLATFORM_MCOM03 && !INTERLEAVING
+	default 0x3 if PLATFORM_MCOM03 && INTERLEAVING
+
 menuconfig INTERLEAVING
 	bool "Memory interleaving"
-	default y if PLATFORM_SOLARIS
+	depends on (PLATFORM_MCOM03 && DDRMC_ACTIVE_0_1 || PLATFORM_SOLARIS && DDRMC_ACTIVE_0_3)
+	default y
 
 if INTERLEAVING
 
@@ -357,19 +389,6 @@ config DRAM_RANKS
 	depends on !SPD_EEPROM
 	help
 	  Number of active DRAM ranks
-
-config DDRMC_ACTIVE_MASK
-        int "Mask of active DDRMCs"
-        default 3 if PLATFORM_MCOM03
-        default 15 if PLATFORM_SOLARIS
-        help
-          If bit N is set DDRMC N will be initialized.
-
-config DDRMC_INIT_REQUIRED_MASK
-	hex
-	default 0x1 if PLATFORM_SOLARIS
-	default 0x1 if PLATFORM_MCOM03 && !INTERLEAVING
-	default 0x3 if PLATFORM_MCOM03 && INTERLEAVING
 
 config TIMER_FREQ
 	int "Timer frequency"
