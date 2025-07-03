@@ -60,10 +60,11 @@ repos:
           - --style=file:.clang-format
         exclude: |
           (?x)^(
-            include/dram/ddr3/pie-cfg.h|
-            include/dram/ddr4/pie-cfg.h|
+            include/dram/ddr3/pie-cfg-201810.h|
             include/dram/lpddr4/pie-cfg-201810.h|
             include/dram/lpddr4/pie-cfg-202309.h|
+            include/dram/ddr4/pie-cfg-201810.h|
+            include/dram/ddr4/pie-cfg-202309.h|
             include/plat/mcom03/asm.h
           )$
   - repo: https://github.com/adrienverge/yamllint

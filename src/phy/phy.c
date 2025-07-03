@@ -6,15 +6,24 @@
 #include <plat/plat.h>
 
 #ifdef CONFIG_DRAM_TYPE_DDR3
-#include <dram/ddr3/fw-imem-1d.h>
-#include <dram/ddr3/fw-dmem-1d.h>
-#include <dram/ddr3/pie-cfg.h>
+#ifdef CONFIG_FIRMWARE_VERSION_201810
+#include <dram/ddr3/fw-imem-1d-201810.h>
+#include <dram/ddr3/fw-dmem-1d-201810.h>
+#include <dram/ddr3/pie-cfg-201810.h>
+#endif
 #endif
 
 #ifdef CONFIG_DRAM_TYPE_DDR4
-#include <dram/ddr4/fw-imem-1d.h>
-#include <dram/ddr4/fw-dmem-1d.h>
-#include <dram/ddr4/pie-cfg.h>
+#ifdef CONFIG_FIRMWARE_VERSION_202309
+#include <dram/ddr4/fw-imem-1d-202309.h>
+#include <dram/ddr4/fw-dmem-1d-202309.h>
+#include <dram/ddr4/pie-cfg-202309.h>
+#endif
+#ifdef CONFIG_FIRMWARE_VERSION_201810
+#include <dram/ddr4/fw-imem-1d-201810.h>
+#include <dram/ddr4/fw-dmem-1d-201810.h>
+#include <dram/ddr4/pie-cfg-201810.h>
+#endif
 #endif
 
 #ifdef CONFIG_DRAM_TYPE_LPDDR4
