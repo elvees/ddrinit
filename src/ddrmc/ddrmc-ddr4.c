@@ -342,7 +342,11 @@ static void addrmap_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	write32(DDRMC_ADDRMAP4(ctrl_id), val);
 	next_bit = cfg->col_addr_bits;
 
-	/* TODO: Add interleave mode support */
+	/* Do not assign 12th bit of AXI address (10th bit of HIF address)
+	 * if 4 KiB interleaving is enabled.
+	 */
+	if (IS_ENABLED(CONFIG_PLATFORM_MCOM03) && IS_ENABLED(CONFIG_INTERLEAVING_SIZE_4K))
+		next_bit += 1;
 
 	val = FIELD_PREP(DDRMC_ADDRMAP1_BANK_B0, next_bit - 2) |
 	      FIELD_PREP(DDRMC_ADDRMAP1_BANK_B1, next_bit - 2) |
