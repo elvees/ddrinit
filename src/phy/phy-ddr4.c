@@ -211,7 +211,7 @@ void phy_init(int ctrl_id, struct ddr_cfg *cfg)
 	phy_write32(ctrl_id, PHY_DFI_FREQ_XLAT(7), 0xF000);
 
 	phy_write32(ctrl_id, PHY_MASTER_X4_CONFIG, 0);
-	phy_write32(ctrl_id, PHY_DMI_PIN_PRESENT, 0);
+	phy_write32(ctrl_id, PHY_DMI_PIN_PRESENT, (IS_ENABLED(CONFIG_READ_DBI)) ? 1 : 0);
 	phy_write32(ctrl_id, PHY_ACX4_ANIB_DIS, 0);
 }
 
@@ -257,7 +257,12 @@ void phy_training_params_load(int ctrl_id, struct ddr_cfg *cfg)
 	mb_DDR4U_1D.MR5 = ddr4_mr5_get(cfg);
 	mb_DDR4U_1D.MR6 = ddr4_mr6_get(cfg);
 
-	mb_DDR4U_1D.ALT_CAS_L = 0;
+	if (IS_ENABLED(CONFIG_READ_DBI))
+		mb_DDR4U_1D.ALT_CAS_L =
+			ddr4_mr0_cas_get(cfg->taa - CONFIG_DRAM_CAS_RDBI_ADDITIONAL_LAT) | 1;
+	else
+		mb_DDR4U_1D.ALT_CAS_L = 0;
+
 	mb_DDR4U_1D.ALT_WCAS_L = 0;
 
 	mb_DDR4U_1D.Share2DVrefResult = 0x1;

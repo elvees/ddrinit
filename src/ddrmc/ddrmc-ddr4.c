@@ -40,6 +40,9 @@
 #define DRAM_TIMING_TXS_FAST(trfc4, tck)  (ps2clk_jedec(10000, (tck)) + (trfc4))
 #define DRAM_TIMING_TREFI(tck)		  (DIV_ROUND_UP(DRAM_TIMING_TREFI_PS, (tck)))
 
+#define DDR4_MR5_DBI_WR BIT(11)
+#define DDR4_MR5_DBI_RD BIT(12)
+
 static uint8_t ddr4_cwl_get(uint32_t tck)
 {
 	if (tck >= DRAM_TCK_1333)
@@ -58,20 +61,16 @@ static uint8_t ddr4_cwl_get(uint32_t tck)
 		return 20;
 }
 
-uint16_t ddr4_mr0_get(struct ddr_cfg *cfg)
+uint16_t ddr4_mr0_cas_get(uint8_t taa)
 {
-	uint32_t twr, trtp, tmp = 0;
-	uint16_t mr0 = 0;
+	uint16_t tmp = 0, mr0 = 0;
 
-	twr = ps2clk_jedec(DRAM_TIMING_TWR_PS, cfg->tck);
-	trtp = twr / 2;
-
-	if (cfg->taa >= 9 && cfg->taa <= 16)
-		tmp = cfg->taa - 9;
-	else if (cfg->taa == 17 || cfg->taa == 19 || cfg->taa == 21)
-		tmp = cfg->taa / 2 + 5;
-	else if (cfg->taa == 18 || cfg->taa == 20 || cfg->taa == 22)
-		tmp = cfg->taa / 2 - 1;
+	if (taa >= 9 && taa <= 16)
+		tmp = taa - 9;
+	else if (taa == 17 || taa == 19 || taa == 21)
+		tmp = taa / 2 + 5;
+	else if (taa == 18 || taa == 20 || taa == 22)
+		tmp = taa / 2 - 1;
 
 	if (tmp & 1)
 		mr0 = BIT(2);
@@ -83,6 +82,19 @@ uint16_t ddr4_mr0_get(struct ddr_cfg *cfg)
 		mr0 |= BIT(6);
 	if (tmp & 16)
 		mr0 |= BIT(12);
+
+	return mr0;
+}
+
+uint16_t ddr4_mr0_get(struct ddr_cfg *cfg)
+{
+	uint32_t twr, trtp, tmp;
+	uint16_t mr0;
+
+	twr = ps2clk_jedec(DRAM_TIMING_TWR_PS, cfg->tck);
+	trtp = twr / 2;
+
+	mr0 = ddr4_mr0_cas_get(cfg->taa);
 
 	tmp = trtp - 5;
 
@@ -167,7 +179,11 @@ uint16_t ddr4_mr4_get(struct ddr_cfg *cfg)
 
 uint16_t ddr4_mr5_get(struct ddr_cfg *cfg)
 {
+	bool read_dbi_en = (IS_ENABLED(CONFIG_READ_DBI)) ? true : false;
+	bool write_dbi_en = (IS_ENABLED(CONFIG_WRITE_DBI)) ? true : false;
 	uint16_t mr5 = 0;
+
+	mr5 = FIELD_PREP(DDR4_MR5_DBI_WR, write_dbi_en) | FIELD_PREP(DDR4_MR5_DBI_RD, read_dbi_en);
 
 #ifdef CONFIG_DRAM_RTT_PARK_34
 	mr5 |= BIT(8) | BIT(7) | BIT(6);
@@ -463,7 +479,14 @@ void ddrmc_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	      FIELD_PREP(DDRMC_ZQCTL0_TZQOPER, DIV_ROUND_UP(DRAM_TIMING_TZQOPER, 2));
 	write32(DDRMC_ZQCTL0(ctrl_id), val);
 
-	write32(DDRMC_DBICTL(ctrl_id), 0);
+	val = 0;
+	if (IS_ENABLED(CONFIG_WRITE_DBI))
+		val |= FIELD_PREP(DDRMC_DBICTL_WR_DBI_EN, 1);
+
+	if (IS_ENABLED(CONFIG_READ_DBI))
+		val |= FIELD_PREP(DDRMC_DBICTL_RD_DBI_EN, 1);
+
+	write32(DDRMC_DBICTL(ctrl_id), val);
 
 	val = FIELD_PREP(DDRMC_ODTCFG_RD_DELAY, cfg->taa - ddr4_cwl_get(tck)) |
 	      FIELD_PREP(DDRMC_ODTCFG_RD_HOLD, 6) | FIELD_PREP(DDRMC_ODTCFG_WR_HOLD, 6);
