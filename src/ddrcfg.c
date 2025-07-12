@@ -88,6 +88,9 @@ static int _ddrcfg_get(int ctrl_id, struct ddr_cfg *cfg)
 	cfg->tck = CONFIG_DRAM_TCK;
 	cfg->taa = CONFIG_DRAM_CAS_LATENCY;
 
+	if (IS_ENABLED(CONFIG_READ_DBI))
+		cfg->taa += CONFIG_DRAM_CAS_RDBI_ADDITIONAL_LAT;
+
 	cfg->tfaw = ps2clk_jedec(CONFIG_DRAM_TIMING_TFAW, cfg->tck);
 	cfg->trasmin = ps2clk_jedec(CONFIG_DRAM_TIMING_TRASMIN, cfg->tck);
 	cfg->trp = ps2clk_jedec(CONFIG_DRAM_TIMING_TRP, cfg->tck);

@@ -209,6 +209,14 @@ config READ_DBI
 	help
 	  Enable data bus inverted feature during read
 
+config DRAM_CAS_RDBI_ADDITIONAL_LAT
+	int
+	default 0 if DRAM_RATE_66 || DRAM_RATE_133 || DRAM_RATE_266 || DRAM_RATE_533
+	default 2 if DRAM_RATE_1066 || DRAM_RATE_1250 || DRAM_RATE_1600 || DRAM_RATE_1866
+	default 2 if DRAM_TYPE_LPDDR4 && DRAM_RATE_2133
+	default 3 if DRAM_TYPE_DDR4 && (DRAM_RATE_2133 || DRAM_RATE_2400 || DRAM_RATE_2666)
+	default 4
+
 config WRITE_DBI
         bool "Enable write DBI"
         depends on DRAM_TYPE_DDR4 || DRAM_TYPE_LPDDR4
