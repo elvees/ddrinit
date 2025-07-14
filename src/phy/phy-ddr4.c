@@ -222,6 +222,9 @@ void phy_training_params_load(int ctrl_id, struct ddr_cfg *cfg)
 	memset(&mb_DDR4U_1D, 0, sizeof(mb_DDR4U_1D));
 
 	mb_DDR4U_1D.Reserved00 = 0x60;
+	if (IS_ENABLED(CONFIG_PLATFORM_MCOM03))
+		mb_DDR4U_1D.Reserved00 |= BIT(7); // Optimize trainings for TSMC28 hard macro
+
 	mb_DDR4U_1D.DramType = 0x2;
 	mb_DDR4U_1D.Pstate = 0;
 	mb_DDR4U_1D.SequenceCtrl = 0x31f;
@@ -233,7 +236,7 @@ void phy_training_params_load(int ctrl_id, struct ddr_cfg *cfg)
 #endif
 	mb_DDR4U_1D.MsgMisc = 0;
 	mb_DDR4U_1D.DFIMRLMargin = 1;
-	mb_DDR4U_1D.PhyVref = 0x56;
+	mb_DDR4U_1D.PhyVref = (IS_ENABLED(CONFIG_PLATFORM_MCOM03)) ? 0x40 : 0x56;
 
 	mb_DDR4U_1D.CsPresent = BIT(cfg->ranks) - 1;
 	mb_DDR4U_1D.CsPresentD0 = BIT(cfg->ranks) - 1;
