@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-// Copyright 2020 RnD Center "ELVEES", JSC
+// Copyright 2020-2025 RnD Center "ELVEES", JSC
 
 #include <common.h>
 #include <ddrmc.h>
@@ -436,6 +436,37 @@ static void ecc_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	/* TODO: */
 }
 
+static void port_priority_cfg(int ctrl_id)
+{
+	uint32_t val;
+	int i;
+
+	for (i = 0; i < CONFIG_DDRMC_AXI_PORTS; i++) {
+		if (CONFIG_DDRMC_HPR_PORT_MASK & BIT(i)) {
+			val = read32(DDRMC_PCFGQOS0(ctrl_id, i));
+			val &= ~DDRMC_PCFGQOS0_RQOS_MAP_REGION0;
+			val |= FIELD_PREP(DDRMC_PCFGQOS0_RQOS_MAP_REGION0, 2);
+			write32_with_dbg(DDRMC_PCFGQOS0(ctrl_id, i), val);
+		}
+
+		if (CONFIG_DDRMC_PORT_READ_TIMEOUT_MASK & BIT(i)) {
+			val = read32(DDRMC_PCFGR(ctrl_id, i));
+			val &= ~DDRMC_PCFGR_RD_PORT_PRIORITY;
+			val |= FIELD_PREP(DDRMC_PCFGR_RD_PORT_PRIORITY, 0x1) |
+			       DDRMC_PCFGR_RD_PORT_AGING_EN;
+			write32_with_dbg(DDRMC_PCFGR(ctrl_id, i), val);
+		}
+
+		if (CONFIG_DDRMC_PORT_WRITE_TIMEOUT_MASK & BIT(i)) {
+			val = read32(DDRMC_PCFGW(ctrl_id, i));
+			val &= ~DDRMC_PCFGW_WR_PORT_PRIORITY;
+			val |= FIELD_PREP(DDRMC_PCFGW_WR_PORT_PRIORITY, 0x1) |
+			       DDRMC_PCFGW_WR_PORT_AGING_EN;
+			write32_with_dbg(DDRMC_PCFGW(ctrl_id, i), val);
+		}
+	}
+}
+
 void ddrmc_cfg(int ctrl_id, struct ddr_cfg *cfg)
 {
 	uint32_t val, tmp;
@@ -502,4 +533,5 @@ void ddrmc_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	sar_cfg(ctrl_id, cfg);
 	dimm_cfg(ctrl_id, cfg);
 	ecc_cfg(ctrl_id, cfg);
+	port_priority_cfg(ctrl_id);
 }
