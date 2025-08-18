@@ -386,7 +386,17 @@ int platform_clk_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	val |= read32(DDR_AXI_CHS_ENABLE);
 	write32(DDR_AXI_CHS_ENABLE, val);
 
+	/* Reset assert/deassert requires bypass on UCG0 */
+	ucg_bypass_enable(DDR_SUBS_UCG_BASE(0), 2 * ctrl_id);
+	ucg_bypass_enable(DDR_SUBS_UCG_BASE(0), 2 * ctrl_id + 1);
+
 	return 0;
+}
+
+void platform_post_reset_deassert(int ctrl_id)
+{
+	ucg_bypass_disable(DDR_SUBS_UCG_BASE(0), 2 * ctrl_id);
+	ucg_bypass_disable(DDR_SUBS_UCG_BASE(0), 2 * ctrl_id + 1);
 }
 
 uint32_t platform_get_timer_count(void)

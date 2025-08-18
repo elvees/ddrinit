@@ -17,6 +17,7 @@ unsigned long platform_i2c_base_get(int ctrl_id);
 int platform_i2c_cfg(int ctrl_id, uint32_t *clk_rate);
 int platform_power_up(void);
 int platform_reset_ctl(int ctl_id, enum reset_type reset, enum reset_action action);
+void platform_post_reset_deassert(int ctrl_id);
 int platform_system_init(int init_mask, struct sysinfo *info);
 int platform_uart_cfg(void);
 

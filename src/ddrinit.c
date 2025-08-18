@@ -55,15 +55,15 @@ int ddr_init(int ctrl_id, struct ddr_cfg *cfg)
 	int ret, i;
 	uint32_t val;
 
+	ret = platform_clk_cfg(ctrl_id, cfg);
+	if (ret)
+		return ret;
+
 	ret = platform_reset_ctl(ctrl_id, PRESETN, RESET_ASSERT);
 	if (ret)
 		return ret;
 
 	ret = platform_reset_ctl(ctrl_id, CORERESETN, RESET_ASSERT);
-	if (ret)
-		return ret;
-
-	ret = platform_clk_cfg(ctrl_id, cfg);
 	if (ret)
 		return ret;
 
@@ -78,6 +78,8 @@ int ddr_init(int ctrl_id, struct ddr_cfg *cfg)
 	ret = platform_reset_ctl(ctrl_id, CORERESETN, RESET_DEASSERT);
 	if (ret)
 		return ret;
+
+	platform_post_reset_deassert(ctrl_id);
 
 	/* Step 4 */
 	val = read32(DDRMC_RFSHCTL3(ctrl_id));

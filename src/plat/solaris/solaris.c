@@ -129,6 +129,10 @@ int platform_reset_ctl(int ctrl_id, enum reset_type reset, enum reset_action act
 	return 0;
 }
 
+void platform_post_reset_deassert(int ctrl_id)
+{
+}
+
 static int pll_cfg(enum ddr_ucg_id ucg_id, int pll_id, uint32_t freq, uint32_t xtal, uint32_t div)
 {
 	int ret;
