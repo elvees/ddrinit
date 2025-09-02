@@ -39,7 +39,6 @@
 * ELV-MC03-SMARC r1.0, r1.1, r2.2.0, r2.6.1, r2.7.1, r2.9.1, r2.10.0, r2.11.0, r3.0.0;
 * MCom-03 BuB r1.3, MCom-03 BuB r1.5;
 * MONO-BOARD r1.1.1, r1.2.2;
-* IQCAM_proc r1.0;
 * Pico-ITX r2;
 * PM03CAM-OSM r1.04;
 * ROKIROVKA r1.0.1;
