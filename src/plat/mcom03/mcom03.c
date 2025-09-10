@@ -170,20 +170,14 @@ int platform_power_up(void)
 {
 	uint32_t val;
 	int i;
-	int reset_lines[] = { LSPERIPH0_SUBS, LSPERIPH1_SUBS, DDR_SUBS };
+	int reset_lines[] = { LSPERIPH0_SUBS, DDR_SUBS };
 
 	for (i = 0; i < ARRAY_SIZE(reset_lines); i++)
 		subsystem_reset_deassert(reset_lines[i]);
 
 	val = read32(SERVICE_TOP_CLK_GATE);
-	val |= SERVICE_TOP_CLK_GATE_LSPERIPH0 | SERVICE_TOP_CLK_GATE_LSPERIPH1 |
-	       SERVICE_TOP_CLK_GATE_DDR;
+	val |= SERVICE_TOP_CLK_GATE_LSPERIPH0 | SERVICE_TOP_CLK_GATE_DDR;
 	write32(SERVICE_TOP_CLK_GATE, val);
-
-	/* Init timer */
-	write32(LSPERIPH1_UCG_CTR(7), 0x2);
-	write32(DW_APB_LOAD_COUNT(0), 0);
-	write32(DW_APB_CTRL(0), 0x5);
 
 #if defined(CONFIG_DDR1_POWER_ENABLE) && (CONFIG_DDRMC_ACTIVE_MASK & 0x2)
 	i = i2c_cfg(CONFIG_DDR1_I2C, 0x9);
@@ -399,7 +393,7 @@ uint32_t platform_get_timer_count(void)
 	 * requires the count to be incrementing. Invert the
 	 * result.
 	 */
-	return ~read32(DW_APB_CURRENT_VALUE(0));
+	return ~read32(DW_APB_CURRENT_VALUE(7));
 }
 
 uint32_t platform_get_timer_freq(void)
@@ -470,44 +464,8 @@ int platform_system_init(int init_mask, struct sysinfo *info)
 	return 0;
 }
 
-void gpio_portb_cfg(int hw_enable_mask, int direction)
-{
-	uint32_t mode_mask = read32(LSPERIPH1_GPIO_SWPORTB_CTL);
-	uint32_t dir_mask = read32(LSPERIPH1_GPIO_SWPORTB_DDR);
-
-	mode_mask |= hw_enable_mask;
-
-	if (direction == GPIO_OUTPUT_DIRECTION)
-		dir_mask |= hw_enable_mask;
-	else
-		dir_mask &= ~hw_enable_mask;
-
-	write32(LSPERIPH1_GPIO_SWPORTB_CTL, mode_mask);
-	write32(LSPERIPH1_GPIO_SWPORTB_DDR, dir_mask);
-}
-
-static void uart0_pads_cfg(void)
-{
-	uint32_t val;
-
-	val = FIELD_PREP(LSPERIPH1_GPIO_PORTBN_PADCTR_SL, 3) |
-	      FIELD_PREP(LSPERIPH1_GPIO_PORTBN_PADCTR_CTL, PAD_DRIVER_STREGTH_6mA);
-
-	write32(LSPERIPH1_GPIO_PORTBN_PADCTR(6), val);
-
-	val |= FIELD_PREP(LSPERIPH1_GPIO_PORTBN_PADCTR_SUS, 1) |
-	       FIELD_PREP(LSPERIPH1_GPIO_PORTBN_PADCTR_E, 1);
-
-	write32(LSPERIPH1_GPIO_PORTBN_PADCTR(7), val);
-}
-
 int platform_uart_cfg(void)
 {
-	gpio_portb_cfg(LSPERIPH1_GPIO_UART0_SOUT, GPIO_OUTPUT_DIRECTION);
-	gpio_portb_cfg(LSPERIPH1_GPIO_UART0_SIN, GPIO_INPUT_DIRECTION);
-	uart0_pads_cfg();
-
-	write32(LSPERIPH1_UCG_CTR(6), 0x2);
-
+	// It is configured early in SBL
 	return 0;
 }
