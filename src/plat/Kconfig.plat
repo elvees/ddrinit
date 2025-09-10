@@ -13,17 +13,6 @@ choice
 endchoice
 
 choice
-	prompt "Architecture select"
-	depends on PLATFORM_MCOM03
-
-	config ARCH_MIPS32
-		bool "Build for MIPS32"
-
-	config ARCH_AARCH64
-		bool "Build for AArch64"
-endchoice
-
-choice
 	prompt "Bootloader select"
 	depends on PLATFORM_MCOM03
 
@@ -40,30 +29,27 @@ endchoice
 
 config RAM_BASE
 	hex
-	default 0x80000000 if PLATFORM_MCOM03 && ARCH_MIPS32
-	default 0x00000000 if PLATFORM_MCOM03 && ARCH_AARCH64
+	default 0x80000000 if PLATFORM_MCOM03
 	default 0xffffffff9ff14000 if PLATFORM_SOLARIS
 	help
 	  RAM base address
 
 config RAM_SIZE
 	hex
-	default 0xF000 if PLATFORM_MCOM03 && ARCH_MIPS32
+	default 0xF000 if PLATFORM_MCOM03
 	help
 	  RAM size
 
 config UART_BASE
 	hex
-	default 0xA1750000 if PLATFORM_MCOM03 && ARCH_MIPS32
-	default 0x1750000 if PLATFORM_MCOM03 && ARCH_AARCH64
+	default 0xA1750000 if PLATFORM_MCOM03
 	default 0xffffffffbcc40000 if PLATFORM_SOLARIS
 	help
 	  Base address of UART controller
 
 config DDRSUB0_BASE
 	hex
-	default 0xA4000000 if PLATFORM_MCOM03 && ARCH_MIPS32
-	default 0x4000000 if PLATFORM_MCOM03 && ARCH_AARCH64
+	default 0xA4000000 if PLATFORM_MCOM03
 	default 0xffffffffb9000000 if PLATFORM_SOLARIS
 	help
 	  Base address of DDR subsystem #0
@@ -205,8 +191,7 @@ config MEM_REGIONS_PHYS_ADDR
 
 config MEM_REGIONS_VIRT_ADDR
 	hex "Memory info virtual address"
-	default 0xC0000000 if PLATFORM_MCOM03 && ARCH_MIPS32
-	default 0xA0000000 if PLATFORM_MCOM03 && ARCH_AARCH64
+	default 0xC0000000 if PLATFORM_MCOM03
 	default 0xffffffffa4000000 if PLATFORM_SOLARIS
 	help
 	  Virtual address to map CONFIG_MEM_REGIONS_PHYS_ADDR to.
@@ -214,7 +199,6 @@ config MEM_REGIONS_VIRT_ADDR
 config VMMU_TABLE_BASE
 	hex
 	depends on PLATFORM_MCOM03
-	depends on ARCH_MIPS32
 	default 0x80000000
 	help
 	  Physical address where VMMU table is located
@@ -222,7 +206,6 @@ config VMMU_TABLE_BASE
 config VMMU_VIRT_BASE_START
 	hex
 	depends on PLATFORM_MCOM03
-	depends on ARCH_MIPS32
 	default 0xC0000000
 	help
 	  Start address of virtual addresses
@@ -230,7 +213,6 @@ config VMMU_VIRT_BASE_START
 config VMMU_VIRT_SLOT_COUNT
 	int
 	depends on PLATFORM_MCOM03
-	depends on ARCH_MIPS32
 	default 256
 	help
 	  2MiB slot count to map to DDR high.
@@ -286,23 +268,6 @@ config MEM_REGION4_SIZE
 config AXI_BUS_FREQUENCY
 	int
 	default 680000000 if PLATFORM_SOLARIS
-
-config DDRINIT_JTAG_MAGIC_ADDRESS
-	hex "Address to read magic from"
-	depends on PLATFORM_MCOM03 && ARCH_AARCH64
-	default 0x80800000
-	help
-	  If ddrinit is run on Aarch64, the CPU is put into an
-	  endless loop reading the memory address defined by this
-	  option until a special value 0xdeadc0de has been read.
-
-config DDRINIT_RETURN_ADDRESS
-	hex "Address to jump to after ddrinit"
-	depends on PLATFORM_MCOM03 && ARCH_AARCH64
-	default 0x80000000
-	help
-	  An address to jump to once a special value 0xdeadc0de
-	  has been read from CONFIG_DDRINIT_JTAG_MAGIC_ADDRESS.
 
 config LLC_AS_RAM
 	bool "Use LLC2 and LLC3 as scratchpad RAM"

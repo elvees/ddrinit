@@ -7,10 +7,7 @@
 #include <i2c.h>
 #include <plat/plat.h>
 #include <plat/mcom03/regs.h>
-
-#ifdef CONFIG_ARCH_MIPS32
 #include <plat/mcom03/vmmu.h>
-#endif
 
 enum subsystem_reset_lines {
 	CPU_SUBS,
@@ -62,10 +59,8 @@ struct pll_settings pll_settings[2][11] = {
 	},
 };
 
-static unsigned long i2c_base_addr[] = {
-	(ARCH_OFFSET + 0x1630000), (ARCH_OFFSET + 0x1710000),  (ARCH_OFFSET + 0x1720000),
-	(ARCH_OFFSET + 0x1730000), (ARCH_OFFSET + 0x1f090000),
-};
+static unsigned long i2c_base_addr[] = { 0xA1630000, 0xA1710000, 0xA1720000, 0xA1730000,
+					 0xBF090000 };
 
 void phy_write32(int ctrl_id, unsigned long addr, uint32_t val)
 {
@@ -459,16 +454,14 @@ int platform_system_init(int init_mask, struct sysinfo *info)
 	interleaving_init(init_mask, info);
 	mem_regions_set(init_mask, info);
 
-	if (IS_ENABLED(CONFIG_ARCH_MIPS32)) {
-		int ret;
+	int ret;
 
-		vmmu_t *vmmu_reg = (vmmu_t *)vmmu_get_registers();
-		vmmu_init(vmmu_reg, CONFIG_VMMU_TABLE_BASE);
-		ret = vmmu_map_64bit_address(vmmu_reg, CONFIG_MEM_REGIONS_VIRT_ADDR,
-					     CONFIG_MEM_REGIONS_PHYS_ADDR);
-		if (ret)
-			return ret;
-	}
+	vmmu_t *vmmu_reg = (vmmu_t *)vmmu_get_registers();
+	vmmu_init(vmmu_reg, CONFIG_VMMU_TABLE_BASE);
+	ret = vmmu_map_64bit_address(vmmu_reg, CONFIG_MEM_REGIONS_VIRT_ADDR,
+				     CONFIG_MEM_REGIONS_PHYS_ADDR);
+	if (ret)
+		return ret;
 
 	return 0;
 }
