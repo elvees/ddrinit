@@ -83,9 +83,12 @@ $(TARGET).elf: $(TARGET).ld $(objs)
 
 ## Check stack usage
 check-stack: $(TARGET).elf
-	find . -name '*.cgraph' | grep -v stack-usage-log | xargs cat > stack-usage-log.cgraph
-	find . -name '*.su'     | grep -v stack-usage-log | xargs cat > stack-usage-log.su
-	python2 scripts/stack-usage.py --csv stack-usage.csv --json stack-usage.json > $(TARGET).su
+	find . -name '*.cgraph' | grep -v stack-usage-log | xargs cat > stack-usage-log.cgraph; \
+	find . -name '*.su'     | grep -v stack-usage-log | xargs cat > stack-usage-log.su; \
+	echo -n "stack-usage=" > $(TARGET).info; \
+	python2 scripts/stack-usage.py --csv stack-usage.csv --json stack-usage.json \
+		>> $(TARGET).info; \
+	$(CROSS_COMPILE)nm -t x -S --size-sort --reverse-sort $< >> $(TARGET).info
 	#TODO: Add desired stack size in defconfig
 	#TODO: Compare stack size with one defined in defconfig
 
@@ -115,11 +118,12 @@ help: Makefile
 ## Install build artifacts to $DESTDIR directory
 install:
 	install -D -m 0755 $(TARGET).bin $(DESTDIR)/ddrinit.bin
+	install -D -m 0755 $(TARGET).dis $(DESTDIR)/ddrinit.dis
 	install -D -m 0755 $(TARGET).elf $(DESTDIR)/ddrinit.elf
 	install -D -m 0755 $(TARGET).map $(DESTDIR)/ddrinit.map
 	install -D -m 0755 $(TARGET).ld $(DESTDIR)/ddrinit.ld
-ifneq ($(wildcard $(TARGET).su),)
-	install -D -m 0755 $(TARGET).su $(DESTDIR)/ddrinit.su
+ifneq ($(wildcard $(TARGET).info),)
+	install -D -m 0755 $(TARGET).info $(DESTDIR)/ddrinit.info
 endif
 
 .PHONY: all help clean clean-all menuconfig oldconfig savedefconfig install check-stack
