@@ -9,6 +9,8 @@
 #include <regs.h>
 #include <plat/plat.h>
 
+static PMU_SMB_DDR3U_1D_t mb_DDR3U_1D = { 0 };
+
 static void dll_init(int ctrl_id)
 {
 	uint32_t tmp;
@@ -211,51 +213,53 @@ void phy_init(int ctrl_id, struct ddr_cfg *cfg)
 
 void phy_training_params_load(int ctrl_id, struct ddr_cfg *cfg)
 {
-	PMU_SMB_DDR3U_1D_t params;
+	/* As the DDRMC0 is always initialized and the same params
+	 * are used for all DDR controllers, we can initialize mb_DDR3U_1D
+	 * once when ctrl_id == 0 and then reuse it to save boot time.
+	 */
+	if (!ctrl_id) {
+		mb_DDR3U_1D.Reserved00 = 0x60;
+		mb_DDR3U_1D.DramType = 0x1;
+		mb_DDR3U_1D.Pstate = 0;
+		mb_DDR3U_1D.SequenceCtrl = 0x31f;
+		mb_DDR3U_1D.PhyConfigOverride = 0;
+		mb_DDR3U_1D.DRAMFreq = CONFIG_DRAM_RATE;
 
-	memset(&params, 0, sizeof(params));
+		if (IS_ENABLED(CONFIG_DEBUG))
+			mb_DDR3U_1D.HdtCtrl = 0x00;
+		else
+			mb_DDR3U_1D.HdtCtrl = 0xff;
 
-	params.Reserved00 = 0x60;
-	params.DramType = 0x1;
-	params.Pstate = 0;
-	params.SequenceCtrl = 0x31f;
-	params.PhyConfigOverride = 0;
-	params.DRAMFreq = CONFIG_DRAM_RATE;
+		mb_DDR3U_1D.MsgMisc = 0;
+		mb_DDR3U_1D.DFIMRLMargin = 1;
+		mb_DDR3U_1D.PhyVref = 0x56;
 
-	if (IS_ENABLED(CONFIG_DEBUG))
-		params.HdtCtrl = 0x00;
-	else
-		params.HdtCtrl = 0xff;
+		mb_DDR3U_1D.CsPresent = BIT(cfg->ranks) - 1;
+		mb_DDR3U_1D.CsPresentD0 = BIT(cfg->ranks) - 1;
+		mb_DDR3U_1D.CsPresentD1 = 0;
+		mb_DDR3U_1D.AddrMirror = 0xa;
 
-	params.MsgMisc = 0;
-	params.DFIMRLMargin = 1;
-	params.PhyVref = 0x56;
+		mb_DDR3U_1D.AcsmOdtCtrl0 = 0x21;
+		mb_DDR3U_1D.AcsmOdtCtrl1 = 0x12;
+		mb_DDR3U_1D.AcsmOdtCtrl2 = 0x84;
+		mb_DDR3U_1D.AcsmOdtCtrl3 = 0x48;
 
-	params.CsPresent = BIT(cfg->ranks) - 1;
-	params.CsPresentD0 = BIT(cfg->ranks) - 1;
-	params.CsPresentD1 = 0;
-	params.AddrMirror = 0xa;
+		mb_DDR3U_1D.EnabledDQs = 64;
+		mb_DDR3U_1D.PhyCfg = 0;
 
-	params.AcsmOdtCtrl0 = 0x21;
-	params.AcsmOdtCtrl1 = 0x12;
-	params.AcsmOdtCtrl2 = 0x84;
-	params.AcsmOdtCtrl3 = 0x48;
+		mb_DDR3U_1D.MR0 = ddr3_mr0_get(cfg);
+		mb_DDR3U_1D.MR1 = ddr3_mr1_get(cfg);
+		mb_DDR3U_1D.MR2 = ddr3_mr2_get(cfg);
 
-	params.EnabledDQs = 64;
-	params.PhyCfg = 0;
+		mb_DDR3U_1D.Share2DVrefResult = 0x1;
+	}
 
-	params.MR0 = ddr3_mr0_get(cfg);
-	params.MR1 = ddr3_mr1_get(cfg);
-	params.MR2 = ddr3_mr2_get(cfg);
-
-	params.Share2DVrefResult = 0x1;
-
-	unsigned long read_offset = (unsigned long)&params;
+	unsigned long read_offset = (unsigned long)&mb_DDR3U_1D;
 	uint32_t val, write_offset = CONFIG_PHY_DMEM_OFFSET;
 	int i;
 
 	/* Write training firmware parameters */
-	for (i = 0; i < sizeof(params) / 4; i++) {
+	for (i = 0; i < sizeof(mb_DDR3U_1D) / 4; i++) {
 		val = read32(read_offset);
 		phy_write32_with_dbg(ctrl_id, write_offset, val & 0xffff);
 		phy_write32_with_dbg(ctrl_id, write_offset + 4, (val >> 16) & 0xffff);
@@ -264,7 +268,7 @@ void phy_training_params_load(int ctrl_id, struct ddr_cfg *cfg)
 	}
 
 	/* Write the last bytes if params size is not a multiple of 4 */
-	int tail = sizeof(params) % 4;
+	int tail = sizeof(mb_DDR3U_1D) % 4;
 	if (tail != 0) {
 		val = read32(read_offset);
 		phy_write32_with_dbg(ctrl_id, write_offset, val & GENMASK(8 * tail - 1, 0));

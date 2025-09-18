@@ -9,6 +9,8 @@
 #include <regs.h>
 #include <plat/plat.h>
 
+static PMU_SMB_DDR4U_1D_t mb_DDR4U_1D = { 0 };
+
 static void dll_init(int ctrl_id)
 {
 	uint32_t tmp;
@@ -217,58 +219,63 @@ void phy_init(int ctrl_id, struct ddr_cfg *cfg)
 
 void phy_training_params_load(int ctrl_id, struct ddr_cfg *cfg)
 {
-	PMU_SMB_DDR4U_1D_t mb_DDR4U_1D;
+	/* As the DDRMC0 is always initialized and the same params
+	 * are used for all DDR controllers, we can initialize mb_DDR4U_1D
+	 * once when ctrl_id == 0 and then reuse it to save boot time.
+	 */
+	if (!ctrl_id) {
+		mb_DDR4U_1D.Reserved00 = 0x60;
 
-	memset(&mb_DDR4U_1D, 0, sizeof(mb_DDR4U_1D));
+		// Optimize trainings for TSMC28 hard macro
+		if (IS_ENABLED(CONFIG_PLATFORM_MCOM03))
+			mb_DDR4U_1D.Reserved00 |= BIT(7);
 
-	mb_DDR4U_1D.Reserved00 = 0x60;
-	if (IS_ENABLED(CONFIG_PLATFORM_MCOM03))
-		mb_DDR4U_1D.Reserved00 |= BIT(7); // Optimize trainings for TSMC28 hard macro
-
-	mb_DDR4U_1D.DramType = 0x2;
-	mb_DDR4U_1D.Pstate = 0;
-	mb_DDR4U_1D.SequenceCtrl = 0x31f;
-	mb_DDR4U_1D.PhyConfigOverride = 0;
+		mb_DDR4U_1D.DramType = 0x2;
+		mb_DDR4U_1D.Pstate = 0;
+		mb_DDR4U_1D.SequenceCtrl = 0x31f;
+		mb_DDR4U_1D.PhyConfigOverride = 0;
 #ifdef CONFIG_DEBUG
-	mb_DDR4U_1D.HdtCtrl = 0x00;
+		mb_DDR4U_1D.HdtCtrl = 0x00;
 #else
-	mb_DDR4U_1D.HdtCtrl = 0xff;
+		mb_DDR4U_1D.HdtCtrl = 0xff;
 #endif
-	mb_DDR4U_1D.MsgMisc = 0;
-	mb_DDR4U_1D.DFIMRLMargin = 1;
-	mb_DDR4U_1D.PhyVref = (IS_ENABLED(CONFIG_PLATFORM_MCOM03)) ? 0x40 : 0x56;
+		mb_DDR4U_1D.MsgMisc = 0;
+		mb_DDR4U_1D.DFIMRLMargin = 1;
+		mb_DDR4U_1D.PhyVref = (IS_ENABLED(CONFIG_PLATFORM_MCOM03)) ? 0x40 : 0x56;
 
-	mb_DDR4U_1D.CsPresent = BIT(cfg->ranks) - 1;
-	mb_DDR4U_1D.CsPresentD0 = BIT(cfg->ranks) - 1;
-	mb_DDR4U_1D.CsPresentD1 = 0;
-	mb_DDR4U_1D.AddrMirror = CONFIG_PHY_ADDR_MIRROR;
+		mb_DDR4U_1D.CsPresent = BIT(cfg->ranks) - 1;
+		mb_DDR4U_1D.CsPresentD0 = BIT(cfg->ranks) - 1;
+		mb_DDR4U_1D.CsPresentD1 = 0;
+		mb_DDR4U_1D.AddrMirror = CONFIG_PHY_ADDR_MIRROR;
 
-	mb_DDR4U_1D.AcsmOdtCtrl0 = 0x21; /* Needs to be verified */
-	mb_DDR4U_1D.AcsmOdtCtrl1 = 0x12;
+		mb_DDR4U_1D.AcsmOdtCtrl0 = 0x21; /* Needs to be verified */
+		mb_DDR4U_1D.AcsmOdtCtrl1 = 0x12;
 
-	mb_DDR4U_1D.EnabledDQs = CONFIG_DDRMC_DQ_BUS_WIDTH;
-	mb_DDR4U_1D.PhyCfg = 0;
-	mb_DDR4U_1D.X16Present = 0;
-	mb_DDR4U_1D.D4Misc = 1;
-	mb_DDR4U_1D.CsSetupGDDec = 1;
+		mb_DDR4U_1D.EnabledDQs = CONFIG_DDRMC_DQ_BUS_WIDTH;
+		mb_DDR4U_1D.PhyCfg = 0;
+		mb_DDR4U_1D.X16Present = 0;
+		mb_DDR4U_1D.D4Misc = 1;
+		mb_DDR4U_1D.CsSetupGDDec = 1;
 
-	mb_DDR4U_1D.MR0 = ddr4_mr0_get(cfg);
-	mb_DDR4U_1D.MR1 = ddr4_mr1_get(cfg);
-	mb_DDR4U_1D.MR2 = ddr4_mr2_get(cfg);
-	mb_DDR4U_1D.MR3 = ddr4_mr3_get(cfg);
-	mb_DDR4U_1D.MR4 = ddr4_mr4_get(cfg);
-	mb_DDR4U_1D.MR5 = ddr4_mr5_get(cfg);
-	mb_DDR4U_1D.MR6 = ddr4_mr6_get(cfg);
+		mb_DDR4U_1D.MR0 = ddr4_mr0_get(cfg);
+		mb_DDR4U_1D.MR1 = ddr4_mr1_get(cfg);
+		mb_DDR4U_1D.MR2 = ddr4_mr2_get(cfg);
+		mb_DDR4U_1D.MR3 = ddr4_mr3_get(cfg);
+		mb_DDR4U_1D.MR4 = ddr4_mr4_get(cfg);
+		mb_DDR4U_1D.MR5 = ddr4_mr5_get(cfg);
+		mb_DDR4U_1D.MR6 = ddr4_mr6_get(cfg);
 
-	if (IS_ENABLED(CONFIG_READ_DBI))
-		mb_DDR4U_1D.ALT_CAS_L =
-			ddr4_mr0_cas_get(cfg->taa - CONFIG_DRAM_CAS_RDBI_ADDITIONAL_LAT) | 1;
-	else
-		mb_DDR4U_1D.ALT_CAS_L = 0;
+		if (IS_ENABLED(CONFIG_READ_DBI))
+			mb_DDR4U_1D.ALT_CAS_L =
+				ddr4_mr0_cas_get(cfg->taa - CONFIG_DRAM_CAS_RDBI_ADDITIONAL_LAT) |
+				1;
+		else
+			mb_DDR4U_1D.ALT_CAS_L = 0;
 
-	mb_DDR4U_1D.ALT_WCAS_L = 0;
+		mb_DDR4U_1D.ALT_WCAS_L = 0;
 
-	mb_DDR4U_1D.Share2DVrefResult = 0x1;
+		mb_DDR4U_1D.Share2DVrefResult = 0x1;
+	}
 
 	unsigned long read_offset = (unsigned long)&mb_DDR4U_1D;
 	uint32_t val, write_offset = CONFIG_PHY_DMEM_OFFSET;

@@ -25,7 +25,7 @@
 #define LPDDR4_MR11_DQ_ODT GENMASK(2, 0)
 #define LPDDR4_MR11_CA_ODT GENMASK(6, 4)
 
-static int cwl_get(int tck)
+static inline int cwl_get(int tck)
 {
 	if (tck >= DRAM_TCK_533)
 		return 4;
@@ -43,7 +43,7 @@ static int cwl_get(int tck)
 		return 0;
 }
 
-static int odtlon_get(int tck)
+static inline int odtlon_get(int tck)
 {
 	if (tck < DRAM_TCK_1600 && tck >= DRAM_TCK_2666)
 		return 4;
@@ -53,7 +53,7 @@ static int odtlon_get(int tck)
 		return 0;
 }
 
-static int odtloff_get(int tck)
+static inline int odtloff_get(int tck)
 {
 	int ret;
 
@@ -69,36 +69,36 @@ static int odtloff_get(int tck)
 	return (CONFIG_BURST_LEN == 16) ? ret : ret + 8;
 }
 
-static int twr_get(int tck)
+static inline int twr_get(int tck)
 {
 	int twr = ps2clk_jedec(CONFIG_DRAM_TIMING_TWR, tck);
 	return max(twr, 6);
 }
 
-static int trtp_get(int tck)
+static inline int trtp_get(int tck)
 {
 	int trtp = ps2clk_jedec(CONFIG_DRAM_TIMING_TRTP, tck);
 	return max(trtp, 8);
 }
 
-static int txp_get(struct ddr_cfg *cfg)
+static inline int txp_get(struct ddr_cfg *cfg)
 {
 	int txp = ps2clk_jedec(CONFIG_DRAM_TIMING_TXP, cfg->tck);
 	return max(txp, 5);
 }
 
-static int trfc_ab_get(struct ddr_cfg *cfg)
+static inline int trfc_ab_get(struct ddr_cfg *cfg)
 {
 	/* TODO: Set tRFC according to density per channel */
 	return ps2clk_jedec(CONFIG_DRAM_TIMING_TRFC_AB, cfg->tck);
 }
 
-static int tzqoper_get(struct ddr_cfg *cfg)
+static inline int tzqoper_get(struct ddr_cfg *cfg)
 {
 	return ps2clk_jedec(CONFIG_DRAM_TIMING_TZQOPER, cfg->tck);
 }
 
-static int tzqcs_get(struct ddr_cfg *cfg)
+static inline int tzqcs_get(struct ddr_cfg *cfg)
 {
 	int tzqcs = ps2clk_jedec(CONFIG_DRAM_TIMING_TZQCS, cfg->tck);
 	tzqcs = max(tzqcs, 8);
@@ -106,23 +106,23 @@ static int tzqcs_get(struct ddr_cfg *cfg)
 	return tzqcs;
 }
 
-static int tzqcs_interval_get(struct ddr_cfg *cfg)
+static inline int tzqcs_interval_get(struct ddr_cfg *cfg)
 {
 	/* There is no such timing in JEDEC spec. NXP uses 32 ms. */
 	return 32000000000ULL / 1024 / cfg->tck;
 }
 
-static int tzq_reset_nop_get(struct ddr_cfg *cfg)
+static inline int tzq_reset_nop_get(struct ddr_cfg *cfg)
 {
 	return ps2clk_jedec(CONFIG_DRAM_TIMING_TZQRESET, cfg->tck);
 }
 
-static int dramtmg0_trasmin_get(struct ddr_cfg *cfg)
+static inline int dramtmg0_trasmin_get(struct ddr_cfg *cfg)
 {
 	return DIV_ROUND_UP(cfg->trasmin, 2);
 }
 
-static int dramtmg0_trasmax_get(struct ddr_cfg *cfg)
+static inline int dramtmg0_trasmax_get(struct ddr_cfg *cfg)
 {
 	int trasmax = CONFIG_DRAM_TIMING_TRASMAX / cfg->tck / 1024;
 	trasmax = (trasmax - 1) / 2;
@@ -130,19 +130,19 @@ static int dramtmg0_trasmax_get(struct ddr_cfg *cfg)
 	return max(trasmax, 1);
 }
 
-static int dramtmg0_wr2pre_get(struct ddr_cfg *cfg)
+static inline int dramtmg0_wr2pre_get(struct ddr_cfg *cfg)
 {
 	int ret = cwl_get(cfg->tck) + CONFIG_BURST_LEN / 2 + twr_get(cfg->tck);
 	return DIV_ROUND_UP(ret + 1, 2);
 }
 
-static int dramtmg1_rd2pre_get(struct ddr_cfg *cfg)
+static inline int dramtmg1_rd2pre_get(struct ddr_cfg *cfg)
 {
 	int ret = CONFIG_BURST_LEN / 2 + trtp_get(cfg->tck) - 8;
 	return DIV_ROUND_UP(ret, 2);
 }
 
-static int dramtmg2_wr2rd_get(struct ddr_cfg *cfg)
+static inline int dramtmg2_wr2rd_get(struct ddr_cfg *cfg)
 {
 	int ret = cwl_get(cfg->tck) + CONFIG_BURST_LEN / 2;
 	int twtr = ps2clk_jedec(CONFIG_DRAM_TIMING_TWTR, cfg->tck);
@@ -153,7 +153,7 @@ static int dramtmg2_wr2rd_get(struct ddr_cfg *cfg)
 	return DIV_ROUND_UP(ret, 2) * 13 / 10;
 }
 
-static int dramtmg2_rd2wr_get(struct ddr_cfg *cfg)
+static inline int dramtmg2_rd2wr_get(struct ddr_cfg *cfg)
 {
 	int ret = cfg->taa + CONFIG_BURST_LEN / 2;
 
@@ -172,12 +172,12 @@ static int dramtmg2_rd2wr_get(struct ddr_cfg *cfg)
 	return DIV_ROUND_UP(ret, 2) * 13 / 10;
 }
 
-static int dramtmg3_tmod_get(struct ddr_cfg *cfg)
+static inline int dramtmg3_tmod_get(struct ddr_cfg *cfg)
 {
 	return 0;
 }
 
-static int dramtmg3_tmrd_get(struct ddr_cfg *cfg)
+static inline int dramtmg3_tmrd_get(struct ddr_cfg *cfg)
 {
 	int tmrd = 0;
 
@@ -186,7 +186,7 @@ static int dramtmg3_tmrd_get(struct ddr_cfg *cfg)
 	return DIV_ROUND_UP(tmrd, 2);
 }
 
-static int dramtmg3_tmrw_get(struct ddr_cfg *cfg)
+static inline int dramtmg3_tmrw_get(struct ddr_cfg *cfg)
 {
 	int tmrw = 0;
 	int tmrwckel = 0;
@@ -200,7 +200,7 @@ static int dramtmg3_tmrw_get(struct ddr_cfg *cfg)
 	return DIV_ROUND_UP(max(tmrw, tmrwckel), 2);
 }
 
-static int dramtmg5_tcke_get(struct ddr_cfg *cfg)
+static inline int dramtmg5_tcke_get(struct ddr_cfg *cfg)
 {
 	int tcke = ps2clk_jedec(CONFIG_DRAM_TIMING_TCKE, cfg->tck);
 	int tsr = ps2clk_jedec(CONFIG_DRAM_TIMING_TSR, cfg->tck);
@@ -211,13 +211,13 @@ static int dramtmg5_tcke_get(struct ddr_cfg *cfg)
 	return DIV_ROUND_UP(tcke, 2);
 }
 
-static int dramtmg5_tckesr_get(struct ddr_cfg *cfg)
+static inline int dramtmg5_tckesr_get(struct ddr_cfg *cfg)
 {
 	int tckesr = dramtmg5_tcke_get(cfg);
 	return tckesr;
 }
 
-static int dramtmg5_tcksre_get(struct ddr_cfg *cfg)
+static inline int dramtmg5_tcksre_get(struct ddr_cfg *cfg)
 {
 	int tcksre;
 
@@ -226,7 +226,7 @@ static int dramtmg5_tcksre_get(struct ddr_cfg *cfg)
 	return DIV_ROUND_UP(tcksre, 2);
 }
 
-static int dramtmg5_tcksrx_get(struct ddr_cfg *cfg)
+static inline int dramtmg5_tcksrx_get(struct ddr_cfg *cfg)
 {
 	int tcksrx;
 
@@ -235,7 +235,7 @@ static int dramtmg5_tcksrx_get(struct ddr_cfg *cfg)
 	return DIV_ROUND_UP(tcksrx, 2);
 }
 
-static int dramtmg7_tckpdx_get(struct ddr_cfg *cfg)
+static inline int dramtmg7_tckpdx_get(struct ddr_cfg *cfg)
 {
 	int tckpdx = 2;
 
@@ -244,7 +244,7 @@ static int dramtmg7_tckpdx_get(struct ddr_cfg *cfg)
 	return DIV_ROUND_UP(tckpdx, 2);
 }
 
-static int dramtmg7_tckpde_get(struct ddr_cfg *cfg)
+static inline int dramtmg7_tckpde_get(struct ddr_cfg *cfg)
 {
 	int tckpde = 2;
 
@@ -253,14 +253,14 @@ static int dramtmg7_tckpde_get(struct ddr_cfg *cfg)
 	return DIV_ROUND_UP(tckpde, 2);
 }
 
-static int dramtmg14_txsr_get(struct ddr_cfg *cfg)
+static inline int dramtmg14_txsr_get(struct ddr_cfg *cfg)
 {
 	int txsr = trfc_ab_get(cfg) + ps2clk_jedec(7500, cfg->tck);
 
 	return DIV_ROUND_UP(txsr, 2);
 }
 
-uint8_t lpddr4_mr1_get(struct ddr_cfg *cfg)
+inline uint8_t lpddr4_mr1_get(struct ddr_cfg *cfg)
 {
 	uint8_t mr1;
 	uint8_t nwr = 0;
@@ -307,7 +307,7 @@ uint8_t lpddr4_mr1_get(struct ddr_cfg *cfg)
 	return mr1;
 }
 
-uint8_t lpddr4_mr2_get(struct ddr_cfg *cfg)
+inline uint8_t lpddr4_mr2_get(struct ddr_cfg *cfg)
 {
 	uint8_t mr2, rl = 0;
 
@@ -344,7 +344,7 @@ uint8_t lpddr4_mr2_get(struct ddr_cfg *cfg)
 	return mr2;
 }
 
-uint8_t lpddr4_mr3_get(struct ddr_cfg *cfg)
+inline uint8_t lpddr4_mr3_get(struct ddr_cfg *cfg)
 {
 	uint8_t mr3;
 	bool read_dbi_en = (IS_ENABLED(CONFIG_READ_DBI)) ? true : false;
@@ -357,7 +357,7 @@ uint8_t lpddr4_mr3_get(struct ddr_cfg *cfg)
 	return mr3;
 }
 
-uint8_t lpddr4_mr11_get(struct ddr_cfg *cfg)
+inline uint8_t lpddr4_mr11_get(struct ddr_cfg *cfg)
 {
 	uint8_t mr11, dq_odt = 0, ca_odt = 0;
 
@@ -396,7 +396,7 @@ uint8_t lpddr4_mr11_get(struct ddr_cfg *cfg)
 	return mr11;
 }
 
-uint8_t lpddr4_mr22_get(struct ddr_cfg *cfg)
+inline uint8_t lpddr4_mr22_get(struct ddr_cfg *cfg)
 {
 	uint8_t mr22 = 0;
 
@@ -416,7 +416,7 @@ uint8_t lpddr4_mr22_get(struct ddr_cfg *cfg)
 	return mr22;
 }
 
-void dram_timings_cfg(int ctrl_id, struct ddr_cfg *cfg)
+static inline void dram_timings_cfg(int ctrl_id, struct ddr_cfg *cfg)
 {
 	uint32_t val;
 
@@ -470,7 +470,7 @@ void dram_timings_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	write32_with_dbg(DDRMC_DRAMTMG14(ctrl_id), val);
 }
 
-static void addrmap_cfg(int ctrl_id, struct ddr_cfg *cfg)
+static inline void addrmap_cfg(int ctrl_id, struct ddr_cfg *cfg)
 {
 	uint8_t next_bit;
 	uint32_t val;
@@ -519,7 +519,7 @@ static void addrmap_cfg(int ctrl_id, struct ddr_cfg *cfg)
 
 /* TODO: Make the code below platform independent */
 #ifdef CONFIG_PLATFORM_MCOM03
-static void sar_cfg(int ctrl_id, struct ddr_cfg *cfg)
+static inline void sar_cfg(int ctrl_id, struct ddr_cfg *cfg)
 {
 	uint64_t ddr_low_size = min(CONFIG_DDR_LOW_SIZE * 1024 * 1024ULL, cfg->full_size);
 	uint64_t ddr_high_size = cfg->full_size - ddr_low_size;
@@ -545,12 +545,12 @@ static void sar_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	write32_with_dbg(DDRMC_SARSIZE(ctrl_id, 3), 0);
 }
 #else
-static void sar_cfg(int ctrl_id, struct ddr_cfg *cfg)
+static inline void sar_cfg(int ctrl_id, struct ddr_cfg *cfg)
 {
 }
 #endif
 
-static void dfi_timings_cfg(int ctrl_id, struct ddr_cfg *cfg)
+static inline void dfi_timings_cfg(int ctrl_id, struct ddr_cfg *cfg)
 {
 	uint32_t val;
 	uint8_t cl = cfg->taa;
@@ -584,7 +584,7 @@ static void dfi_timings_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	write32_with_dbg(DDRMC_DFIUPD1(ctrl_id), val);
 }
 
-static void port_priority_cfg(int ctrl_id)
+static inline void port_priority_cfg(int ctrl_id)
 {
 	uint32_t val;
 	int i;
@@ -615,7 +615,7 @@ static void port_priority_cfg(int ctrl_id)
 	}
 }
 
-void ddrmc_cfg(int ctrl_id, struct ddr_cfg *cfg)
+inline void ddrmc_cfg(int ctrl_id, struct ddr_cfg *cfg)
 {
 	uint32_t val;
 	uint16_t tck = cfg->tck;

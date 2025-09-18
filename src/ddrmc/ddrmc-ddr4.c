@@ -43,7 +43,7 @@
 #define DDR4_MR5_DBI_WR BIT(11)
 #define DDR4_MR5_DBI_RD BIT(12)
 
-static uint8_t ddr4_cwl_get(uint32_t tck)
+static inline uint8_t ddr4_cwl_get(uint32_t tck)
 {
 	if (tck >= DRAM_TCK_1333)
 		return 9;
@@ -61,7 +61,7 @@ static uint8_t ddr4_cwl_get(uint32_t tck)
 		return 20;
 }
 
-uint16_t ddr4_mr0_cas_get(uint8_t taa)
+inline uint16_t ddr4_mr0_cas_get(uint8_t taa)
 {
 	uint16_t tmp = 0, mr0 = 0;
 
@@ -86,7 +86,7 @@ uint16_t ddr4_mr0_cas_get(uint8_t taa)
 	return mr0;
 }
 
-uint16_t ddr4_mr0_get(struct ddr_cfg *cfg)
+inline uint16_t ddr4_mr0_get(struct ddr_cfg *cfg)
 {
 	uint32_t twr, trtp, tmp;
 	uint16_t mr0;
@@ -110,7 +110,7 @@ uint16_t ddr4_mr0_get(struct ddr_cfg *cfg)
 	return mr0;
 }
 
-uint16_t ddr4_mr1_get(struct ddr_cfg *cfg)
+inline uint16_t ddr4_mr1_get(struct ddr_cfg *cfg)
 {
 	uint16_t mr1 = 0;
 
@@ -136,7 +136,7 @@ uint16_t ddr4_mr1_get(struct ddr_cfg *cfg)
 	return mr1 | 1;
 }
 
-uint16_t ddr4_mr2_get(struct ddr_cfg *cfg)
+inline uint16_t ddr4_mr2_get(struct ddr_cfg *cfg)
 {
 	uint16_t mr2 = 0;
 	uint8_t cwl = ddr4_cwl_get(cfg->tck);
@@ -160,7 +160,7 @@ uint16_t ddr4_mr2_get(struct ddr_cfg *cfg)
 	return mr2;
 }
 
-uint16_t ddr4_mr3_get(struct ddr_cfg *cfg)
+inline uint16_t ddr4_mr3_get(struct ddr_cfg *cfg)
 {
 	uint16_t mr3 = 0;
 
@@ -172,12 +172,12 @@ uint16_t ddr4_mr3_get(struct ddr_cfg *cfg)
 	return mr3;
 }
 
-uint16_t ddr4_mr4_get(struct ddr_cfg *cfg)
+inline uint16_t ddr4_mr4_get(struct ddr_cfg *cfg)
 {
 	return 0;
 }
 
-uint16_t ddr4_mr5_get(struct ddr_cfg *cfg)
+inline uint16_t ddr4_mr5_get(struct ddr_cfg *cfg)
 {
 	bool read_dbi_en = (IS_ENABLED(CONFIG_READ_DBI)) ? true : false;
 	bool write_dbi_en = (IS_ENABLED(CONFIG_WRITE_DBI)) ? true : false;
@@ -203,7 +203,7 @@ uint16_t ddr4_mr5_get(struct ddr_cfg *cfg)
 	return mr5;
 }
 
-uint16_t ddr4_mr6_get(struct ddr_cfg *cfg)
+inline uint16_t ddr4_mr6_get(struct ddr_cfg *cfg)
 {
 	uint16_t mr6 = 0;
 
@@ -225,7 +225,7 @@ uint16_t ddr4_mr6_get(struct ddr_cfg *cfg)
 	return mr6;
 }
 
-static void dfi_timings_cfg(int ctrl_id, struct ddr_cfg *cfg)
+static inline void dfi_timings_cfg(int ctrl_id, struct ddr_cfg *cfg)
 {
 	uint32_t val;
 	uint8_t cl = cfg->taa;
@@ -258,7 +258,7 @@ static void dfi_timings_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	write32(DDRMC_DFIUPD1(ctrl_id), val);
 }
 
-static void dram_timings_cfg(int ctrl_id, struct ddr_cfg *cfg)
+static inline void dram_timings_cfg(int ctrl_id, struct ddr_cfg *cfg)
 {
 	uint32_t val;
 	uint16_t tck = cfg->tck;
@@ -318,7 +318,7 @@ static void dram_timings_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	/* TODO: Set DRAMTMG10 - DRAMTMG19 registers */
 }
 
-static void addrmap_cfg(int ctrl_id, struct ddr_cfg *cfg)
+static inline void addrmap_cfg(int ctrl_id, struct ddr_cfg *cfg)
 {
 	uint8_t next_bit;
 	uint32_t val, tmp1, tmp2;
@@ -385,7 +385,7 @@ static void addrmap_cfg(int ctrl_id, struct ddr_cfg *cfg)
 
 /* TODO: Make the code below platform independent */
 #ifdef CONFIG_PLATFORM_MCOM03
-static void sar_cfg(int ctrl_id, struct ddr_cfg *cfg)
+static inline void sar_cfg(int ctrl_id, struct ddr_cfg *cfg)
 {
 	uint64_t ddr_low_size = min(CONFIG_DDR_LOW_SIZE * 1024 * 1024ULL, cfg->full_size);
 	uint64_t ddr_high_size = cfg->full_size - ddr_low_size;
@@ -421,22 +421,22 @@ static void sar_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	write32_with_dbg(DDRMC_SARSIZE(ctrl_id, 3), 0);
 }
 #else
-static void sar_cfg(int ctrl_id, struct ddr_cfg *cfg)
+static inline void sar_cfg(int ctrl_id, struct ddr_cfg *cfg)
 {
 }
 #endif
 
-static void dimm_cfg(int ctrl_id, struct ddr_cfg *cfg)
+static inline void dimm_cfg(int ctrl_id, struct ddr_cfg *cfg)
 {
 	/* TODO: */
 }
 
-static void ecc_cfg(int ctrl_id, struct ddr_cfg *cfg)
+static inline void ecc_cfg(int ctrl_id, struct ddr_cfg *cfg)
 {
 	/* TODO: */
 }
 
-static void port_priority_cfg(int ctrl_id)
+static inline void port_priority_cfg(int ctrl_id)
 {
 	uint32_t val;
 	int i;
@@ -467,7 +467,7 @@ static void port_priority_cfg(int ctrl_id)
 	}
 }
 
-void ddrmc_cfg(int ctrl_id, struct ddr_cfg *cfg)
+inline void ddrmc_cfg(int ctrl_id, struct ddr_cfg *cfg)
 {
 	uint32_t val, tmp;
 	uint16_t tck = cfg->tck;

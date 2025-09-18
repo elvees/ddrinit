@@ -9,6 +9,8 @@
 #include <regs.h>
 #include <string.h>
 
+static PMU_SMB_LPDDR4_1D_t mb_LPDDR4_1D = { 0 };
+
 static void dll_init(int ctrl_id)
 {
 	uint32_t tmp;
@@ -263,109 +265,111 @@ void phy_init(int ctrl_id, struct ddr_cfg *cfg)
 
 void phy_training_params_load(int ctrl_id, struct ddr_cfg *cfg)
 {
-	PMU_SMB_LPDDR4_1D_t params;
-
-	memset(&params, 0, sizeof(params));
-
-	params.Pstate = 0;
-	params.DRAMFreq = CONFIG_DRAM_RATE;
+	/* As the DDRMC0 is always initialized and the same params
+	 * are used for all DDR controllers, we can initialize mb_LPDDR4_1D
+	 * once when ctrl_id == 0 and then reuse it to save boot time.
+	 */
+	if (!ctrl_id) {
+		mb_LPDDR4_1D.Pstate = 0;
+		mb_LPDDR4_1D.DRAMFreq = CONFIG_DRAM_RATE;
 
 #ifdef CONFIG_PHY_PLL_BYPASS
-	params.PllBypassEn = 1;
+		mb_LPDDR4_1D.PllBypassEn = 1;
 #endif
 
 #ifdef CONFIG_DISABLE_CA_TRAINING
-	params.SequenceCtrl = 0x31f;
+		mb_LPDDR4_1D.SequenceCtrl = 0x31f;
 #else
-	params.SequenceCtrl = 0x131f;
+		mb_LPDDR4_1D.SequenceCtrl = 0x131f;
 #endif
-	params.PhyConfigOverride = 0;
+		mb_LPDDR4_1D.PhyConfigOverride = 0;
 
 #ifdef CONFIG_DEBUG
-	params.HdtCtrl = 0x00;
+		mb_LPDDR4_1D.HdtCtrl = 0x00;
 #else
-	params.HdtCtrl = 0xff;
+		mb_LPDDR4_1D.HdtCtrl = 0xff;
 #endif
-	params.MsgMisc = 0;
-	params.Reserved00 = 0xe0;
-	params.DFIMRLMargin = 2;
-	params.DfiFreqRatio = 2;
-	params.PhyVref = 0x14;
-	params.EnabledDQsChA = 16;
-	params.CsPresentChA = (CONFIG_DRAM_RANKS == 2) ? 3 : 1;
-	params.EnabledDQsChB = 16;
-	params.CsPresentChB = (CONFIG_DRAM_RANKS == 2) ? 3 : 1;
-	params.UseBroadcastMR = 0;
-	params.Lp4Misc = 0;
-	params.CATerminatingRankChA = 0;
-	params.CATerminatingRankChB = 0;
-	params.Lp4Quickboot = 0;
+		mb_LPDDR4_1D.MsgMisc = 0;
+		mb_LPDDR4_1D.Reserved00 = 0xe0;
+		mb_LPDDR4_1D.DFIMRLMargin = 2;
+		mb_LPDDR4_1D.DfiFreqRatio = 2;
+		mb_LPDDR4_1D.PhyVref = 0x14;
+		mb_LPDDR4_1D.EnabledDQsChA = 16;
+		mb_LPDDR4_1D.CsPresentChA = (CONFIG_DRAM_RANKS == 2) ? 3 : 1;
+		mb_LPDDR4_1D.EnabledDQsChB = 16;
+		mb_LPDDR4_1D.CsPresentChB = (CONFIG_DRAM_RANKS == 2) ? 3 : 1;
+		mb_LPDDR4_1D.UseBroadcastMR = 0;
+		mb_LPDDR4_1D.Lp4Misc = 0;
+		mb_LPDDR4_1D.CATerminatingRankChA = 0;
+		mb_LPDDR4_1D.CATerminatingRankChB = 0;
+		mb_LPDDR4_1D.Lp4Quickboot = 0;
 
-	if (IS_ENABLED(CONFIG_ENABLE_CA_VREF_TRAINING))
-		params.CATrainOpt = 1;
-	else
-		params.CATrainOpt = 0;
+		if (IS_ENABLED(CONFIG_ENABLE_CA_VREF_TRAINING))
+			mb_LPDDR4_1D.CATrainOpt = 1;
+		else
+			mb_LPDDR4_1D.CATrainOpt = 0;
 
-	params.X8Mode = 0;
+		mb_LPDDR4_1D.X8Mode = 0;
 
-	params.MR1_A0 = lpddr4_mr1_get(cfg);
-	params.MR2_A0 = lpddr4_mr2_get(cfg);
-	params.MR3_A0 = lpddr4_mr3_get(cfg);
-	params.MR4_A0 = 0;
-	params.MR11_A0 = lpddr4_mr11_get(cfg);
-	params.MR12_A0 = 0x4d;
-	params.MR13_A0 = BIT(5);
-	params.MR14_A0 = 0x4f;
-	params.MR16_A0 = 0;
-	params.MR17_A0 = 0;
-	params.MR22_A0 = lpddr4_mr22_get(cfg);
-	params.MR24_A0 = 0;
-	params.MR1_A1 = lpddr4_mr1_get(cfg);
-	params.MR2_A1 = lpddr4_mr2_get(cfg);
-	params.MR3_A1 = lpddr4_mr3_get(cfg);
-	params.MR4_A1 = 0;
-	params.MR11_A1 = lpddr4_mr11_get(cfg);
-	params.MR12_A1 = 0x4d;
-	params.MR13_A1 = BIT(5);
-	params.MR14_A1 = 0x4f;
-	params.MR16_A1 = 0;
-	params.MR17_A1 = 0;
-	params.MR22_A1 = lpddr4_mr22_get(cfg);
-	params.MR24_A1 = 0;
+		mb_LPDDR4_1D.MR1_A0 = lpddr4_mr1_get(cfg);
+		mb_LPDDR4_1D.MR2_A0 = lpddr4_mr2_get(cfg);
+		mb_LPDDR4_1D.MR3_A0 = lpddr4_mr3_get(cfg);
+		mb_LPDDR4_1D.MR4_A0 = 0;
+		mb_LPDDR4_1D.MR11_A0 = lpddr4_mr11_get(cfg);
+		mb_LPDDR4_1D.MR12_A0 = 0x4d;
+		mb_LPDDR4_1D.MR13_A0 = BIT(5);
+		mb_LPDDR4_1D.MR14_A0 = 0x4f;
+		mb_LPDDR4_1D.MR16_A0 = 0;
+		mb_LPDDR4_1D.MR17_A0 = 0;
+		mb_LPDDR4_1D.MR22_A0 = lpddr4_mr22_get(cfg);
+		mb_LPDDR4_1D.MR24_A0 = 0;
+		mb_LPDDR4_1D.MR1_A1 = lpddr4_mr1_get(cfg);
+		mb_LPDDR4_1D.MR2_A1 = lpddr4_mr2_get(cfg);
+		mb_LPDDR4_1D.MR3_A1 = lpddr4_mr3_get(cfg);
+		mb_LPDDR4_1D.MR4_A1 = 0;
+		mb_LPDDR4_1D.MR11_A1 = lpddr4_mr11_get(cfg);
+		mb_LPDDR4_1D.MR12_A1 = 0x4d;
+		mb_LPDDR4_1D.MR13_A1 = BIT(5);
+		mb_LPDDR4_1D.MR14_A1 = 0x4f;
+		mb_LPDDR4_1D.MR16_A1 = 0;
+		mb_LPDDR4_1D.MR17_A1 = 0;
+		mb_LPDDR4_1D.MR22_A1 = lpddr4_mr22_get(cfg);
+		mb_LPDDR4_1D.MR24_A1 = 0;
 
-	params.MR1_B0 = lpddr4_mr1_get(cfg);
-	params.MR2_B0 = lpddr4_mr2_get(cfg);
-	params.MR3_B0 = lpddr4_mr3_get(cfg);
-	params.MR4_B0 = 0;
-	params.MR11_B0 = lpddr4_mr11_get(cfg);
-	params.MR12_B0 = 0x4d;
-	params.MR13_B0 = BIT(5);
-	params.MR14_B0 = 0x4f;
-	params.MR16_B0 = 0;
-	params.MR17_B0 = 0;
-	params.MR22_B0 = lpddr4_mr22_get(cfg);
-	params.MR24_B0 = 0;
-	params.MR1_B1 = lpddr4_mr1_get(cfg);
-	params.MR2_B1 = lpddr4_mr2_get(cfg);
-	params.MR3_B1 = lpddr4_mr3_get(cfg);
-	params.MR4_B1 = 0;
-	params.MR11_B1 = lpddr4_mr11_get(cfg);
-	params.MR12_B1 = 0x4d;
-	params.MR13_B1 = BIT(5);
-	params.MR14_B1 = 0x4f;
-	params.MR16_B1 = 0;
-	params.MR17_B1 = 0;
-	params.MR22_B1 = lpddr4_mr22_get(cfg);
-	params.MR24_B1 = 0;
+		mb_LPDDR4_1D.MR1_B0 = lpddr4_mr1_get(cfg);
+		mb_LPDDR4_1D.MR2_B0 = lpddr4_mr2_get(cfg);
+		mb_LPDDR4_1D.MR3_B0 = lpddr4_mr3_get(cfg);
+		mb_LPDDR4_1D.MR4_B0 = 0;
+		mb_LPDDR4_1D.MR11_B0 = lpddr4_mr11_get(cfg);
+		mb_LPDDR4_1D.MR12_B0 = 0x4d;
+		mb_LPDDR4_1D.MR13_B0 = BIT(5);
+		mb_LPDDR4_1D.MR14_B0 = 0x4f;
+		mb_LPDDR4_1D.MR16_B0 = 0;
+		mb_LPDDR4_1D.MR17_B0 = 0;
+		mb_LPDDR4_1D.MR22_B0 = lpddr4_mr22_get(cfg);
+		mb_LPDDR4_1D.MR24_B0 = 0;
+		mb_LPDDR4_1D.MR1_B1 = lpddr4_mr1_get(cfg);
+		mb_LPDDR4_1D.MR2_B1 = lpddr4_mr2_get(cfg);
+		mb_LPDDR4_1D.MR3_B1 = lpddr4_mr3_get(cfg);
+		mb_LPDDR4_1D.MR4_B1 = 0;
+		mb_LPDDR4_1D.MR11_B1 = lpddr4_mr11_get(cfg);
+		mb_LPDDR4_1D.MR12_B1 = 0x4d;
+		mb_LPDDR4_1D.MR13_B1 = BIT(5);
+		mb_LPDDR4_1D.MR14_B1 = 0x4f;
+		mb_LPDDR4_1D.MR16_B1 = 0;
+		mb_LPDDR4_1D.MR17_B1 = 0;
+		mb_LPDDR4_1D.MR22_B1 = lpddr4_mr22_get(cfg);
+		mb_LPDDR4_1D.MR24_B1 = 0;
 
-	params.Share2DVrefResult = 1;
+		mb_LPDDR4_1D.Share2DVrefResult = 1;
+	}
 
-	unsigned long read_offset = (unsigned long)&params;
+	unsigned long read_offset = (unsigned long)&mb_LPDDR4_1D;
 	uint32_t val, write_offset = CONFIG_PHY_DMEM_OFFSET;
 	int i;
 
 	/* Write training firmware parameters */
-	for (i = 0; i < sizeof(params) / 4; i++) {
+	for (i = 0; i < sizeof(mb_LPDDR4_1D) / 4; i++) {
 		val = read32(read_offset);
 		phy_write32_with_dbg(ctrl_id, write_offset, val & 0xffff);
 		phy_write32_with_dbg(ctrl_id, write_offset + 4, (val >> 16) & 0xffff);
@@ -374,7 +378,7 @@ void phy_training_params_load(int ctrl_id, struct ddr_cfg *cfg)
 	}
 
 	/* Write the last bytes if params size is not a multiple of 4 */
-	int tail = sizeof(params) % 4;
+	int tail = sizeof(mb_LPDDR4_1D) % 4;
 	if (tail != 0) {
 		val = read32(read_offset);
 		phy_write32_with_dbg(ctrl_id, write_offset, val & GENMASK(8 * tail, 0));

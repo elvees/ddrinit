@@ -126,16 +126,41 @@ enum ddrinit_error_code {
 	EVMMUCFG,
 };
 
+static inline uint32_t read32(unsigned long addr)
+{
+	return *((volatile uint32_t *)addr);
+}
+
+static inline uint64_t read64(unsigned long addr)
+{
+	return *((volatile uint64_t *)addr);
+}
+
+static inline void write16(unsigned long addr, uint16_t val)
+{
+	*((volatile uint16_t *)addr) = val;
+}
+
+static inline void write32(unsigned long addr, uint32_t val)
+{
+	*((volatile uint32_t *)addr) = val;
+}
+
+static inline void write32_with_dbg(unsigned long addr, uint32_t val)
+{
+	*((volatile uint32_t *)addr) = val;
+	print_dbg("write: addr 0x%lx, data 0x%x\n", addr, read32(addr));
+}
+
+static inline void write64(unsigned long addr, uint64_t val)
+{
+	*((volatile uint64_t *)addr) = val;
+}
+
 void delay_usec(int usec);
 void *memcpy(void *dest, const void *src, size_t count);
 void *memset(void *s, int c, size_t count);
-uint32_t read32(unsigned long addr);
-uint64_t read64(unsigned long addr);
 char *strcpy(char *dest, const char *src);
 int timer_get_usec(void);
-void write16(unsigned long addr, uint16_t val);
-void write32(unsigned long addr, uint32_t val);
-void write32_with_dbg(unsigned long addr, uint32_t val);
-void write64(unsigned long addr, uint64_t val);
 
 #endif
