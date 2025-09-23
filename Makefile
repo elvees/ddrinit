@@ -86,7 +86,7 @@ check-stack: $(TARGET).elf
 	find . -name '*.cgraph' | grep -v stack-usage-log | xargs cat > stack-usage-log.cgraph; \
 	find . -name '*.su'     | grep -v stack-usage-log | xargs cat > stack-usage-log.su; \
 	echo -n "stack-usage=" > $(TARGET).info; \
-	python2 scripts/stack-usage.py --csv stack-usage.csv --json stack-usage.json \
+	python3 scripts/stack-usage.py --csv stack-usage.csv --json stack-usage.json \
 		>> $(TARGET).info; \
 	$(CROSS_COMPILE)nm -t x -S --size-sort --reverse-sort $< >> $(TARGET).info
 	#TODO: Add desired stack size in defconfig
