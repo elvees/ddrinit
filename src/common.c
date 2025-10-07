@@ -6,7 +6,8 @@
 
 static uint64_t usec_to_tick(int usec)
 {
-	return (uint64_t)usec * CONFIG_TIMER_FREQ / SEC;
+	uint32_t freq = platform_get_timer_freq();
+	return (uint64_t)usec * freq / SEC;
 }
 
 static uint64_t get_ticks(void)
@@ -35,7 +36,8 @@ void delay_usec(int usec)
 
 int timer_get_usec(void)
 {
-	return get_ticks() * SEC / CONFIG_TIMER_FREQ;
+	uint32_t freq = platform_get_timer_freq();
+	return get_ticks() * SEC / freq;
 }
 
 void *memcpy(void *dest, const void *src, size_t count)

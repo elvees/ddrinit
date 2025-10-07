@@ -111,49 +111,48 @@ static int ucg_channel_cfg(unsigned long ucg_addr, int chan_id, int div)
 	return 0;
 }
 
+static uint64_t get_freq(unsigned long pll_addr, unsigned long ucg_addr, int chan_id)
+{
+	uint64_t pll_freq;
+	uint32_t pll_mult, pll, div, nf_value, nr_value, od_value;
+
+	if (FIELD_GET(UCG_CTR_CLK_EN, read32(UCG_CTR(ucg_addr, chan_id))) == 0x0)
+		return -ECLOCKCFG;
+
+	if (FIELD_GET(BIT(chan_id), read32(UCG_BP(ucg_addr))) == 0x1)
+		return -ECLOCKCFG;
+
+	pll = read32(pll_addr);
+
+	if ((FIELD_GET(PLL_CFG_MAN, pll) == 1) && (FIELD_GET(PLL_CFG_SEL, pll) > 0)) {
+		nf_value = FIELD_GET(PLL_CFG_NF, pll);
+		nr_value = FIELD_GET(PLL_CFG_NR, pll);
+		od_value = FIELD_GET(PLL_CFG_OD, pll);
+		pll_mult = (nf_value + 1) / (nr_value + 1) / (od_value + 1);
+	} else {
+		pll_mult = FIELD_GET(PLL_CFG_SEL, pll);
+		if (pll_mult >= 0x73)
+			pll_mult = 116;
+		else
+			pll_mult += 1;
+	}
+
+	pll_freq = (uint64_t)CONFIG_DDR_XTAL_FREQ * pll_mult;
+
+	div = FIELD_GET(UCG_CTR_DIV_COEFF, read32(UCG_CTR(ucg_addr, chan_id)));
+	if (div == 0)
+		div = 1;
+
+	return pll_freq / div;
+}
+
 #ifdef CONFIG_I2C
 int platform_i2c_cfg(int ctrl_id, uint32_t *clk_rate)
 {
-	uint32_t pll_freq;
-	uint32_t pll_mult;
-	uint32_t i2c_div;
-	uint32_t pll;
-	uint32_t nf_value;
-	uint32_t nr_value;
-	uint32_t od_value;
-
 	switch (ctrl_id) {
 	/* TODO: Get clocks for other I2C */
 	case 4:
-		if (FIELD_GET(UCG_CTR_CLK_EN, read32(UCG_CTR(SERVICE_SUBS_UCG_BASE, 9))) == 0x0)
-			return -ECLOCKCFG;
-
-		if (FIELD_GET(BIT(9), read32(UCG_BP(SERVICE_SUBS_UCG_BASE))) == 0x1)
-			return -ECLOCKCFG;
-
-		pll = read32(SERVICE_SUBS_URB_PLL);
-
-		if ((FIELD_GET(DDR_PLL_CFG_MAN, pll) == 1) &&
-		    (FIELD_GET(DDR_PLL_CFG_SEL, pll) > 0)) {
-			nf_value = FIELD_GET(DDR_PLL_CFG_NF, pll);
-			nr_value = FIELD_GET(DDR_PLL_CFG_NR, pll);
-			od_value = FIELD_GET(DDR_PLL_CFG_OD, pll);
-			pll_freq = CONFIG_DDR_XTAL_FREQ * (nf_value + 1) / (nr_value + 1) /
-				   (od_value + 1);
-		} else {
-			pll_mult = FIELD_GET(DDR_PLL_CFG_SEL, pll);
-			if (pll_mult >= 0x73)
-				pll_mult = 116;
-			else
-				pll_mult += 1;
-			pll_freq = CONFIG_DDR_XTAL_FREQ * pll_mult;
-		}
-
-		i2c_div = FIELD_GET(UCG_CTR_DIV_COEFF, read32(UCG_CTR(SERVICE_SUBS_UCG_BASE, 9)));
-		if (i2c_div == 0)
-			i2c_div = 1;
-
-		*clk_rate = pll_freq / i2c_div;
+		*clk_rate = get_freq(SERVICE_SUBS_URB_PLL, SERVICE_SUBS_UCG_BASE, 9);
 
 		return 0;
 	default:
@@ -259,12 +258,12 @@ static int pll_cfg(int pll_id, int tck)
 	if (ret)
 		return ret;
 
-	val = FIELD_PREP(DDR_PLL_CFG_SEL, 1) | FIELD_PREP(DDR_PLL_CFG_MAN, 1) |
-	      FIELD_PREP(DDR_PLL_CFG_OD, pll_cfg.od) | FIELD_PREP(DDR_PLL_CFG_NF, pll_cfg.nf) |
-	      FIELD_PREP(DDR_PLL_CFG_NR, pll_cfg.nr);
+	val = FIELD_PREP(PLL_CFG_SEL, 1) | FIELD_PREP(PLL_CFG_MAN, 1) |
+	      FIELD_PREP(PLL_CFG_OD, pll_cfg.od) | FIELD_PREP(PLL_CFG_NF, pll_cfg.nf) |
+	      FIELD_PREP(PLL_CFG_NR, pll_cfg.nr);
 	write32(DDR_PLL_CFG(pll_id), val);
 
-	ret = read32_poll_timeout(val, val & DDR_PLL_CFG_LOCK, USEC, MSEC, DDR_PLL_CFG(pll_id));
+	ret = read32_poll_timeout(val, val & PLL_CFG_LOCK, USEC, MSEC, DDR_PLL_CFG(pll_id));
 	if (ret)
 		return -ECLOCKCFG;
 
@@ -401,6 +400,11 @@ uint32_t platform_get_timer_count(void)
 	 * result.
 	 */
 	return ~read32(DW_APB_CURRENT_VALUE(0));
+}
+
+uint32_t platform_get_timer_freq(void)
+{
+	return get_freq(LSPERIPH1_URB_PLL, LSPERIPH1_UCG_BASE, 7);
 }
 
 static void region_set(struct sysinfo *info, int ctrl_id, int region_id)

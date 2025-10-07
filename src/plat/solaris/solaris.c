@@ -654,3 +654,8 @@ uint32_t platform_get_timer_count()
 	__asm__ __volatile__("mfc0 %0, $9" : "=r"(res));
 	return res;
 }
+
+uint32_t platform_get_timer_freq(void)
+{
+	return CONFIG_TIMER_FREQ;
+}

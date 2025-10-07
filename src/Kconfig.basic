@@ -400,8 +400,8 @@ config DRAM_RANKS
 
 config TIMER_FREQ
 	int "Timer frequency"
-	default 27000000 if PLATFORM_MCOM03
-	default 250000000 if PLATFORM_SOLARIS
+	default 250000000
+	depends on PLATFORM_SOLARIS
 	help
 	  Timer clock source frequency.
 
