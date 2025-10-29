@@ -514,3 +514,9 @@ config DDRMC_PORT_WRITE_TIMEOUT_MASK
 	         8              HSPERIPH
 	         9              LSPERIPH0
 	         10             LSPERIPH1
+
+config MCOM03_ARM_HANG_TEST
+	bool "Build ddrinit for arm-hang-test"
+	depends on PLATFORM_MCOM03
+	help
+	  arm-hang-test requires ddrinit to be built with special PLL settings.

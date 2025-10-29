@@ -56,7 +56,11 @@ struct pll_settings pll_settings[2][11] = {
 		{ 27000000, DRAM_TCK_3200, 0, 117, 3 },
 	},
 	{
+#ifdef CONFIG_MCOM03_ARM_HANG_TEST
+		{ 27000000, 833, 0, 43, 0 },
+#else
 		{ 27000000, 833, 0, 87, 1 },
+#endif
 	},
 };
 
