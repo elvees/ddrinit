@@ -86,6 +86,16 @@ uint32_t phy_read32(int ctrl_id, unsigned long addr)
 	return read32(PHY_BASE(ctrl_id) + addr);
 }
 
+int platform_early_setup(void)
+{
+	return 0;
+}
+
+int platform_late_setup(void)
+{
+	return 0;
+}
+
 int platform_power_up(void)
 {
 	return 0;

@@ -36,9 +36,51 @@ config RAM_BASE
 
 config RAM_SIZE
 	hex
+	default 0xEF80 if PLATFORM_MCOM03 && BOOTSTAGE_ENABLE
 	default 0xF000 if PLATFORM_MCOM03
 	help
 	  RAM size
+
+config BOOTSTAGE_ENABLE
+	bool
+	depends on PLATFORM_MCOM03
+	default y if BOOTLOADER_BOOTROM
+	help
+	  Enable bootstage support
+
+if BOOTSTAGE_ENABLE
+
+config BOOTSTAGE_BASE_F
+	hex
+	default 0x8000EF80
+	help
+	  Bootstages base address before relocation to DDR
+
+config BOOTSTAGE_SIZE_F
+	hex
+	default 0x80
+	help
+	  Bootstages size before relocation to DDR
+
+config BOOTSTAGE_BASE_R
+	hex
+	default 0x47C00000
+	help
+	  Bootstages base address after relocation to DDR
+
+config BOOTSTAGE_SIZE_R
+	hex
+	default 0x800
+	help
+	  Bootstages size after relocation to DDR
+
+config BOOTSTAGE_RECORD_COUNT
+	hex
+	default 3
+	help
+	  Bootstages record count
+
+endif
 
 config UART_BASE
 	hex

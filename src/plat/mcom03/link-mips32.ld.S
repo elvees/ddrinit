@@ -12,6 +12,10 @@ ENTRY(_start)
 MEMORY
 {
 	ram (rwx)  : ORIGIN = CONFIG_RAM_BASE, LENGTH = CONFIG_RAM_SIZE
+#if defined(CONFIG_BOOTSTAGE_ENABLE)
+	bootstage_f (rw)  :  ORIGIN = CONFIG_BOOTSTAGE_BASE_F, LENGTH = CONFIG_BOOTSTAGE_SIZE_F
+	bootstage_r (rw)  :  ORIGIN = CONFIG_BOOTSTAGE_BASE_R, LENGTH = CONFIG_BOOTSTAGE_SIZE_R
+#endif
 }
 
 SECTIONS
@@ -19,7 +23,7 @@ SECTIONS
 	. = CONFIG_RAM_BASE;
 
 	.text : {
-		*(.text.boot*)
+		*(.text.boot)
 		*(.text*)
 		__text_end = .;
 	} > ram
@@ -64,6 +68,28 @@ SECTIONS
 	end = .;
 
 	ASSERT(end < (CONFIG_RAM_BASE + CONFIG_RAM_SIZE), "ddrinit image has exceeded RAM limit.")
+
+#if defined(CONFIG_BOOTSTAGE_ENABLE)
+	. = ORIGIN(bootstage_f);
+	ASSERT(. == ALIGN(4), "ORIGIN(bootstage_f) address is not aligned on a word boundary.")
+
+	.bootstage_f (NOLOAD) : {
+		__bs_start_f = ABSOLUTE(.);
+		. = . + CONFIG_BOOTSTAGE_SIZE_F;
+		. = ALIGN(4);
+		__bs_end_f = ABSOLUTE(.);
+	} > bootstage_f
+
+	. = ORIGIN(bootstage_r);
+	ASSERT(. == ALIGN(4), "ORIGIN(bootstage_r) address is not aligned on a word boundary.")
+
+	.bootstage_r (NOLOAD) : {
+		__bs_start_r = ABSOLUTE(.);
+		. = . + CONFIG_BOOTSTAGE_SIZE_R;
+		. = ALIGN(4);
+		__bs_end_r = ABSOLUTE(.);
+	} > bootstage_r
+#endif
 
 	/DISCARD/ : {
 		*(.reginfo)

@@ -19,9 +19,13 @@ else
 obj-y += start-mips32-sbl.S
 endif
 
+ifeq ($(CONFIG_BOOTSTAGE_ENABLE),y)
+obj-y += bootstage.c
+endif
+
 obj-y += vmmu.c mcom03.c
 linkfile := link-mips32.ld.S
 
-override CFLAGS += -mips32
-override LDFLAGS += -mips32
+override CFLAGS += -mips32 -mabi=32 -mno-gpopt -G0
+override LDFLAGS += -mips32 -mabi=32 -G0
 endif

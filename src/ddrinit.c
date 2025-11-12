@@ -207,6 +207,8 @@ char *errcode2str(int id)
 		return "Failed to configure UART";
 	case EVMMUCFG:
 		return "Failed to configure VMMU";
+	case EBOOTSTAGE:
+		return "Failed to set bootstage";
 	default:
 		return "Unknown error";
 	}
@@ -218,6 +220,12 @@ int main(void)
 	struct sysinfo info;
 	int ret, i, init_mask = 0;
 	int timer_start, timer_end;
+
+	ret = platform_early_setup();
+	if (ret) {
+		while (1)
+			continue;
+	}
 
 	memset(&cfg, 0, sizeof(struct ddr_cfg));
 	memset(&info, 0, sizeof(info));
@@ -281,6 +289,10 @@ int main(void)
 			       info.interleaving.size / 1024, info.interleaving.channels);
 		else
 			printf("Memory interleaving: disabled\n");
+
+		ret = platform_late_setup();
+		if (ret)
+			ddrinit_panic(ret);
 
 		return 0;
 	}

@@ -6,6 +6,7 @@
 #include <ddrcfg.h>
 #include <i2c.h>
 #include <plat/plat.h>
+#include <plat/mcom03/bootstage.h>
 #include <plat/mcom03/regs.h>
 #include <plat/mcom03/vmmu.h>
 
@@ -165,6 +166,33 @@ int platform_i2c_cfg(int ctrl_id, uint32_t *clk_rate)
 	return 0;
 }
 #endif
+
+int platform_early_setup(void)
+{
+	if (IS_ENABLED(CONFIG_BOOTSTAGE_ENABLE)) {
+		extern uintptr_t __bs_start_f;
+		extern uintptr_t __bs_end_f;
+		const uintptr_t bs_start_f = (uintptr_t)&__bs_start_f;
+		const uintptr_t bs_end_f = (uintptr_t)&__bs_end_f;
+
+		bootstage_import((void *)bs_start_f, bs_end_f - bs_start_f);
+		bootstage_mark(BOOTSTAGE_ID_DDRINIT_START);
+	}
+	return 0;
+}
+
+int platform_late_setup(void)
+{
+#if defined(CONFIG_BOOTSTAGE_ENABLE)
+	extern uintptr_t __bs_start_r;
+	extern uintptr_t __bs_end_r;
+	const uintptr_t bs_start_r = (uintptr_t)&__bs_start_r;
+	const uintptr_t bs_end_r = (uintptr_t)&__bs_end_r;
+
+	bootstage_export((void *)bs_start_r, bs_end_r - bs_start_r);
+#endif
+	return 0;
+}
 
 int platform_power_up(void)
 {

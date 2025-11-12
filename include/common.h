@@ -124,6 +124,7 @@ enum ddrinit_error_code {
 	ETRAINTIMEOUT,
 	EUARTCFG,
 	EVMMUCFG,
+	EBOOTSTAGE,
 };
 
 static inline uint32_t read32(unsigned long addr)
