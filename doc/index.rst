@@ -43,6 +43,7 @@
 * PM03CAM-OSM r1.04;
 * ROKIROVKA r1.0.1;
 * SKIF-MP v1.0;
+* Skif-MSB v2.0;
 * Trustphone PM r1.5.
 
 Возможности
