@@ -515,8 +515,8 @@ config DDRMC_PORT_WRITE_TIMEOUT_MASK
 	         9              LSPERIPH0
 	         10             LSPERIPH1
 
-config MCOM03_ARM_HANG_TEST
-	bool "Build ddrinit for arm-hang-test"
+config PLL_CFG_OVERRIDE
+	bool "Enable ability to override PLL settings"
 	depends on PLATFORM_MCOM03
 	help
-	  arm-hang-test requires ddrinit to be built with special PLL settings.
+	  It can be used to override PLL settings via JTAG.

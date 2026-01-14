@@ -41,6 +41,14 @@ struct pll_settings {
 	uint8_t od;
 };
 
+#ifdef CONFIG_PLL_CFG_OVERRIDE
+/* Declare global variables to be able to override them via JTAG */
+int ddr_pll1_nf = 43;
+int ddr_pll1_nr = 0;
+int ddr_pll1_od = 0;
+int ddr_cpu_div = 2;
+#endif
+
 struct pll_settings pll_settings[2][11] = {
 	{
 		{ 27000000, DRAM_TCK_266, 0, 38, 15 },
@@ -56,11 +64,7 @@ struct pll_settings pll_settings[2][11] = {
 		{ 27000000, DRAM_TCK_3200, 0, 117, 3 },
 	},
 	{
-#ifdef CONFIG_MCOM03_ARM_HANG_TEST
-		{ 27000000, 833, 0, 43, 0 },
-#else
 		{ 27000000, 833, 0, 87, 1 },
-#endif
 	},
 };
 
@@ -279,14 +283,23 @@ static int pll_cfg(int pll_id, int tck)
 	struct pll_settings pll_cfg;
 	uint32_t val;
 	int ret;
+	int nf, nr, od;
 
 	ret = pll_settings_get(pll_id, tck, &pll_cfg);
 	if (ret)
 		return ret;
 
-	val = FIELD_PREP(PLL_CFG_SEL, 1) | FIELD_PREP(PLL_CFG_MAN, 1) |
-	      FIELD_PREP(PLL_CFG_OD, pll_cfg.od) | FIELD_PREP(PLL_CFG_NF, pll_cfg.nf) |
-	      FIELD_PREP(PLL_CFG_NR, pll_cfg.nr);
+#ifdef CONFIG_PLL_CFG_OVERRIDE
+	nf = (pll_id == 1) ? ddr_pll1_nf : pll_cfg.nf;
+	nr = (pll_id == 1) ? ddr_pll1_nr : pll_cfg.nr;
+	od = (pll_id == 1) ? ddr_pll1_od : pll_cfg.od;
+#else
+	nf = pll_cfg.nf;
+	nr = pll_cfg.nr;
+	od = pll_cfg.od;
+#endif
+	val = FIELD_PREP(PLL_CFG_SEL, 1) | FIELD_PREP(PLL_CFG_MAN, 1) | FIELD_PREP(PLL_CFG_OD, od) |
+	      FIELD_PREP(PLL_CFG_NF, nf) | FIELD_PREP(PLL_CFG_NR, nr);
 	write32(DDR_PLL_CFG(pll_id), val);
 
 	ret = read32_poll_timeout(val, val & PLL_CFG_LOCK, USEC, MSEC, DDR_PLL_CFG(pll_id));
@@ -340,6 +353,9 @@ int platform_clk_cfg(int ctrl_id, struct ddr_cfg *cfg)
 		12 /* LSP1 channel 100 MHz */
 	};
 
+#ifdef CONFIG_PLL_CFG_OVERRIDE
+	axi_chan_divs[7] = ddr_cpu_div;
+#endif
 	if (pll_init_done == 0) {
 		int i;
 
@@ -410,6 +426,10 @@ int platform_clk_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	ucg_bypass_enable(DDR_SUBS_UCG_BASE(0), 2 * ctrl_id);
 	ucg_bypass_enable(DDR_SUBS_UCG_BASE(0), 2 * ctrl_id + 1);
 
+#ifdef CONFIG_PLL_CFG_OVERRIDE
+	printf("ddrinit: DDR PLL1: nf %d, nr %d, od %d; CPU div %d\n", ddr_pll1_nf, ddr_pll1_nr,
+	       ddr_pll1_od, ddr_cpu_div);
+#endif
 	return 0;
 }
 
