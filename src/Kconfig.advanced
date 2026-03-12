@@ -454,7 +454,7 @@ config IMPEDANCE_CALIBRATION_PRINT_PARAMS
 
 config DDRMC_HPR_PORT_MASK
 	hex "HPR port mask"
-	default 0x20
+	default 0x0
 	help
 	  If bit i is set in the mask, all read transactions from AXI port i will be marked
 	  as High Priority Read (HPR) transactions in DDRMC.
@@ -475,7 +475,7 @@ config DDRMC_HPR_PORT_MASK
 
 config DDRMC_PORT_READ_TIMEOUT_MASK
 	hex "Port read timeout mask"
-	default 0x4
+	default 0x24
 	help
 	  If bit i is set in the mask, all read transactions from AXI port i will have the port
 	  read timeout set to 1. It means that read requests from port i will have highest priority
