@@ -3,6 +3,7 @@ choice
 
 	config FIRMWARE_VERSION_202309
 		bool "2023.09"
+		depends on PLATFORM_MCOM03 && ((DRAM_TYPE_LPDDR4 && DRAM_RANKS_2) || DRAM_TYPE_DDR4 || DRAM_TYPE_DDR3)
 
 	config FIRMWARE_VERSION_201810
 		bool "2018.10"
@@ -389,11 +390,33 @@ config DRAM_TCK
 	default 625 if DRAM_RATE_3200
 	depends on SPD_EEPROM && DRAM_RATE_CUSTOM || !SPD_EEPROM
 
+choice
+
+	prompt "DRAM ranks select"
+	depends on !SPD_EEPROM
+
+	config DRAM_RANKS_1
+		bool "1"
+
+	config DRAM_RANKS_2
+		bool "2"
+
+	config DRAM_RANKS_3
+		bool "3"
+		depends on PLATFORM_SOLARIS
+
+	config DRAM_RANKS_4
+		bool "4"
+		depends on PLATFORM_SOLARIS
+
+endchoice
+
 config DRAM_RANKS
-	int "Active DRAM ranks"
-	range 1 4 if PLATFORM_SOLARIS
-	range 1 2 if PLATFORM_MCOM03
-	default 1
+	int
+	default 1 if DRAM_RANKS_1
+	default 2 if DRAM_RANKS_2
+	default 3 if DRAM_RANKS_3
+	default 4 if DRAM_RANKS_4
 	depends on !SPD_EEPROM
 	help
 	  Number of active DRAM ranks
