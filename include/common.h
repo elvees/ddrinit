@@ -64,6 +64,8 @@
 #define MSEC 1000ULL
 #define SEC  1000000ULL
 
+#define MHZ 1000000ULL
+
 #define read_poll_timeout(op, val, cond, sleep_us, timeout_us, args...) \
 	({                                                              \
 		int timeout = timer_get_usec() + timeout_us;            \

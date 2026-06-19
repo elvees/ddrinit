@@ -286,7 +286,7 @@ static int pll_settings_get(int pll_id, int tck, struct pll_settings *pll_cfg)
 	return 0;
 }
 
-static int pll_cfg(int pll_id, int tck)
+static int pll_cfg(int pll_id, int tck, uint64_t *pfreq)
 {
 	struct pll_settings pll_cfg;
 	uint32_t val;
@@ -304,6 +304,10 @@ static int pll_cfg(int pll_id, int tck)
 	ret = read32_poll_timeout(val, val & PLL_CFG_LOCK, USEC, MSEC, DDR_PLL_CFG(pll_id));
 	if (ret)
 		return -ECLOCKCFG;
+
+	if (pfreq)
+		*pfreq = (uint64_t)CONFIG_DDR_XTAL_FREQ * (pll_cfg.nf + 1) * (pll_cfg.nr + 1) /
+			 (pll_cfg.od + 1);
 
 	return 0;
 }
@@ -337,36 +341,40 @@ int platform_clk_cfg(int ctrl_id, struct ddr_cfg *cfg)
 	static int pll_init_done;
 	int ret;
 	uint32_t val;
-	uint8_t axi_chan_divs[] = {
-		12, /* SYS channel  100 MHz */
-		2, /* SDR channel  600 MHz */
-		4, /* PCIe channel 300 MHz */
-		6, /* ISP channel  200 MHz */
-		4, /* GPU channel  300 MHz */
-		4, /* VPU channel  300 MHz */
-		6, /* DP channel   200 MHz */
-		2, /* CPU channel  600 MHz */
-		8, /* SERV channel 150 MHz */
-		6, /* HSP channel  200 MHz */
-		12, /* LSP0 channel 100 MHz */
-		12 /* LSP1 channel 100 MHz */
+	uint64_t axi_chan_freq[] = {
+		100 * MHZ, /* SYS channel */
+		600 * MHZ, /* SDR channel */
+		300 * MHZ, /* PCIe channel */
+		200 * MHZ, /* ISP channel */
+		300 * MHZ, /* GPU channel */
+		300 * MHZ, /* VPU channel */
+		200 * MHZ, /* DP channel */
+		600 * MHZ, /* CPU channel */
+		150 * MHZ, /* SERV channel */
+		200 * MHZ, /* HSP channel */
+		100 * MHZ, /* LSP0 channel */
+		100 * MHZ /* LSP1 channel */
 	};
 
-#ifdef CONFIG_PLL_CFG_OVERRIDE
-	axi_chan_divs[7] = ddr_cpu_div;
-#endif
 	if (pll_init_done == 0) {
 		int i;
+		uint64_t pll1_freq;
+		uint8_t div;
 
 		for (i = 0; i < CONFIG_DDRMC_AXI_PORTS + 1; i++)
 			ucg_bypass_enable(DDR_SUBS_UCG_BASE(1), i);
 
-		ret = pll_cfg(1, 833);
+		ret = pll_cfg(1, 833, &pll1_freq);
 		if (ret)
 			return ret;
 
 		for (i = 0; i < CONFIG_DDRMC_AXI_PORTS + 1; i++) {
-			ret = ucg_channel_cfg(DDR_SUBS_UCG_BASE(1), i, axi_chan_divs[i]);
+			div = DIV_ROUND_UP(pll1_freq, axi_chan_freq[i]);
+#ifdef CONFIG_PLL_CFG_OVERRIDE
+			if (i == 7)
+				div = ddr_cpu_div;
+#endif
+			ret = ucg_channel_cfg(DDR_SUBS_UCG_BASE(1), i, div);
 			if (ret)
 				return ret;
 		}
@@ -382,7 +390,7 @@ int platform_clk_cfg(int ctrl_id, struct ddr_cfg *cfg)
 #else
 		int tck = cfg->tck;
 #endif
-		ret = pll_cfg(0, tck);
+		ret = pll_cfg(0, tck, NULL);
 		if (ret)
 			return ret;
 
