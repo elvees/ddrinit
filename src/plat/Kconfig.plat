@@ -5,11 +5,6 @@ choice
 		bool "MCom-03"
 		help
 		  ELVEES MCom-03 SoC
-
-	config PLATFORM_SOLARIS
-		bool "Solaris"
-		help
-		  ELVEES Solaris SoC
 endchoice
 
 choice
@@ -30,7 +25,6 @@ endchoice
 config RAM_BASE
 	hex
 	default 0x80000000 if PLATFORM_MCOM03
-	default 0xffffffff9ff14000 if PLATFORM_SOLARIS
 	help
 	  RAM base address
 
@@ -85,42 +79,36 @@ endif
 config UART_BASE
 	hex
 	default 0xA1750000 if PLATFORM_MCOM03
-	default 0xffffffffbcc40000 if PLATFORM_SOLARIS
 	help
 	  Base address of UART controller
 
 config DDRSUB0_BASE
 	hex
 	default 0xA4000000 if PLATFORM_MCOM03
-	default 0xffffffffb9000000 if PLATFORM_SOLARIS
 	help
 	  Base address of DDR subsystem #0
 
 config DDRSUB_GAP
 	hex
 	default 0x4000000 if PLATFORM_MCOM03
-	default 0x400000 if PLATFORM_SOLARIS
 	help
 	  Gap to next DDR subsystem base address
 
 config DDRMC_MAX_NUMBER
 	int
 	default 2 if PLATFORM_MCOM03
-	default 4 if PLATFORM_SOLARIS
 	help
 	  Number of DDR controllers
 
 config DDRMC_AXI_PORTS
 	int
 	default 11 if PLATFORM_MCOM03
-	default 1 if PLATFORM_SOLARIS
 	help
 	  Number of AXI ports in each DDR controller
 
 config DDRMC_OFFSET
 	hex
 	default 0x2000000 if PLATFORM_MCOM03
-	default 0x100000 if PLATFORM_SOLARIS
 	help
 	  Offset of DDR controller's registers
 
@@ -135,28 +123,24 @@ config DDRMC_SAR_MINSIZE
 config DDRMC_DQ_BUS_WIDTH
 	int
 	default 32 if PLATFORM_MCOM03
-	default 64 if PLATFORM_SOLARIS
 	help
 	  Width of DDRMC DQ bus connected to DRAM.
 
 config PHY_OFFSET
 	hex
 	default 0x0 if PLATFORM_MCOM03
-	default 0x200000 if PLATFORM_SOLARIS
 	help
 	  Offset of DDR PHY's registers
 
 config PHY_DBYTE_NUM
 	int
 	default 4 if PLATFORM_MCOM03
-	default 9 if PLATFORM_SOLARIS
 	help
 	  Number of DBYTEs in DDR PHY
 
 config PHY_ANIB_NUM
 	int
 	default 10 if PLATFORM_MCOM03
-	default 12 if PLATFORM_SOLARIS
 	help
 	  Number of ANIBs in DDR PHY
 
@@ -221,7 +205,6 @@ config PHY_DFI1_EXIST
 config MAX_MEM_REGIONS
 	int
 	default 4 if PLATFORM_MCOM03
-	default 5 if PLATFORM_SOLARIS
 
 config MEM_REGIONS_PHYS_ADDR
 	hex "Memory info physical address"
@@ -234,7 +217,6 @@ config MEM_REGIONS_PHYS_ADDR
 config MEM_REGIONS_VIRT_ADDR
 	hex "Memory info virtual address"
 	default 0xC0000000 if PLATFORM_MCOM03
-	default 0xffffffffa4000000 if PLATFORM_SOLARIS
 	help
 	  Virtual address to map CONFIG_MEM_REGIONS_PHYS_ADDR to.
 
@@ -262,58 +244,31 @@ config VMMU_VIRT_SLOT_COUNT
 config MEM_REGION0_START
 	hex
 	default 0x80000000 if PLATFORM_MCOM03
-	default 0x0 if PLATFORM_SOLARIS
 
 config MEM_REGION0_SIZE
 	hex
 	default 0x40000000 if PLATFORM_MCOM03
-	default 0x10000000 if PLATFORM_SOLARIS
 
 config MEM_REGION1_START
 	hex
 	default 0x880000000 if PLATFORM_MCOM03
-	default 0x8010000000 if PLATFORM_SOLARIS
 
 config MEM_REGION1_SIZE
 	hex
 	default 0x380000000 if PLATFORM_MCOM03
-	default 0xff0000000 if PLATFORM_SOLARIS
 
 config MEM_REGION2_START
 	hex
 	default 0xC0000000 if PLATFORM_MCOM03
-	default 0x9000000000 if PLATFORM_SOLARIS
 
 config MEM_REGION2_SIZE
 	hex
 	default 0x40000000 if PLATFORM_MCOM03
-	default 0x1000000000 if PLATFORM_SOLARIS
 
 config MEM_REGION3_START
 	hex
 	default 0xC80000000 if PLATFORM_MCOM03
-	default 0xA000000000 if PLATFORM_SOLARIS
 
 config MEM_REGION3_SIZE
 	hex
 	default 0x380000000 if PLATFORM_MCOM03
-	default 0x1000000000 if PLATFORM_SOLARIS
-
-config MEM_REGION4_START
-	hex
-	default 0xB000000000 if PLATFORM_SOLARIS
-
-config MEM_REGION4_SIZE
-	hex
-	default 0x1000000000 if PLATFORM_SOLARIS
-
-config AXI_BUS_FREQUENCY
-	int
-	default 680000000 if PLATFORM_SOLARIS
-
-config LLC_AS_RAM
-	bool "Use LLC2 and LLC3 as scratchpad RAM"
-	depends on PLATFORM_SOLARIS
-	default false
-	help
-	  Use 4 MB Last level caches connected to DDRMC2 and DDRMC3 as scratchpad RAM.

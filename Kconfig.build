@@ -3,10 +3,3 @@ config DEBUG
 	default false
 	help
 	  Enable debug print using print_dbg().
-
-config BOOTMODE_JTAG
-	bool "Build for JTAG boot mode"
-	depends on PLATFORM_SOLARIS
-	help
-	  If enabled puts CPU in endless loop after ddrinit
-	  completion since there is no place to return in this mode.

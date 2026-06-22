@@ -326,49 +326,42 @@ config PHY_CALIBRATION_INTERVAL
 config PHY_TXSLEW_FALL_DQ
 	hex "TXSLEW_FALL_DQ"
 	default 0x7 if PLATFORM_MCOM03
-	default 0xf if PLATFORM_SOLARIS
 	help
 	  TBD
 
 config PHY_TXSLEW_RISE_DQ
 	hex "TXSLEW_RISE_DQ"
 	default 0xf if PLATFORM_MCOM03
-	default 0xf if PLATFORM_SOLARIS
 	help
 	  TBD
 
 config PHY_TXSLEW_FALL_AC
 	hex "TXSLEW_FALL_AC"
 	default 0x9 if PLATFORM_MCOM03
-	default 0xf if PLATFORM_SOLARIS
 	help
 	  TBD
 
 config PHY_TXSLEW_RISE_AC
 	hex "TXSLEW_RISE_AC"
 	default 0xf if PLATFORM_MCOM03
-	default 0xf if PLATFORM_SOLARIS
 	help
 	  TBD
 
 config PHY_D4RX_PREAMBLE_LEN
 	int "D4RX_PREAMBLE_LEN"
 	default 1 if PLATFORM_MCOM03
-	default 1 if PLATFORM_SOLARIS
 	help
 	  TBD
 
 config PHY_D4TX_PREAMBLE_LEN
 	int "D4TX_PREAMBLE_LEN"
 	default 0 if PLATFORM_MCOM03
-	default 0 if PLATFORM_SOLARIS
 	help
 	  TBD
 
 config PHY_ADDR_MIRROR
 	hex "ADDR_MIRROR"
 	default 0 if PLATFORM_MCOM03
-	default 0xa if PLATFORM_SOLARIS
 	help
 	  TBD
 

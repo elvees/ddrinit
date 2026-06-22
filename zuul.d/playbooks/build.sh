@@ -15,10 +15,7 @@ function error {
 
 pipenv install --skip-lock
 
-if grep -q CONFIG_PLATFORM_SOLARIS $config_path; then
-    export CROSS_COMPILE=mips-img-elf-
-    export PATH=/usr/corp/Projects/ipcam-vip1/toolchain/mips/codescape/img/bare/2018.09-03/bin:$PATH
-elif ! grep -q CONFIG_PLATFORM $config_path; then
+if ! grep -q CONFIG_PLATFORM $config_path; then
     export CROSS_COMPILE=mipsel-elvees-elf-
     export PATH=/usr/corpneo/toolchains/mcom03-buildroot/latest/linux510/opt/toolchain-mipsel-elvees-elf32/bin:$PATH
 fi
