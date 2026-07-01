@@ -272,6 +272,14 @@ static int pll_settings_get(int pll_id, int tck, struct pll_settings *pll_cfg)
 	if (i == ARRAY_SIZE(pll_settings[pll_id]))
 		return -ECLOCKCFG;
 
+#ifdef CONFIG_PLL_CFG_OVERRIDE
+	if (pll_id == 1) {
+		pll_cfg->nr = ddr_pll1_nr;
+		pll_cfg->od = ddr_pll1_od;
+		pll_cfg->nf = ddr_pll1_nf;
+	}
+#endif
+
 	print_dbg("pll_settings_get: pll_id %d, tck %d, nr: %d, nf: %d, od: %d,\n", pll_id, tck,
 		  pll_cfg->nr, pll_cfg->nf, pll_cfg->od);
 
@@ -283,23 +291,14 @@ static int pll_cfg(int pll_id, int tck)
 	struct pll_settings pll_cfg;
 	uint32_t val;
 	int ret;
-	int nf, nr, od;
 
 	ret = pll_settings_get(pll_id, tck, &pll_cfg);
 	if (ret)
 		return ret;
 
-#ifdef CONFIG_PLL_CFG_OVERRIDE
-	nf = (pll_id == 1) ? ddr_pll1_nf : pll_cfg.nf;
-	nr = (pll_id == 1) ? ddr_pll1_nr : pll_cfg.nr;
-	od = (pll_id == 1) ? ddr_pll1_od : pll_cfg.od;
-#else
-	nf = pll_cfg.nf;
-	nr = pll_cfg.nr;
-	od = pll_cfg.od;
-#endif
-	val = FIELD_PREP(PLL_CFG_SEL, 1) | FIELD_PREP(PLL_CFG_MAN, 1) | FIELD_PREP(PLL_CFG_OD, od) |
-	      FIELD_PREP(PLL_CFG_NF, nf) | FIELD_PREP(PLL_CFG_NR, nr);
+	val = FIELD_PREP(PLL_CFG_SEL, 1) | FIELD_PREP(PLL_CFG_MAN, 1) |
+	      FIELD_PREP(PLL_CFG_OD, pll_cfg.od) | FIELD_PREP(PLL_CFG_NF, pll_cfg.nf) |
+	      FIELD_PREP(PLL_CFG_NR, pll_cfg.nr);
 	write32(DDR_PLL_CFG(pll_id), val);
 
 	ret = read32_poll_timeout(val, val & PLL_CFG_LOCK, USEC, MSEC, DDR_PLL_CFG(pll_id));
